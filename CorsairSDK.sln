@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CorsairSDK", "CorsairSDK\CorsairSDK.csproj", "{C55FFB7C-A4A2-4DAA-AB3B-7A05667C90D2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{2E0912A3-1FB2-44F9-80EF-33B2A9ACDCEB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{C55FFB7C-A4A2-4DAA-AB3B-7A05667C90D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C55FFB7C-A4A2-4DAA-AB3B-7A05667C90D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C55FFB7C-A4A2-4DAA-AB3B-7A05667C90D2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E0912A3-1FB2-44F9-80EF-33B2A9ACDCEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E0912A3-1FB2-44F9-80EF-33B2A9ACDCEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E0912A3-1FB2-44F9-80EF-33B2A9ACDCEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E0912A3-1FB2-44F9-80EF-33B2A9ACDCEB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
