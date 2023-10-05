@@ -40,6 +40,12 @@ public static class CorsairDeviceEx
         return value;
     }
 
+    public static bool HasSupportedProperty(this CorsairDeviceInfo info, CorsairDevicePropertyId propertyId)
+    {
+        var supportedProperties = GetSupportedProperties(info);
+
+        return supportedProperties.Any(x => x == propertyId);
+    }
     public static IEnumerable<CorsairDevicePropertyId> GetSupportedProperties(this CorsairDeviceInfo info)
     {
         var (success, value) = info.TryGetSupportedProperties();
