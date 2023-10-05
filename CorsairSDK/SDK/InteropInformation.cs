@@ -2,6 +2,7 @@
 namespace Dawn.Libs.Corsair.SDK;
 
 using System.Text;
+using Extensions;
 using LowLevel;
 
 internal static class InteropInformation

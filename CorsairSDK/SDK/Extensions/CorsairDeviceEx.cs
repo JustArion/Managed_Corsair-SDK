@@ -1,15 +1,14 @@
-﻿namespace Dawn.Libs.Corsair.SDK;
+﻿namespace Dawn.Libs.Corsair.SDK.Extensions;
 
 using LowLevel;
 
 public static class CorsairDeviceEx
 {
-    private const string ERROR_PROPERTYINFORMATION = "Failed to get property information";
     public static bool IsMicEnabled(this CorsairDeviceInfo info)
     {
         var (success, value) = info.TryGetIsMicEnabled();
         if (!success)
-            throw new Exception(ERROR_PROPERTYINFORMATION);
+            throw new Exception(CorsairExtensions.ERROR_PROPERTYINFORMATION);
 
         return value;
     }
@@ -18,7 +17,7 @@ public static class CorsairDeviceEx
     {
         var (success, value) = info.TryGetIsSidetoneEnabled();
         if (!success)
-            throw new Exception(ERROR_PROPERTYINFORMATION);
+            throw new Exception(CorsairExtensions.ERROR_PROPERTYINFORMATION);
 
         return value;
     }
@@ -27,7 +26,7 @@ public static class CorsairDeviceEx
     {
         var (success, value) = info.TryGetIsEqualizerPresent();
         if (!success)
-            throw new Exception(ERROR_PROPERTYINFORMATION);
+            throw new Exception(CorsairExtensions.ERROR_PROPERTYINFORMATION);
 
         return value;
     }
@@ -36,7 +35,7 @@ public static class CorsairDeviceEx
     {
         var (success, value) = info.TryGetBatteryLevel();
         if (!success)
-            throw new Exception(ERROR_PROPERTYINFORMATION);
+            throw new Exception(CorsairExtensions.ERROR_PROPERTYINFORMATION);
 
         return value;
     }
@@ -45,7 +44,7 @@ public static class CorsairDeviceEx
     {
         var (success, value) = info.TryGetSupportedProperties();
         if (!success)
-            throw new Exception(ERROR_PROPERTYINFORMATION);
+            throw new Exception(CorsairExtensions.ERROR_PROPERTYINFORMATION);
 
         return value;
     }
@@ -54,7 +53,7 @@ public static class CorsairDeviceEx
     {
         var (success, value) = info.TryGetPropertyInfo(propertyId);
         if (!success)
-            throw new Exception(ERROR_PROPERTYINFORMATION);
+            throw new Exception(CorsairExtensions.ERROR_PROPERTYINFORMATION);
 
         return value;
     }
