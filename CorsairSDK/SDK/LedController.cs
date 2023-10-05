@@ -4,13 +4,16 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using LowLevel;
 
-public class CorsairLed
+public class LedController
 {
-    internal CorsairLed(ref CorsairDeviceInfo device) => Device = device;
+    internal LedController(ref CorsairDeviceInfo device) => Device = device;
 
     private readonly CorsairDeviceInfo Device;
 
     private IDisposable? _deviceControl;
+    
+    public int LedCount => Device.ledCount;
+    
 
     public unsafe IDisposable RequestControl(CorsairAccessLevel accessLevel)
     {
@@ -29,7 +32,81 @@ public class CorsairLed
     }
 
     public void ReleaseControl() => _deviceControl?.Dispose();
+
+
+    public bool TrySetLedColor(uint id, (byte R, byte G, byte B, byte A) colors) => TrySetLedColor(new CorsairLedColor { id = id, r = colors.R, g = colors.G, b = colors.B, a = colors.A });
+    public bool TrySetLedColor(CorsairLedPosition position, (byte R, byte G, byte B, byte A) colors) => TrySetLedColor(new CorsairLedColor { id = position.id, r = colors.R, g = colors.G, b = colors.B, a = colors.A });
+    public bool TrySetLedColor(LedInformation information)
+    {
+        var color = information.Color;
+        if (color.id == default)
+            color = color with { id = information.Position.id };
+
+        return TrySetLedColor(color);
+    }
+    public bool TrySetLedColor(uint id, CorsairLedColor color)
+    {
+        if (color.id == default)
+            color = color with { id = id };
+
+        return TrySetLedColor(color);
+    }
+    public bool TrySetLedColor(CorsairLedPosition position, CorsairLedColor color)
+    {
+        if (color.id == default)
+            color = color with { id = position.id };
+
+        return TrySetLedColor(color);
+    }
     
+    public unsafe bool TrySetLedColor(CorsairLedColor color)
+    {
+        if (color.id == default)
+            throw new InvalidOperationException("Method requires an LED Id");
+
+        CorsairError error;
+        fixed (sbyte* deviceId = Device.id)
+            error = Methods.CorsairSetLedColors(deviceId, 1, &color);
+
+        return error == CorsairError.CE_Success;
+    }
+    
+    public (bool Success, LedInformation[] LedInformation) TryGetLedInformation()
+    {
+        var (positionsSuccess, positions) = TryGetLedPositions();
+
+        if (!positionsSuccess)
+            return (false, Array.Empty<LedInformation>());
+
+        var (colorsSuccess, colors) = TryGetLedColors(positions);
+
+        if (!colorsSuccess)
+            return (false, Array.Empty<LedInformation>());
+
+
+        var ledInformation = new LedInformation[positions.Length];
+        for (var i = 0; i < positions.Length; i++) 
+            ledInformation[i] = new LedInformation(positions[i], colors[i]);
+
+        return (true, ledInformation);
+    }
+
+    public unsafe (bool Success, CorsairLedColor[] LedColors) TryGetLedColors(params CorsairLedPosition[] ledPositions)
+    {
+        var ledColors = new CorsairLedColor[ledPositions.Length];
+        
+        for (var i = 0; i < ledPositions.Length; i++) 
+            ledColors[i] = new() { id = ledPositions[i].id };
+
+        CorsairError error;
+        fixed (CorsairLedColor* device = &ledColors[0])
+        fixed (sbyte* deviceId = Device.id)
+            error = Methods.CorsairGetLedColors(deviceId, ledColors.Length, device);
+
+        return error != CorsairError.CE_Success 
+            ? (false, Array.Empty<CorsairLedColor>()) 
+            : (true, ledColors);
+    }
     
     public unsafe (bool Success, CorsairLedPosition[] LedPositions) TryGetLedPositions()
     {
@@ -133,9 +210,4 @@ public class CorsairLed
             _CleanupAction();
         }
     }
-}
-
-public static class CorsairLedEx
-{
-    public static CorsairLed LedControl(this CorsairDeviceInfo info) => new(ref info);
 }

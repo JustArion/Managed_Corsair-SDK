@@ -39,21 +39,9 @@ public static class CorsairDevice
             return (false, default);
         }
 
+        
 
         return (true, property.AsT1);
-
-        // var property = default(CorsairProperty);
-        // var error = Methods.CorsairReadDeviceProperty(info.id, CorsairDevicePropertyId.CDPI_BatteryLevel, 0, &property);
-        //
-        // if (error != CorsairError.CE_Success)
-        // {
-        //     Debug.WriteLine($"{nameof(TryGetBatteryLevel)} failed with error: '{error}'");
-        //     return (false, default);
-        // }
-        //
-        // var value = property.value.int32;
-        // Methods.CorsairFreeProperty(&property);
-        // return (true, value);
     }
     
     public static (bool Success, bool Enabled) TryGetIsMicEnabled(this CorsairDeviceInfo info)

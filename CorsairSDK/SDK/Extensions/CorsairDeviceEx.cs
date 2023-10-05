@@ -61,5 +61,6 @@ public static class CorsairDeviceEx
     public static unsafe string GetID(this CorsairDeviceInfo info) => ((nint)info.id).ToAnsiString();
     public static unsafe string GetModel(this CorsairDeviceInfo info) => ((nint)info.model).ToAnsiString();
     public static unsafe string GetSerial(this CorsairDeviceInfo info) => ((nint)info.serial).ToAnsiString();
+    public static LedController GetLedController(this CorsairDeviceInfo info) => new(ref info);
 
 }
