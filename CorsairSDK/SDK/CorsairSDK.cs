@@ -26,7 +26,7 @@ public static unsafe class CorsairSDK
     {
         EnsureConnected();
         var details = default(CorsairSessionDetails);
-        Methods.CorsairGetSessionDetails(&details).Throw();
+        Methods.CorsairGetSessionDetails(&details).ThrowIfNecessary();
         
         return details;
     }
@@ -90,7 +90,7 @@ public static unsafe class CorsairSDK
         var devices = new CorsairDeviceInfo[Methods.CORSAIR_DEVICE_COUNT_MAX];
         var size = default(int);
         fixed (CorsairDeviceInfo* device = &devices[0])
-            Methods.CorsairGetDevices(&filter, (int)Methods.CORSAIR_DEVICE_COUNT_MAX, device, &size).Throw();
+            Methods.CorsairGetDevices(&filter, (int)Methods.CORSAIR_DEVICE_COUNT_MAX, device, &size).ThrowIfNecessary();
 
         Array.Resize(ref devices, size);
 

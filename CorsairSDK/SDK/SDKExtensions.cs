@@ -5,7 +5,7 @@ using LowLevel;
 
 internal static class SDKExtensions
 {
-    internal static void Throw(this CorsairError error)
+    internal static void ThrowIfNecessary(this CorsairError error)
     {
         if (error == CorsairError.CE_Success)
             return;

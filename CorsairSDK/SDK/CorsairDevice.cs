@@ -1,5 +1,6 @@
 ﻿namespace Dawn.Libs.Corsair.SDK;
 
+using System.Runtime.InteropServices;
 using LowLevel;
 using OneOf;
 
@@ -12,7 +13,6 @@ public static class CorsairDevice
         OneOf<bool, int, double, string, bool[], int[], double[], string[]> property;
         try
         {
-            
             property = ReadDeviceProperty(info, CorsairDevicePropertyId.CDPI_PropertyArray);
         }
         catch (Exception)
@@ -157,7 +157,7 @@ public static class CorsairDevice
 
         var property = default(CorsairProperty);
 
-        Methods.CorsairReadDeviceProperty(device.id, propertyId, 0, &property).Throw();
+        Methods.CorsairReadDeviceProperty(device.id, propertyId, 0, &property).ThrowIfNecessary();
 
         try
         {
@@ -176,10 +176,17 @@ public static class CorsairDevice
                     return InteropHelper.ToManagedArray(boolArray.items, boolArray.count);
                 case CorsairDataType.CT_Int32_Array:
                     var intArray = property.value.int32_array;
-                    return InteropHelper.ToManagedArray(intArray.items, intArray.count);
+                    
+                    var ia = new int[intArray.count];
+                    Marshal.Copy((nint)intArray.items, ia, 0, (int)intArray.count);
+                    return ia;
                 case CorsairDataType.CT_Float64_Array:
-                    var floatArray = property.value.float64_array;
-                    return InteropHelper.ToManagedArray(floatArray.items, floatArray.count);
+                    var float64Array = property.value.float64_array;
+
+                    var fa = new double[float64Array.count];
+                    Marshal.Copy((nint)float64Array.items, fa, 0, (int)float64Array.count);
+
+                    return fa;
                 case CorsairDataType.CT_String_Array:
                     var stringArray = property.value.string_array;
                     return InteropHelper.ToManagedArray(stringArray.items, stringArray.count);
