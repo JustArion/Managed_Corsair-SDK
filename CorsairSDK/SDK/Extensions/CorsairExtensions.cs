@@ -1,4 +1,4 @@
-﻿namespace Dawn.Libs.Corsair.SDK.Extensions;
+﻿namespace Dawn.CorsairSDK.Extensions;
 
 internal static class CorsairExtensions
 {

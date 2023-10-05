@@ -1,7 +1,7 @@
 // ReSharper disable All
 using System.Runtime.InteropServices;
 
-namespace Dawn.Libs.Corsair.SDK.LowLevel
+namespace Dawn.CorsairSDK.LowLevel
 {
     using System.Diagnostics.CodeAnalysis;
 

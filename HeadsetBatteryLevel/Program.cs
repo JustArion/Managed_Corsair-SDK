@@ -5,15 +5,15 @@
         You have a Wireless Corsair Headset
 */
 
-using Dawn.Libs.Corsair.SDK;
-using Dawn.Libs.Corsair.SDK.Extensions;
-using Dawn.Libs.Corsair.SDK.LowLevel;
+using Dawn.CorsairSDK;
+using Dawn.CorsairSDK.Extensions;
+using Dawn.CorsairSDK.LowLevel;
 
 var device = CorsairSDK.GetDevices(CorsairDeviceType.CDT_Headset).FirstOrDefault(x => x.HasSupportedProperty(CorsairDevicePropertyId.CDPI_BatteryLevel));
 
 if (device.type == CorsairDeviceType.CDT_Unknown)
 {
-    Console.WriteLine("[!] Could not find any Corsair headsets connected.");
+    Console.WriteLine("[!] Could not find any Corsair headsets connected, your headset might be off.");
     Environment.Exit(1);
 }
 

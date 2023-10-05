@@ -1,13 +1,13 @@
 ﻿#if DEBUG
-namespace Dawn.Libs.Corsair.SDK;
+namespace Dawn.CorsairSDK;
 
 using System.Text;
 using Extensions;
 using LowLevel;
 
-internal static class InteropInformation
+public static class InteropInformation
 {
-    internal static void DumpDeviceInformation()
+    public static void DumpDeviceInformation()
     {
         foreach (var deviceInfo in CorsairSDK.GetDevices())
         {

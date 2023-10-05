@@ -1,4 +1,4 @@
-﻿namespace Dawn.Libs.Corsair.SDK;
+﻿namespace Dawn.CorsairSDK;
 
 using System.Diagnostics;
 using System.Runtime.CompilerServices;

@@ -1,4 +1,4 @@
-﻿namespace Dawn.Libs.Corsair.SDK.LowLevel;
+﻿namespace Dawn.CorsairSDK.LowLevel;
 
 public static class ArchitectureConstants
 {

@@ -5,9 +5,9 @@
         You have a Corsair Keyboard
 */
 
-using Dawn.Libs.Corsair.SDK;
-using Dawn.Libs.Corsair.SDK.Extensions;
-using Dawn.Libs.Corsair.SDK.LowLevel;
+using Dawn.CorsairSDK;
+using Dawn.CorsairSDK.Extensions;
+using Dawn.CorsairSDK.LowLevel;
 
 var device = CorsairSDK.GetDevices(CorsairDeviceType.CDT_Keyboard).FirstOrDefault();
 
