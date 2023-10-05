@@ -13,7 +13,7 @@
 
     <ItemGroup> <!-- Internals -->
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
-            <_Parameter1>CUEBattery</_Parameter1>
+            <_Parameter1>Tests</_Parameter1>
         </AssemblyAttribute>
     </ItemGroup>
     
@@ -26,17 +26,12 @@
     <PropertyGroup Condition="$(NETCoreSdkRuntimeIdentifier.Contains('x64')) and '$(PlatformTarget)' != 'x86'">
         <DefineConstants>X64</DefineConstants>
     </PropertyGroup>
-
-    <ItemGroup Label="Native Library Dependency" Condition="$(NETCoreSdkRuntimeIdentifier.Contains('x64')) and '$(PlatformTarget)' != 'x86'">
-
-        <AdditionalFiles Include="Native\Libs\iCUESDK.x64_2019.dll">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </AdditionalFiles>
-    </ItemGroup>
-    <ItemGroup Label="Native Library Dependency" Condition="$(NETCoreSdkRuntimeIdentifier.Contains('x64')) and '$(PlatformTarget)' != 'x86'">
-
-        <AdditionalFiles Include="Native\Libs\iCUESDK_2019.dll">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </AdditionalFiles>
+    <ItemGroup>
+      <AdditionalFiles Include="Binaries\iCUESDK.x64_2019.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </AdditionalFiles>
+      <AdditionalFiles Include="Binaries\iCUESDK_2019.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </AdditionalFiles>
     </ItemGroup>
 </Project>
