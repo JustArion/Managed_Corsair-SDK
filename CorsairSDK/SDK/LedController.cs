@@ -62,7 +62,7 @@ public class LedController
     public unsafe bool TrySetLedColor(CorsairLedColor color)
     {
         if (color.id == default)
-            throw new InvalidOperationException("Method requires an LED Id");
+            return false;
 
         CorsairError error;
         fixed (sbyte* deviceId = Device.id)
