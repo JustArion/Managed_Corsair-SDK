@@ -167,6 +167,7 @@ public static class CorsairDevice
                     
                     var ia = new int[intArray.count];
                     Marshal.Copy((nint)intArray.items, ia, 0, (int)intArray.count);
+                    
                     return ia;
                 case CorsairDataType.CT_Float64_Array:
                     var float64Array = property.value.float64_array;

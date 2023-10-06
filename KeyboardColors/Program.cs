@@ -37,9 +37,10 @@ using (ledController.RequestControl(CorsairAccessLevel.CAL_ExclusiveLightingCont
 {
     foreach (var (position, color) in ledInformation.OrderBy(x => x.Position.id))
     {
-        ledController.TrySetLedColor(position, (0, 0, 0, 0));
+        ledController.SetLedColor(position, color);
         await Task.Delay(25);
-        ledController.TrySetLedColor(position, color);
+        ledController.SetLedColor(position, (0, 0, 0, 255));
+
     }
 
     await Task.Delay(2000);
