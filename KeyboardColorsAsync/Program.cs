@@ -28,7 +28,7 @@ if (!success)
 
 using (ledController.RequestControl(CorsairAccessLevel.CAL_ExclusiveLightingControl))
 {
-    var info = ledInformation.OrderBy(x => x.Position.id).ToArray();
+    var info = ledInformation.OrderBy(x => x.Position.cy).ToArray();
     for (var i = 0; i < info.Length; i++)
     {
         var position = info[i].Position;
@@ -41,7 +41,7 @@ using (ledController.RequestControl(CorsairAccessLevel.CAL_ExclusiveLightingCont
             color with { id = position.id }, 
             inverseColor with { id = inversePosition.id });
         
-        await Task.Delay(25);
+        await Task.Delay(50);
         
         await ledController.SetLedColorsAsync(
             (position.id, LedController.LedOffColor),

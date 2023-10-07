@@ -35,10 +35,10 @@ if (!success)
 
 using (ledController.RequestControl(CorsairAccessLevel.CAL_ExclusiveLightingControl))
 {
-    foreach (var (position, color) in ledInformation.OrderBy(x => x.Position.id))
+    foreach (var (position, color) in ledInformation.OrderBy(x => x.Position.cy))
     {
         ledController.SetLedColor(position, color);
-        await Task.Delay(25);
+        await Task.Delay(50);
         ledController.SetLedColor(position, (0, 0, 0, 255));
 
     }
