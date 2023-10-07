@@ -7,4 +7,5 @@ The SDK is reliant upon the `iCUE.exe` process, the SDK is reliant upon `iCUESDK
 ### Samples
 - [HeadsetBatteryLevel](https://github.com/JustArion/Managed_iCUE-CorsairSDK/blob/master/HeadsetBatteryLevel/Program.cs) - A program that will print out your Wireless Headset's battery %.
 - [KeyboardColors](https://github.com/JustArion/Managed_iCUE-CorsairSDK/blob/master/KeyboardColors/Program.cs) - A demonstration of Keyboard Led Control.
+- [KeyboardColors](https://github.com/JustArion/Managed_iCUE-CorsairSDK/blob/master/KeyboardColorsAsync/Program.cs) - A demonstration of Async Keyboard Led Control.
 - [ShowDeviceInformation](https://github.com/JustArion/Managed_iCUE-CorsairSDK/blob/master/ShowDeviceInformation/Program.cs) - A collection of information from all available devices.
