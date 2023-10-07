@@ -2,6 +2,7 @@
 
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Extensions;
 using LowLevel;
 
 public struct LedController
@@ -27,14 +28,18 @@ public struct LedController
         fixed (sbyte* id = _deviceInfo.id)
             Methods.CorsairRequestControl(id, accessLevel).ThrowIfNecessary();
 
-        
-        // Weird hack around the compiler not wanting me to get a reference to this instance.
-        var hInstance = Unsafe.AsPointer(ref this);
+        var idAsString = _deviceInfo.GetID();
         _deviceControl = LedDisposable.Create(() =>
         {
-            var instance = Unsafe.AsRef<LedController>(hInstance);
-            var id = instance._deviceInfo.id;
-            Methods.CorsairReleaseControl(id).ThrowIfNecessary();
+            var hId = Marshal.StringToHGlobalAnsi(idAsString);
+            try
+            {
+                Methods.CorsairReleaseControl((sbyte*)hId).ThrowIfNecessary();
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(hId);
+            }
         });
         
         return _deviceControl;
@@ -80,7 +85,46 @@ public struct LedController
         return error == CorsairError.CE_Success;
     }
 
-    
+    public async Task Gradient(CorsairLedColor[] from, CorsairLedColor[] to, TimeSpan animationDuration)
+    {
+        if (from.Length != to.Length)
+            throw new InvalidOperationException("The animation targets should have the same length");
+
+        if (from.Any(x => x.id == default) || to.Any(x => x.id == default))
+            throw new InvalidOperationException("All Leds should have an Id associated with it");
+
+        var startTime = DateTimeOffset.Now;
+        
+        while ((DateTimeOffset.Now - startTime) < animationDuration)
+        {
+            var progress = (DateTimeOffset.Now - startTime).TotalMilliseconds / animationDuration.TotalMilliseconds;
+            for (var i = 0; i < from.Length; i++)
+            {
+                var lerpedColor = InterpolateColor(from[i], to[i], progress);
+
+                await TrySetLedColorsAsync(lerpedColor);
+            }
+        }
+        
+        for (var i = 0; i < from.Length; i++) 
+            await TrySetLedColorsAsync(to);
+    }
+    private static CorsairLedColor InterpolateColor(CorsairLedColor from, CorsairLedColor to, double progress)
+    {
+        var lerpedR = (byte)(from.r + (to.r - from.r) * progress);
+        var lerpedG = (byte)(from.g + (to.g - from.g) * progress);
+        var lerpedB = (byte)(from.b + (to.b - from.b) * progress);
+        var lerpedA = (byte)(from.a + (to.a - from.a) * progress);
+
+        return new CorsairLedColor
+        {
+            id = from.id,
+            r = lerpedR,
+            g = lerpedG,
+            b = lerpedB,
+            a = lerpedA
+        };
+    }
     
     public async Task<bool> TrySetLedColorsAsync((uint id, (byte R, byte G, byte B, byte A) RGBA)[] colors)
     {
@@ -249,6 +293,11 @@ public struct LedController
 
 
     public static readonly (byte R, byte G, byte B, byte A) LedOffColor = (0, 0, 0, 255);
+
+    public static CorsairLedColor ToOffLedColor(uint id) => new()
+        { id = id, r = LedOffColor.R, g = LedOffColor.G, b = LedOffColor.B, a = LedOffColor.A };
+
+    public static CorsairLedColor[] ToOffLedColors(IEnumerable<CorsairLedColor> colors) => colors.Select(x => ToOffLedColor(x.id)).ToArray();
 
 
     public static ValueTask<CorsairError> FlushAsync() => SetLedsColorsFlushBufferAsync();
