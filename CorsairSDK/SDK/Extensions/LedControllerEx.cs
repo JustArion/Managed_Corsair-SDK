@@ -71,4 +71,53 @@ public static class LedControllerEx
         if (!success)
             throw new Exception("Failed to set Led Color");
     }
+    
+    
+    public static async Task SetLedColorsAsync(this LedController ledController, params (uint id, (byte R, byte G, byte B, byte A) RGBA)[] colors)
+    {
+        if (colors.Any(x => x.id == default))
+            throw new InvalidOperationException("Method requires an LED Id");
+        
+        var success = await ledController.TrySetLedColorsAsync(colors);
+
+        if (!success)
+            throw new Exception("Failed to set Led Colors");
+    }
+
+    public static async Task SetLedColorsAsync(this LedController ledController, CorsairLedPosition[] position, (byte R, byte G, byte B, byte A)[] colors)
+    {       
+        var success = await ledController.TrySetLedColorsAsync(position, colors);
+
+        if (!success)
+            throw new Exception("Failed to set Led Colors");
+    }
+
+    public static async Task SetLedColorsAsync(this LedController ledController, params LedInformation[] information)
+    {
+        var success = await ledController.TrySetLedColorsAsync(information);
+
+        if (!success)
+            throw new Exception("Failed to set Led Colors");
+    }
+    public static async Task SetLedColorsAsync(this LedController ledController, params (uint Id, CorsairLedColor Color)[] Colors)
+    {
+        var success = await ledController.TrySetLedColorsAsync(Colors);
+
+        if (!success)
+            throw new Exception("Failed to set Led Colors");
+    }
+    public static async Task SetLedColorsAsync(this LedController ledController, CorsairLedPosition[] positions, CorsairLedColor[] colors)
+    {
+        var success = await ledController.TrySetLedColorsAsync(positions, colors);
+
+        if (!success)
+            throw new Exception("Failed to set Led Colors");
+    }
+    public static async Task SetLedColorsAsync(this LedController ledController, params CorsairLedColor[] colors)
+    {
+        var success = await ledController.TrySetLedColorsAsync(colors);
+
+        if (!success)
+            throw new Exception("Failed to set Led Colors");
+    }
 }

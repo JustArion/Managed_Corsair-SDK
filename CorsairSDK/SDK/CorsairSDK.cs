@@ -32,6 +32,8 @@ public static unsafe class CorsairSDK
     }
     
     private static volatile bool _isConnected;
+    private static volatile bool _isConnecting;
+    private static readonly SemaphoreSlim _connectionChangeAccess = new(1, 1);
     private static CancellationTokenSource? _cts;
     
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
@@ -49,29 +51,41 @@ public static unsafe class CorsairSDK
 
     internal static void EnsureConnected()
     {
-        if (_isConnected)
+        if (_isConnected || _isConnecting)
             return;
-
-        _cts = new CancellationTokenSource();
-        _cts.CancelAfter(TimeSpan.FromSeconds(3));
-
-        Methods.CorsairConnect(&Callback, null);
-
-        AppDomain.CurrentDomain.ProcessExit += (_, _) =>
-        {
-            if (_isConnected)
-                Methods.CorsairDisconnect();
-        };
-
         try
         {
-            Task.Delay(-1, _cts.Token).Wait(_cts.Token);
+            _connectionChangeAccess.Wait();
+            _isConnecting = true;
+            
+            _cts = new CancellationTokenSource();
+            _cts.CancelAfter(TimeSpan.FromSeconds(3));
+
+            Methods.CorsairConnect(&Callback, null);
+
+            AppDomain.CurrentDomain.ProcessExit += (_, _) =>
+            {
+                if (_isConnected)
+                    Methods.CorsairDisconnect();
+            };
+
+            try
+            {
+                Task.Delay(-1, _cts.Token).Wait(_cts.Token);
+            }
+            catch (OperationCanceledException) {}
+
+
+            if (_cts.IsCancellationRequested && !_isConnected)
+                throw new TimeoutException("Could not access Corsair information");
         }
-        catch (OperationCanceledException) {}
+        finally
+        {
+            _isConnecting = false;
+            _connectionChangeAccess.Release();
+        }
 
 
-        if (_cts.IsCancellationRequested && !_isConnected)
-            throw new TimeoutException("Could not access Corsair information");
     }
 
     private static readonly List<Action<CorsairSessionStateChanged>> _CorsairActions = new();
