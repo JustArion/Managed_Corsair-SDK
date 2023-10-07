@@ -1,11 +1,4 @@
-﻿
-/*
-    Requirements:
-        'iCUE.exe' is running.
-        You have a Corsair Keyboard
-*/
-
-using Dawn.CorsairSDK;
+﻿using Dawn.CorsairSDK;
 using Dawn.CorsairSDK.Extensions;
 using Dawn.CorsairSDK.LowLevel;
 
@@ -35,13 +28,25 @@ if (!success)
 
 using (ledController.RequestControl(CorsairAccessLevel.CAL_ExclusiveLightingControl))
 {
-    foreach (var (position, color) in ledInformation.OrderBy(x => x.Position.id))
+    var info = ledInformation.OrderBy(x => x.Position.id).ToArray();
+    for (var i = 0; i < info.Length; i++)
     {
-        ledController.SetLedColor(position, color);
+        var position = info[i].Position;
+        var color = info[i].Color;
+        var inverseLength = info.Length -1 - i;
+        var inversePosition = info[inverseLength].Position;
+        var inverseColor = info[inverseLength].Color;
+        
+        await ledController.SetLedColorsAsync(
+            color with { id = position.id }, 
+            inverseColor with { id = inversePosition.id });
+        
         await Task.Delay(25);
-        ledController.SetLedColor(position, (0, 0, 0, 255));
-
+        
+        await ledController.SetLedColorsAsync(
+            (position.id, LedController.LedOffColor),
+            (inversePosition.id, LedController.LedOffColor));
     }
-
+    
     await Task.Delay(TimeSpan.FromSeconds(1));
 }
