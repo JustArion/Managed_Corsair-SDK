@@ -47,6 +47,9 @@ return;
 
 async Task<LedInformation[]> PlayRacingAnimation(IEnumerable<LedInformation> ledInformations, LedController ledController1)
 {
+    // 2 starting points, left and right.
+    // Start point Left: Goes left -> right from top to bottom.
+    // Start point right: Goet right -> left from bottom to top.
     var info1 = ledInformations.OrderBy(x => x.Position.cx).ToArray();
     for (var i = 0; i < info1.Length; i++)
     {
