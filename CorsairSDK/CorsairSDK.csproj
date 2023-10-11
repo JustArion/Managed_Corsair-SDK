@@ -9,6 +9,7 @@
 
         <DebugSymbols>true</DebugSymbols>
         <DebugType>embedded</DebugType>
+        <LangVersion>latest</LangVersion>
     </PropertyGroup>
 
     <ItemGroup> <!-- Internals -->
