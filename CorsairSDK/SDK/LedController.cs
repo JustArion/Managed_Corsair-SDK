@@ -178,6 +178,7 @@ public struct LedController
             else colors[i] = color;
         }
         
+        
 
         return await TrySetLedColorsAsync(colors);
     }
@@ -338,13 +339,11 @@ public struct LedController
 
     private static unsafe CorsairError Internal_FlushBufferAsync(Guid contextId)
     {
-        var hContext = Marshal.AllocHGlobal(GUID_MAX_SIZE);
-        Marshal.Copy(contextId.ToByteArray(), 0, hContext, GUID_MAX_SIZE);
+        var hContext = Marshal.AllocHGlobal(sizeof(Guid));
+        Marshal.StructureToPtr(contextId, hContext, true);
         
         return Methods.CorsairSetLedColorsFlushBufferAsync(&SetLedColorsAsyncCallback, (void*)hContext);
     }
-
-    private const int GUID_MAX_SIZE = 16;
 
     // We set the context as a Guid, the guid contains an Action<CorsairError>, this callback allows us to await until the callback completes.
     // Guid is the indicator for which instance is the caller.
@@ -357,21 +356,22 @@ public struct LedController
             return;
 
         var hContext = (nint)context;
-        var guidAsBytes = new byte[GUID_MAX_SIZE];
-        Marshal.Copy(hContext, guidAsBytes, 0, GUID_MAX_SIZE);
 
-        var guid = new Guid(guidAsBytes);
+        var guid = Marshal.PtrToStructure<Guid>(hContext);
         
-        Marshal.FreeHGlobal(hContext);
-
-        // var guid = Unsafe.AsRef<Guid>(context);
-
-        if (!_asyncCallbacks.TryGetValue(guid, out var callback))
-            Console.Error.WriteLine($"[!] {guid} has no matching callback.");
-        else
+        try
         {
-            callback(error);
-            _asyncCallbacks.Remove(guid);
+            if (!_asyncCallbacks.TryGetValue(guid, out var callback))
+                Console.Error.WriteLine($"[!] {guid} has no matching callback.");
+            else
+            {
+                callback(error);
+                _asyncCallbacks.Remove(guid);
+            }
+        }
+        finally
+        {
+            Marshal.FreeHGlobal(hContext);
         }
     }
     
