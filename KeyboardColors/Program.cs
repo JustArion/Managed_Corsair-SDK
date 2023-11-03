@@ -33,7 +33,7 @@ if (!success)
     Environment.Exit(3);
 }
 
-using (ledController.RequestControl(CorsairAccessLevel.CAL_ExclusiveLightingControl))
+using (ledController.RequestControl())
 {
     foreach (var (position, color) in ledInformation.OrderBy(x => x.Position.cy))
     {

@@ -26,7 +26,7 @@ if (!success)
     Environment.Exit(3);
 }
 
-using (ledController.RequestControl(CorsairAccessLevel.CAL_ExclusiveLightingControl))
+using (ledController.RequestControl())
 {
     var info = await PlayRacingAnimation(ledInformation, ledController);
 
