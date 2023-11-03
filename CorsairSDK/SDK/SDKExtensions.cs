@@ -13,7 +13,7 @@ internal static class SDKExtensions
         if (error == CorsairError.CE_Success)
             return;
 
-        throw new Exception($"{error.ToString()} in {memberName}:{lineNumber} at {filePath}");
+        throw new Exception($"{error.ToString()} in {memberName} at {filePath}:{lineNumber}");
     }
 
     internal static string ToAnsiString(this nint ptr) => Marshal.PtrToStringAnsi(ptr)!;
