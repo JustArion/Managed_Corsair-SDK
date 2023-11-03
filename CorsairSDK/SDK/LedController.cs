@@ -21,7 +21,7 @@ public struct LedController
     public readonly int LedCount;
     
 
-    public unsafe IDisposable RequestControl(CorsairAccessLevel accessLevel)
+    public unsafe IDisposable RequestControl(CorsairAccessLevel accessLevel = CorsairAccessLevel.CAL_ExclusiveLightingControl)
     {
         _deviceControl?.Dispose();
 
