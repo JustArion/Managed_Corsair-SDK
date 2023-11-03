@@ -1,5 +1,4 @@
-﻿#if DEBUG
-namespace Dawn.CorsairSDK;
+﻿namespace Dawn.CorsairSDK;
 
 using System.Text;
 using Extensions;
@@ -20,11 +19,9 @@ public static class InteropInformation
                 var propVal = deviceInfo.ReadDeviceProperty(supportedProperty);
 
                 var cleanedVal = propVal.Value;
-                if (cleanedVal is Array arr)
-                {
+                if (cleanedVal is Array arr) 
                     cleanedVal = $"[ {string.Join(", ", arr.Cast<object>())} ]";
-                }
-            
+
                 sb.AppendLine($"\t[{(int)supportedProperty}][{PresentPropertyFlags(deviceInfo, supportedProperty)}] {supportedProperty}: {cleanedVal}");
             }
 
@@ -36,19 +33,13 @@ public static class InteropInformation
     {
         var (_, flags) = info.GetPropertyInfo(supportedProperty);
 
-        switch (flags)
+        return flags switch
         {
-            case CorsairPropertyFlag.CPF_None:
-                return "N/A";
-            case CorsairPropertyFlag.CPF_CanRead:
-                return "ReadOnly";
-            case CorsairPropertyFlag.CPF_CanWrite:
-                return "WriteOnly";
-            case CorsairPropertyFlag.CPF_Indexed:
-                return "Read/Write";
-            default:
-                throw new ArgumentOutOfRangeException(nameof(info));
-        }
+            CorsairPropertyFlag.CPF_None => "N/A",
+            CorsairPropertyFlag.CPF_CanRead => "ReadOnly",
+            CorsairPropertyFlag.CPF_CanWrite => "WriteOnly",
+            CorsairPropertyFlag.CPF_Indexed => "Read/Write",
+            _ => throw new ArgumentOutOfRangeException(nameof(info))
+        };
     }
 }
-#endif

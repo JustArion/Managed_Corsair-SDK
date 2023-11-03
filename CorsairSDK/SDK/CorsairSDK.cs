@@ -57,7 +57,7 @@ public static unsafe class CorsairSDK
         {
             _connectionChangeAccess.Wait();
             _isConnecting = true;
-            
+
             _cts = new CancellationTokenSource();
             _cts.CancelAfter(TimeSpan.FromSeconds(3));
 
@@ -73,7 +73,9 @@ public static unsafe class CorsairSDK
             {
                 Task.Delay(-1, _cts.Token).Wait(_cts.Token);
             }
-            catch (OperationCanceledException) {}
+            catch (OperationCanceledException)
+            {
+            }
 
 
             if (_cts.IsCancellationRequested && !_isConnected)
@@ -84,8 +86,11 @@ public static unsafe class CorsairSDK
             _isConnecting = false;
             _connectionChangeAccess.Release();
         }
+    }
 
-
+    internal static Task<T> EnsureConnected<T>(Func<Task<T>> asyncOperation)
+    {
+        return asyncOperation();
     }
 
     private static readonly List<Action<CorsairSessionStateChanged>> _CorsairActions = new();

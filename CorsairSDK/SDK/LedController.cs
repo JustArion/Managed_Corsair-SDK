@@ -34,7 +34,11 @@ public struct LedController
             var hId = Marshal.StringToHGlobalAnsi(idAsString);
             try
             {
+                #if DEBUG
                 Methods.CorsairReleaseControl((sbyte*)hId).ThrowIfNecessary();
+                #else
+                Methods.CorsairReleaseControl((sbyte*)hId);
+                #endif
             }
             finally
             {
