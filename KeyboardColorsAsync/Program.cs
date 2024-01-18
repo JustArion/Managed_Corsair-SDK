@@ -64,6 +64,7 @@ async Task<LedInformation[]> PlayRacingAnimation(IEnumerable<LedInformation> led
             inverseColor with { id = inversePosition.id });
 
         await Task.Delay(50);
+    
 
         await ledController1.SetLedColorsAsync(
             (position.id, LedController.LedOffColor),

@@ -1,10 +1,7 @@
-﻿using System.Runtime.InteropServices;
-using System.Timers;
-using Dawn.CorsairSDK;
+﻿using Dawn.CorsairSDK;
 using Dawn.CorsairSDK.Extensions;
 using Dawn.CorsairSDK.LowLevel;
 using WelcomeBackExplosion;
-using static Vanara.PInvoke.User32;
 using Timer = System.Timers.Timer;
 
 /// Configuration
@@ -18,41 +15,50 @@ await HandleExplosion();
 #else
 bool? explosionReady = null;
 
+var smp = new SemaphoreSlim(1, 1); // Only 1 explosion at a time please.
 var timer = new Timer();
 timer.Interval = TimeSpan.FromSeconds(1).TotalMilliseconds;
 timer.Elapsed += async delegate
 {
-    if (explosionReady.HasValue && explosionReady.Value)
+    await smp.WaitAsync();
+    try
     {
-        Console.WriteLine();
-        Console.WriteLine("Explosion mark!");
-        explosionReady = null;
-        await HandleExplosion(); // Detonate the explosive.
-        Console.WriteLine("I am a--");
-        Environment.Exit(418);
-    }
-    else
-    {
-        var inactiveTime = Helpers.InactiveFor();
-
-        
-        if (explosionReady.HasValue)
+        if (explosionReady.HasValue && explosionReady.Value)
         {
-            Console.Write("\r" + new string(' ', $"\rYou are inactive for: {inactiveThreshold.Seconds} / {inactiveThreshold.Seconds}".Length)); // This clears that line.
-            Console.Write("\rExplosive Primed");
+            Console.WriteLine();
+            Console.WriteLine("Explosion mark!");
+            explosionReady = null;
+            await HandleExplosion(); // Detonate the explosive.
+            Console.WriteLine("I am a teacu--");
+            Environment.Exit(418);
         }
         else
         {
-            Console.Write($"\rYou are inactive for: {inactiveTime.Seconds} / {inactiveThreshold.Seconds}");
+            var inactiveTime = Helpers.InactiveFor();
+
+        
+            if (explosionReady.HasValue)
+            {
+                Console.Write("\r" + new string(' ', $"\rYou are inactive for: {inactiveThreshold.Seconds} / {inactiveThreshold.Seconds}".Length)); // This clears that line.
+                Console.Write("\rExplosive Primed");
+            }
+            else
+            {
+                Console.Write($"\rYou are inactive for: {inactiveTime.Seconds} / {inactiveThreshold.Seconds}");
+            }
+            Console.SetCursorPosition(0, Console.GetCursorPosition().Top);
+
+
+            if (inactiveTime >= inactiveThreshold) 
+                explosionReady = false; // Prime the explosive.
+
+            if (inactiveTime.Seconds == 0 && explosionReady.HasValue && !explosionReady.Value)
+                explosionReady = true; // Arm the explosive.
         }
-        Console.SetCursorPosition(0, Console.GetCursorPosition().Top);
-
-
-        if (inactiveTime >= inactiveThreshold) 
-            explosionReady = false; // Prime the explosive.
-
-        if (inactiveTime.Seconds == 0 && explosionReady.HasValue && !explosionReady.Value)
-            explosionReady = true; // Arm the explosive.
+    }
+    finally
+    {
+        smp.Release();
     }
 };
 timer.Start();
@@ -65,7 +71,7 @@ return;
 
 async Task HandleExplosion()
 {
-    const int DELAY_MS = 1;
+    const int DELAY_MS = 75;
     const int EXPLOSION_RADIUS = 150;
     
     var keyboard = CorsairSDK.GetDevices(CorsairDeviceType.CDT_Keyboard).First();
@@ -92,7 +98,7 @@ async Task HandleExplosion()
                 if (!(distance <= currentRadius)) 
                     continue;
 
-                var color = Colors.Red(coord.id);
+                var color = Colors.RandomColor(coord.id);
                 ledController.TrySetLedColor(color);
             }
 
