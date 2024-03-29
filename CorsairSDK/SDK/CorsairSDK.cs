@@ -1,6 +1,7 @@
 ﻿namespace Dawn.CorsairSDK;
 
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using LowLevel;
@@ -8,6 +9,7 @@ using LowLevel;
 public static unsafe class CorsairSDK
 {
 
+    public static SDKConfigurationPreferences Preferences { get; private set; } = new();
     public static void Connect() => EnsureConnected();
 
     public static void Disconnect()
@@ -37,6 +39,7 @@ public static unsafe class CorsairSDK
     private static CancellationTokenSource? _cts;
     
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+    [SuppressMessage("ReSharper", "UseCollectionExpression")]
     private static void Callback(void* context, CorsairSessionStateChanged* data)
     {
         if (data->state == CorsairSessionState.CSS_Connected)
@@ -47,16 +50,32 @@ public static unsafe class CorsairSDK
             
         Debug.WriteLine($"State Change: [{data->state}]");
         _CorsairActions.ForEach(x => x(*data));
+
+        if (data->state is CorsairSessionState.CSS_Connected or CorsairSessionState.CSS_Connecting)
+            return;
+        // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
+        OnDisconnect?.Invoke();
     }
+
+    public static event Action OnDisconnect;
+
 
     internal static void EnsureConnected()
     {
-        if (_isConnected || _isConnecting)
+        if (_isConnected)
             return;
+
+        if (_isConnecting)
+        {
+            _connectionChangeAccess.Wait();
+            _connectionChangeAccess.Release();
+            return;
+        }
         try
         {
             _connectionChangeAccess.Wait();
             _isConnecting = true;
+            StartICUEIfNecessary();
 
             _cts = new CancellationTokenSource();
             _cts.CancelAfter(TimeSpan.FromSeconds(3));
@@ -78,7 +97,10 @@ public static unsafe class CorsairSDK
             }
 
 
-            if (_cts.IsCancellationRequested && !_isConnected)
+            if (!_cts.IsCancellationRequested || _isConnected)
+                return;
+            
+            if (Preferences.ErrorOnConnectionFailure)
                 throw new TimeoutException("Could not access Corsair information");
         }
         finally
@@ -88,12 +110,35 @@ public static unsafe class CorsairSDK
         }
     }
 
+    private static void StartICUEIfNecessary()
+    {
+        if (Process.GetProcessesByName("iCUE").Length > 0)
+            return;
+
+        StartICUE();
+    }
+
+    // We can very likely use COM interop here to read shortcuts in the Start Menu that direct us to ICUE.
+    // We can firstly look in some common places for an exe like %ProgramFiles%/Corsair/Corsair iCUE5 Software/iCUE.exe
+    internal static void StartICUE()
+    {
+        if (File.Exists(CommonPaths.ProgramFiles_Corsair_ICUE))
+                Process.Start(CommonPaths.ProgramFiles_Corsair_ICUE);
+        else if (File.Exists(CommonPaths.ProgramFiles86_Corsair_CUE))
+            Process.Start(CommonPaths.ProgramFiles86_Corsair_CUE);
+        else
+        {
+            if (Preferences.ErrorOnConnectionFailure)
+                throw new FileNotFoundException("Could not find Corsair iCUE executable");
+        }
+    }   
+
     internal static Task<T> EnsureConnected<T>(Func<Task<T>> asyncOperation)
     {
         return asyncOperation();
     }
 
-    private static readonly List<Action<CorsairSessionStateChanged>> _CorsairActions = new();
+    private static readonly List<Action<CorsairSessionStateChanged>> _CorsairActions = [];
     public static event Action<CorsairSessionStateChanged> OnStateChange
     {
         add => _CorsairActions.Add(value);

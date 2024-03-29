@@ -11,7 +11,7 @@ public static class InteropInformation
         foreach (var deviceInfo in CorsairSDK.GetDevices())
         {
             var sb = new StringBuilder();
-            sb.AppendLine($"Corsair {deviceInfo.GetModel()}");
+            sb.AppendLine($"Corsair {deviceInfo.GetModel()} [{deviceInfo.type.ToString()}]");
 
             foreach (var supportedProperty in deviceInfo.GetSupportedProperties())
             {
