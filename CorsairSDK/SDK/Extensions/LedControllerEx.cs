@@ -47,7 +47,7 @@ public static class LedControllerEx
 
     public static void SetLedColor(this LedController ledController, uint id, CorsairLedColor color)
     {
-        if (color.id == default)
+        if (color.id != id)
             color = color with { id = id };
 
         SetLedColor(ledController, color);
