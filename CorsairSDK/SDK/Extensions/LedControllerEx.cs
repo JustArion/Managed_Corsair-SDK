@@ -120,4 +120,12 @@ public static class LedControllerEx
         if (!success)
             throw new Exception("Failed to set Led Colors");
     }
+    
+    public static async Task SetGlobalColorAsync(this LedController ledController, CorsairLedColor colors)
+    {
+        var success = await ledController.TrySetGlobalColorAsync(colors);
+
+        if (!success)
+            throw new Exception("Failed to set Led Colors");
+    }
 }

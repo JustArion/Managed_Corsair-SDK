@@ -234,6 +234,19 @@ public struct LedController
         return error == CorsairError.CE_Success;
     }
 
+    // TODO: Optimize
+    public async Task<bool> TrySetGlobalColorAsync(CorsairLedColor color)
+    {
+        var (success, ledInformation) = this.TryGetLedInformation();
+        if (!success)
+            return false;
+
+        var colors = ledInformation.Select(x => x.Position.id).Select(u => color with { id = u }).ToArray();
+
+        var set = await TrySetLedColorsAsync(colors);
+        return set;
+    }
+
     private unsafe void Internal_SetLedColorBuffer(CorsairLedColor[] colors)
     {
         fixed (CorsairLedColor* firstElement = &colors[0])
