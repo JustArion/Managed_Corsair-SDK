@@ -10,7 +10,7 @@ public static unsafe class CorsairSDK
 {
 
     public static SDKConfigurationPreferences Preferences { get; private set; } = new();
-    public static void Connect() => EnsureConnected();
+    public static bool Connect() => EnsureConnected();
 
     public static void Disconnect()
     {
@@ -60,16 +60,16 @@ public static unsafe class CorsairSDK
     public static event Action OnDisconnect;
 
 
-    internal static void EnsureConnected()
+    internal static bool EnsureConnected()
     {
         if (_isConnected)
-            return;
+            return true;
 
         if (_isConnecting)
         {
             _connectionChangeAccess.Wait();
             _connectionChangeAccess.Release();
-            return;
+            return _isConnected;
         }
         try
         {
@@ -98,10 +98,11 @@ public static unsafe class CorsairSDK
 
 
             if (!_cts.IsCancellationRequested || _isConnected)
-                return;
+                return true;
             
             if (Preferences.ErrorOnConnectionFailure)
                 throw new TimeoutException("Could not access Corsair information");
+            return false;
         }
         finally
         {
