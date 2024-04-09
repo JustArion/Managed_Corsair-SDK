@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0-windows</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>Dawn.CorsairSDK</RootNamespace>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <DebugType>embedded</DebugType>
+        <GenerateDependencyFile>false</GenerateDependencyFile>
+        <DebugSymbols>true</DebugSymbols>
+        <LangVersion>latest</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup> <!-- Internals -->
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>Testing</_Parameter1>
+        </AssemblyAttribute>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>CorsairSDK.Tests.Unit</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
+    
+    <ItemGroup> <!-- Packages -->
+        <PackageReference Include="OneOf" Version="3.0.263" />
+        <PackageReference Include="ParallelExtensionsCore" Version="2.1.0" />
+        <PackageReference Include="System.Reactive" Version="6.0.0" />
+    </ItemGroup>
+
+    <!-- Native Dependencies -->
+    <PropertyGroup Condition="$(NETCoreSdkRuntimeIdentifier.Contains('x64')) and '$(PlatformTarget)' != 'x86'">
+        <DefineConstants>X64</DefineConstants>
+    </PropertyGroup>
+    <ItemGroup>
+      <AdditionalFiles Include="Binaries\iCUESDK.x64_2019.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </AdditionalFiles>
+      <AdditionalFiles Include="Binaries\iCUESDK_2019.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </AdditionalFiles>
+    </ItemGroup>
+</Project>

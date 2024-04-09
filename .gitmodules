@@ -1,0 +1,3 @@
+[submodule "ClangSharp/cue-sdk"]
+	path = ClangSharp/cue-sdk
+	url = https://github.com/CorsairOfficial/cue-sdk/
