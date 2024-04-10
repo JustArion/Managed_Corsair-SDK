@@ -5,7 +5,7 @@ using Rewrite;
 
 public interface IColorController : IDisposable
 {
-    KeyboardKey[] KeyboardKeys { get; }
+    IReadOnlySet<KeyboardKey> KeyboardKeys { get; }
 
     IDisposable SetFromBitmap(byte[] bitmap);
 

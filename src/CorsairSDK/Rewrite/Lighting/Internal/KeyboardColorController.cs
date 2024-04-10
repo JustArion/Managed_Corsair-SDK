@@ -33,12 +33,14 @@ internal class KeyboardColorController(IDeviceConnectionHandler connectionHandle
     }
 
     private void SyncKeyboardKeys()
-        => KeyboardKeys = (from keyboardKey in Enum.GetValues<KeyboardKeys>()
-            select keyboardKey into keyId
-            let position = _lighting.GetPosition((int)keyId)
-            where position != default
-            select new KeyboardKey(keyId, position) { Color = Color.Black })
-            .ToArray();
+        => _keyboardKeys = [
+            ..(from keyboardKey in Enum.GetValues<KeyboardKeys>()
+                select keyboardKey into keyId
+                let position = _lighting.GetPosition((int)keyId)
+                where position != default
+                select new KeyboardKey(keyId, position) { Color = Color.Black })
+            .ToArray()
+        ];
 
     internal void DirectlySetColor(int ledId, Color color)
     {
@@ -63,7 +65,8 @@ internal class KeyboardColorController(IDeviceConnectionHandler connectionHandle
             keyboardKey.Color = color;
     }
 
-    public KeyboardKey[] KeyboardKeys { get; private set; } = null!;
+    private HashSet<KeyboardKey> _keyboardKeys;
+    public IReadOnlySet<KeyboardKey> KeyboardKeys => _keyboardKeys;
 
     public IDisposable SetFromBitmap(byte[] bitmap)
     {
@@ -90,6 +93,16 @@ internal class KeyboardColorController(IDeviceConnectionHandler connectionHandle
     public IDisposable SetKeys(Color color, IEnumerable<KeyboardKeys> keys)
     {
         ThrowIfDisconnected();
+
+        // Skip all the keys that are in _keyboardKeys that have the same color
+
+        keys = keys.Where(x => {
+            var keyboardKey = _keyboardKeys.FirstOrDefault(y => y.Key == x);
+            if (keyboardKey == null)
+                return false;
+
+            return keyboardKey.Color != color;
+        });
 
         return Internal_SetKeys(color, keys);
     }
