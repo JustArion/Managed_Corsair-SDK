@@ -46,14 +46,13 @@ public record PulseInfo(Color Start, Color End, TimeSpan Interval, bool IsInfini
 /// On a graph, For the amplitude, 0 -> 1 on the Y-Axis is when the Start color will reach the End color. If the amplitude is higher than 1, say 2, 0 -> 1 would be the Start color -> End color 2 times around.
 /// If the amplitude is lower than the inverse color will be used.
 /// </summary>
-/// <param name="WaveLength">Allows you to manipulate the wave shape of the pulse based on the time that's passed An example of a "Fade In-Fade Out" would be Sin(x * Pi)</param>
+/// <param name="WaveFunction">Allows you to manipulate the wave shape of the pulse based on the time that's passed An example of a "Fade In-Fade Out" would be Sin(x * Pi)</param>
 /// <param name="WaveAmplitude">Manipulates the Y axis amplitude of the wave</param>
-public record PulseModulation(WaveLength WaveLength, WaveAmplitude? WaveAmplitude = null)
+public record PulseModulation(WaveFunction WaveFunction)
 {
     public const float DEFAULT_AMPLITUDE = 1;
 }
 
-public delegate double WaveLength(float x, float y);
-public delegate double WaveAmplitude(float x, float y);
+public delegate double WaveFunction(float x);
 
 public record FlashInfo(Color Color, TimeSpan FlashDuration, TimeSpan FlashInterval);

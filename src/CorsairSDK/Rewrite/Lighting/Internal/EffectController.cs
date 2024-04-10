@@ -71,9 +71,9 @@ internal class EffectController(KeyboardColorController colorController) : IEffe
             var progress = (float)(deltaTime / period);
 
             // X: Time | Y : Color
-            var (waveX, waveY) = CalculateWave(pulseInfo, progress);
+            var wave = CalculateWave(pulseInfo, progress);
 
-            var lerpedColor = ColorEffects.LerpColor(pulseInfo.Start, pulseInfo.End, waveX, waveY);
+            var lerpedColor = ColorEffects.LerpColor(pulseInfo.Start, pulseInfo.End, wave);
 
             if (Math.Round(progress, 2) % 0.5 == 0)
             {
@@ -84,7 +84,10 @@ internal class EffectController(KeyboardColorController colorController) : IEffe
                     color = "Green";
                 else color = $"R:{lerpedColor.R} G: {lerpedColor.G}";
 
-                Trace.WriteLine($"X (Time): {Math.Round(progress, 2)}\t Y (Color): {Math.Round(waveX, 2)}   \t| {deltaTime / 1000}s \t| {color}");
+                // X : Time     Y: Color
+                var x = Math.Round(progress, 2);
+                var y = Math.Round(wave, 2);
+                Trace.WriteLine($"({x:F}, {y:F})\t| {deltaTime / 1000}s \t| {color}");
             }
 
 
@@ -93,20 +96,8 @@ internal class EffectController(KeyboardColorController colorController) : IEffe
         }
     }
 
-    private static (float WaveX, float WaveY) CalculateWave(PulseInfo info, float x)
-    {
-        if (info.Modulation == null)
-            return (x, x);
-
-
-        // x = y | /
-
-        var waveLength = info.Modulation.WaveLength(x, x);
-        var waveAmplitude = info.Modulation.WaveAmplitude?.Invoke(x, x) ?? x;
-
-        return ((float WaveX, float WaveY))(waveLength, waveAmplitude);
-
-    }
+    private static float CalculateWave(PulseInfo info, float x)
+        => info.Modulation == null ? x : (float)info.Modulation.WaveFunction(x);
 
     private static bool PulseIsOccurring(PulseInfo pulseInfo, int startTime) =>
         pulseInfo.IsInfinite // Infinity
@@ -124,7 +115,7 @@ internal class EffectController(KeyboardColorController colorController) : IEffe
         throw new NotImplementedException();
     }
 
-    private static readonly PulseModulation _flickerModulation = new((x, _) => Math.Sin(x * Math.PI), (_, _) => 7);
+    private static readonly PulseModulation _flickerModulation = new(x => Math.Sin(x * Math.PI) * 7);
     public IDisposable FlickerKeys(PulseInfo pulseInfo, params KeyboardKeys[] keys)
         => PulseKeys(pulseInfo with { Modulation = _flickerModulation }, keys);
 
