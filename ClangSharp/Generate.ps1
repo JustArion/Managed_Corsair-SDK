@@ -2,7 +2,7 @@
 
 function NotifyExec($str)
 {
-    Write-Output "Exec | $str"
+    Write-Output "[*] Exec | $str"
     Invoke-Expression $str
 }
 
@@ -17,6 +17,7 @@ NotifyExec('git submodule init')
 
 # Update the Corsair SDK Header files (If newer)
 NotifyExec('git submodule update')
+
 
 # Invoke ClangSharp to generate the C$ bindings (Arguments are within the ClangSharpArgs.rsp file
 $path_to_clang_args = Join-Path $PSScriptRoot 'ClangSharpArgs.rsp'

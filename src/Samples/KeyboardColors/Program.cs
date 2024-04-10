@@ -29,6 +29,8 @@ if (keyboard.LedCount == 0)
 
 keyboard.KeyboardLighting.TryInitialize(AccessLevel.Shared);
 
+Console.WriteLine($"[*] Keyboard Colors on 'Corsair {device.Model}'");
+
 using (var controller = keyboard.KeyboardLighting.Colors)
 {
     // Horizontal From the Top Left
