@@ -217,7 +217,7 @@ dotnet_style_null_propagation = true:error
 dotnet_style_object_initializer = true:error
 
 dotnet_style_parentheses_in_arithmetic_binary_operators = always_for_clarity:error
-dotnet_style_parentheses_in_other_binary_operators = always_for_clarity:error
+dotnet_style_parentheses_in_other_binary_operators = always_for_clarity:suggestion
 dotnet_style_parentheses_in_other_operators = never_if_unnecessary:suggestion
 dotnet_style_parentheses_in_relational_binary_operators = always_for_clarity:error
 
