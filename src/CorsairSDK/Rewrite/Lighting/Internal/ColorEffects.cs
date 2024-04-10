@@ -27,17 +27,7 @@ internal static class ColorEffects
         // We have the start value, and the end value.
         // The progress is the % between those 2 values.
 
-
-        // if (progress < 0)
-        //     progress = -progress;
-
         t = Math.Clamp(t, 0, 1);
-
-
-        // int lerpedA = unchecked((byte)(start.A + ((end.A - start.A) * t * amplitude)));
-        // int lerpedR = unchecked((byte)(start.R + ((end.R - start.R) * t * amplitude)));
-        // int lerpedG = unchecked((byte)(start.G + ((end.G - start.G) * t * amplitude)));
-        // int lerpedB = unchecked((byte)(start.B + ((end.B - start.B) * t * amplitude)));
 
         // use case
         var lerpedA = Lerp(start.A, end.A, t);
@@ -50,7 +40,11 @@ internal static class ColorEffects
         lerpedG *= amplitude;
         lerpedB *= amplitude;
 
-        // var lerpedA = (start.A * (1 - t)) + (end.A * t * amplitude);
+        // lerpedA *= Math.Clamp(amplitude, 1, float.MaxValue);
+        // lerpedR /= Math.Clamp(amplitude, 1, float.MaxValue);
+        // lerpedG /= Math.Clamp(amplitude, 1, float.MaxValue);
+        // lerpedB /= Math.Clamp(amplitude, 1, float.MaxValue);
+
 
 
         return Color.FromArgb(unchecked((byte)lerpedA), unchecked((byte)lerpedR), unchecked((byte)lerpedG), unchecked((byte)lerpedB));

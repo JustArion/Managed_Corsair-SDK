@@ -68,32 +68,45 @@ internal class EffectController(KeyboardColorController colorController) : IEffe
 
             var period = Math.Clamp(intervalMs, 1, double.MaxValue);
 
-            var progress = deltaTime / period;
+            var progress = (float)(deltaTime / period);
 
-            var (wavePercent, waveAmplitude) = GetWaveInfo(pulseInfo, (float)progress);
+            // X: Time | Y : Color
+            var (waveX, waveY) = CalculateWave(pulseInfo, progress);
 
-            var lerpedColor = ColorEffects.LerpColor(pulseInfo.Start, pulseInfo.End, (float)wavePercent, waveAmplitude);
+            var lerpedColor = ColorEffects.LerpColor(pulseInfo.Start, pulseInfo.End, waveX, waveY);
 
             if (Math.Round(progress, 2) % 0.5 == 0)
-                Trace.WriteLine($"Time: {Math.Round(progress, 2)} Color: {Math.Round(wavePercent, 2)} | {deltaTime / 1000}s | R:{lerpedColor.R} G: {lerpedColor.G}");
+            {
+                string color;
+                if (lerpedColor is { R: 255, G: 0 })
+                    color = "Red";
+                else if (lerpedColor.G == Color.Green.G)
+                    color = "Green";
+                else color = $"R:{lerpedColor.R} G: {lerpedColor.G}";
+
+                Trace.WriteLine($"X (Time): {Math.Round(progress, 2)}\t Y (Color): {Math.Round(waveX, 2)}   \t| {deltaTime / 1000}s \t| {color}");
+            }
 
 
             colorController.SetKeys(lerpedColor, controlledKeys);
             await Task.Delay(1, token);
-
-            // ORIGINAL
-            // Debug.WriteLine($"[{string.Join(", ", controlledKeys)}] | {pulseInfo.Start} -> {pulseInfo.End}", "Pulse Zones");
-            // await ColorEffects.FadeTo(pulseInfo.Start, pulseInfo.End, pulseInfo.PulseModulation.Interval / 2, color => colorController.SetKeys(color, controlledKeys), token);
-            //
-            // Debug.WriteLine($"[{string.Join(", ", controlledKeys)}] | {pulseInfo.End} -> {pulseInfo.Start}", "Pulse Zones");
-            // await ColorEffects.FadeTo(pulseInfo.End, pulseInfo.Start, pulseInfo.PulseModulation.Interval / 2, color => colorController.SetKeys(color, controlledKeys), token);
         }
     }
 
-    private static (double WaveX, float WaveY) GetWaveInfo(PulseInfo info, float x) =>
-        info.Modulation == null
-            ? (x, PulseModulation.DEFAULT_AMPLITUDE)
-            : (info.Modulation.WaveLength(x), info.Modulation.WaveAmplitude);
+    private static (float WaveX, float WaveY) CalculateWave(PulseInfo info, float x)
+    {
+        if (info.Modulation == null)
+            return (x, x);
+
+
+        // x = y | /
+
+        var waveLength = info.Modulation.WaveLength(x, x);
+        var waveAmplitude = info.Modulation.WaveAmplitude?.Invoke(x, x) ?? x;
+
+        return ((float WaveX, float WaveY))(waveLength, waveAmplitude);
+
+    }
 
     private static bool PulseIsOccurring(PulseInfo pulseInfo, int startTime) =>
         pulseInfo.IsInfinite // Infinity
@@ -107,33 +120,11 @@ internal class EffectController(KeyboardColorController colorController) : IEffe
     {
         colorController.ThrowIfDisconnected();
         //
-        // // PulseInfo(Color Start, Color End, TimeSpan PulseDuration, TimeSpan PulseInterval, bool IsInfinite);
-        // Task.Run(async () => {
-        //     var startTime = Environment.TickCount;
-        //
-        //     while (pulseInfo.IsInfinite ||
-        //            Environment.TickCount - startTime < pulseInfo.PulseDuration.TotalMilliseconds)
-        //     {
-        //
-        //         Debug.WriteLine($"{zones} | {pulseInfo.Start} -> {pulseInfo.End}", "Pulse Zones");
-        //         // PulseInterval is halfed since the amplitude is the middle of the pulse interval, not the end
-        //         // So 1 pulse is Start -> End -> Start
-        //         // Instead of Start -> End
-        //         await ColorEffects.FadeTo(pulseInfo.Start, pulseInfo.End, pulseInfo.PulseInterval / 2, color => colorController.SetZones(color, zones));
-        //
-        //         Debug.WriteLine($"{zones} | {pulseInfo.End} -> {pulseInfo.Start}", "Pulse Zones");
-        //         await ColorEffects.FadeTo(pulseInfo.End, pulseInfo.Start, pulseInfo.PulseInterval / 2, color => colorController.SetZones(color, zones));
-        //
-        //     }
-        //
-        //     colorController.SetZones(pulseInfo.End, zones);
-        // });
-        //
-        // return Disposable.Empty;
+
         throw new NotImplementedException();
     }
 
-    private static readonly PulseModulation _flickerModulation = new(x => Math.Sin(x * Math.PI), 7);
+    private static readonly PulseModulation _flickerModulation = new((x, _) => Math.Sin(x * Math.PI), (_, _) => 7);
     public IDisposable FlickerKeys(PulseInfo pulseInfo, params KeyboardKeys[] keys)
         => PulseKeys(pulseInfo with { Modulation = _flickerModulation }, keys);
 

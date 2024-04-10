@@ -48,11 +48,12 @@ public record PulseInfo(Color Start, Color End, TimeSpan Interval, bool IsInfini
 /// </summary>
 /// <param name="WaveLength">Allows you to manipulate the wave shape of the pulse based on the time that's passed An example of a "Fade In-Fade Out" would be Sin(x * Pi)</param>
 /// <param name="WaveAmplitude">Manipulates the Y axis amplitude of the wave</param>
-public record PulseModulation(WaveLength WaveLength, float WaveAmplitude = PulseModulation.DEFAULT_AMPLITUDE)
+public record PulseModulation(WaveLength WaveLength, WaveAmplitude? WaveAmplitude = null)
 {
     public const float DEFAULT_AMPLITUDE = 1;
 }
 
-public delegate double WaveLength(float x);
+public delegate double WaveLength(float x, float y);
+public delegate double WaveAmplitude(float x, float y);
 
 public record FlashInfo(Color Color, TimeSpan FlashDuration, TimeSpan FlashInterval);
