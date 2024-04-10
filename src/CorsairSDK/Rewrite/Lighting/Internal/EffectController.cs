@@ -13,9 +13,9 @@ internal class EffectController(KeyboardColorController colorController) : IEffe
     private readonly ReceiptHandler<KeyboardKeys> _receiptHandler = new();
 
 
-    public IDisposable PulseKeys(PulseInfo pulseInfo, params KeyboardKeys[] keys) => PulseKeys(pulseInfo, (IEnumerable<KeyboardKeys>)keys);
+    public EffectReceipt PulseKeys(PulseInfo pulseInfo, params KeyboardKeys[] keys) => PulseKeys(pulseInfo, (IEnumerable<KeyboardKeys>)keys);
 
-    public IDisposable PulseKeys(PulseInfo pulseInfo, IEnumerable<KeyboardKeys> keys)
+    public EffectReceipt PulseKeys(PulseInfo pulseInfo, IEnumerable<KeyboardKeys> keys)
     {
         colorController.ThrowIfDisconnected();
         var keysArray = keys.ToArray();
@@ -46,15 +46,17 @@ internal class EffectController(KeyboardColorController colorController) : IEffe
         }));
 
         // ReSharper disable once MethodSupportsCancellation
-        Task.Run(()=> DoPulseKeys(pulseInfo, controlledKeys, cts.Token));
+        var pulseTask = Task.Run(()=> DoPulseKeys(pulseInfo, controlledKeys, cts.Token));
 
-        return Disposable.Create(disposables, list => {
+
+        var disposable = Disposable.Create(disposables, list => {
             foreach (var disposable in list)
                 disposable?.Dispose();
         });
+        return new EffectReceipt(pulseTask, disposable);
     }
 
-    public IDisposable PulseKeys(PulseInfo pulseInfo, params KeyboardKey[] keys)
+    public EffectReceipt PulseKeys(PulseInfo pulseInfo, params KeyboardKey[] keys)
         => PulseKeys(pulseInfo, keys.Select(x => x.Key));
 
     private async Task DoPulseKeys(PulseInfo pulseInfo, List<KeyboardKeys> controlledKeys, CancellationToken token)
@@ -62,7 +64,7 @@ internal class EffectController(KeyboardColorController colorController) : IEffe
         var startTime = Environment.TickCount;
         var intervalMs = pulseInfo.Interval.TotalMilliseconds;
 
-        while (!token.IsCancellationRequested || PulseIsOccurring(pulseInfo, startTime))
+        while (!token.IsCancellationRequested && PulseIsOccurring(pulseInfo, startTime))
         {
             var deltaTime = Environment.TickCount - startTime;
 
@@ -73,8 +75,19 @@ internal class EffectController(KeyboardColorController colorController) : IEffe
             // X: Time | Y : Color
             var wave = CalculateWave(pulseInfo, progress);
 
-            var lerpedColor = ColorEffects.LerpColor(pulseInfo.Start, pulseInfo.End, wave);
+            // Wave
+            // Backup Wave
+            // Progression
+            var t = InspectWave(wave,
+                () => InspectWave((float)(pulseInfo.OnNan?.Invoke(progress) ?? progress),
+                    () => progress));
 
+
+
+            var lerpedColor = ColorEffects.LerpColor(pulseInfo.Start, pulseInfo.End, t);
+
+
+            #if DEBUG
             if (Math.Round(progress, 2) % 0.5 == 0)
             {
                 string color;
@@ -86,9 +99,10 @@ internal class EffectController(KeyboardColorController colorController) : IEffe
 
                 // X : Time     Y: Color
                 var x = Math.Round(progress, 2);
-                var y = Math.Round(wave, 2);
+                var y = Math.Round(t, 2);
                 Trace.WriteLine($"({x:F}, {y:F})\t| {deltaTime / 1000}s \t| {color}");
             }
+            #endif
 
 
             colorController.SetKeys(lerpedColor, controlledKeys);
@@ -96,18 +110,26 @@ internal class EffectController(KeyboardColorController colorController) : IEffe
         }
     }
 
+    private static float InspectWave(float initial, Func<float> backup) => float.IsNaN(initial) ? backup() : initial;
+
     private static float CalculateWave(PulseInfo info, float x)
-        => info.Modulation == null ? x : (float)info.Modulation.WaveFunction(x);
+        => info.WaveModulation == null ? x : (float)info.WaveModulation(x);
 
-    private static bool PulseIsOccurring(PulseInfo pulseInfo, int startTime) =>
-        pulseInfo.IsInfinite // Infinity
-        || Environment.TickCount - startTime < pulseInfo.TotalDuration.TotalMilliseconds; // Duration hasn't been reached yyet
+    private static bool PulseIsOccurring(PulseInfo pulseInfo, int startTime)
+    {
+        if (pulseInfo.IsInfinite) // Infinity
+            return true;
+
+        var durationPassed = Environment.TickCount - startTime;
+
+        return durationPassed < pulseInfo.TotalDuration.TotalMilliseconds; // Duration hasn't been reached yet
+    }
 
 
-    public IDisposable PulseKeys(PulseInfo pulseInfo, IEnumerable<KeyboardKey> keys)
+    public EffectReceipt PulseKeys(PulseInfo pulseInfo, IEnumerable<KeyboardKey> keys)
         => PulseKeys(pulseInfo, keys.Select(x => x.Key));
 
-    public IDisposable PulseZones(PulseInfo pulseInfo, KeyboardZones zones)
+    public EffectReceipt PulseZones(PulseInfo pulseInfo, KeyboardZones zones)
     {
         colorController.ThrowIfDisconnected();
         //
@@ -115,36 +137,45 @@ internal class EffectController(KeyboardColorController colorController) : IEffe
         throw new NotImplementedException();
     }
 
-    private static readonly PulseModulation _flickerModulation = new(x => Math.Sin(x * Math.PI) * 7);
-    public IDisposable FlickerKeys(PulseInfo pulseInfo, params KeyboardKeys[] keys)
-        => PulseKeys(pulseInfo with { Modulation = _flickerModulation }, keys);
+    // This creates a flicker pattern every 1.5T, the flicker is logaritmic
+    /// <summary>
+    /// sin(  log( tan(x) ) * pi^( sin( x^2 )  )
+    /// </summary>
+    private static readonly WaveFunction _flickerModulation = x =>
+        Math.Sin(
+            Math.Log( Math.Tan(x) ) * Math.Pow(
+                Math.PI, Math.Sin(Math.Pow(x, 2)
+                ))
+            );
+    public EffectReceipt FlickerKeys(PulseInfo pulseInfo, params KeyboardKeys[] keys)
+        => PulseKeys(pulseInfo with { WaveModulation = _flickerModulation }, keys);
 
-    public IDisposable FlickerKeys(PulseInfo pulseInfo, IEnumerable<KeyboardKeys> keys)
-        => PulseKeys(pulseInfo with { Modulation = _flickerModulation }, keys);
-    public IDisposable FlickerKeys(PulseInfo pulseInfo, params KeyboardKey[] keys)
-        => PulseKeys(pulseInfo with { Modulation = _flickerModulation }, keys);
+    public EffectReceipt FlickerKeys(PulseInfo pulseInfo, IEnumerable<KeyboardKeys> keys)
+        => PulseKeys(pulseInfo with { WaveModulation = _flickerModulation }, keys);
+    public EffectReceipt FlickerKeys(PulseInfo pulseInfo, params KeyboardKey[] keys)
+        => PulseKeys(pulseInfo with { WaveModulation = _flickerModulation }, keys);
 
-    public IDisposable FlickerKeys(PulseInfo pulseInfo, IEnumerable<KeyboardKey> keys)
-        => PulseKeys(pulseInfo with { Modulation = _flickerModulation }, keys);
+    public EffectReceipt FlickerKeys(PulseInfo pulseInfo, IEnumerable<KeyboardKey> keys)
+        => PulseKeys(pulseInfo with { WaveModulation = _flickerModulation }, keys);
 
-    public IDisposable FlickerZones(PulseInfo pulseInfo, KeyboardZones zones)
-        => PulseZones(pulseInfo with { Modulation = _flickerModulation }, zones);
+    public EffectReceipt FlickerZones(PulseInfo pulseInfo, KeyboardZones zones)
+        => PulseZones(pulseInfo with { WaveModulation = _flickerModulation }, zones);
 
-    public IDisposable FlashKeys(FlashInfo flashInfo, params KeyboardKeys[] keys)
+    public EffectReceipt FlashKeys(FlashInfo flashInfo, params KeyboardKeys[] keys)
     {
         colorController.ThrowIfDisconnected();
 
         throw new NotImplementedException();
     }
 
-    public IDisposable FlashKeys(FlashInfo pulseInfo, params KeyboardKey[] keys)
+    public EffectReceipt FlashKeys(FlashInfo pulseInfo, params KeyboardKey[] keys)
     {
         colorController.ThrowIfDisconnected();
 
         throw new NotImplementedException();
     }
 
-    public IDisposable FlashZones(FlashInfo pulseInfo, KeyboardZones zones)
+    public EffectReceipt FlashZones(FlashInfo pulseInfo, KeyboardZones zones)
     {
         colorController.ThrowIfDisconnected();
 

@@ -7,21 +7,21 @@ using Rewrite;
 
 public interface IEffectController : IDisposable
 {
-    IDisposable FlickerKeys(PulseInfo pulseInfo, params KeyboardKeys[] keys);
-    IDisposable FlickerKeys(PulseInfo pulseInfo, IEnumerable<KeyboardKeys> keys);
-    IDisposable FlickerKeys(PulseInfo pulseInfo, params KeyboardKey[] keys);
-    IDisposable FlickerKeys(PulseInfo pulseInfo, IEnumerable<KeyboardKey> keys);
-    IDisposable FlickerZones(PulseInfo pulseInfo, KeyboardZones zones);
+    EffectReceipt FlickerKeys(PulseInfo pulseInfo, params KeyboardKeys[] keys);
+    EffectReceipt FlickerKeys(PulseInfo pulseInfo, IEnumerable<KeyboardKeys> keys);
+    EffectReceipt FlickerKeys(PulseInfo pulseInfo, params KeyboardKey[] keys);
+    EffectReceipt FlickerKeys(PulseInfo pulseInfo, IEnumerable<KeyboardKey> keys);
+    EffectReceipt FlickerZones(PulseInfo pulseInfo, KeyboardZones zones);
 
-    IDisposable PulseKeys(PulseInfo pulseInfo, params KeyboardKeys[] keys);
-    IDisposable PulseKeys(PulseInfo pulseInfo, IEnumerable<KeyboardKeys> keys);
-    IDisposable PulseKeys(PulseInfo pulseInfo, params KeyboardKey[] keys);
-    IDisposable PulseKeys(PulseInfo pulseInfo, IEnumerable<KeyboardKey> keys);
-    IDisposable PulseZones(PulseInfo pulseInfo, KeyboardZones zones);
+    EffectReceipt PulseKeys(PulseInfo pulseInfo, params KeyboardKeys[] keys);
+    EffectReceipt PulseKeys(PulseInfo pulseInfo, IEnumerable<KeyboardKeys> keys);
+    EffectReceipt PulseKeys(PulseInfo pulseInfo, params KeyboardKey[] keys);
+    EffectReceipt PulseKeys(PulseInfo pulseInfo, IEnumerable<KeyboardKey> keys);
+    EffectReceipt PulseZones(PulseInfo pulseInfo, KeyboardZones zones);
 
-    IDisposable FlashKeys(FlashInfo flashInfo, params KeyboardKeys[] keys);
-    IDisposable FlashKeys(FlashInfo pulseInfo, params KeyboardKey[] keys);
-    IDisposable FlashZones(FlashInfo pulseInfo, KeyboardZones zones);
+    EffectReceipt FlashKeys(FlashInfo flashInfo, params KeyboardKeys[] keys);
+    EffectReceipt FlashKeys(FlashInfo pulseInfo, params KeyboardKey[] keys);
+    EffectReceipt FlashZones(FlashInfo pulseInfo, KeyboardZones zones);
 
 
 
@@ -39,18 +39,14 @@ public interface IEffectController : IDisposable
 /// <param name="PulseModulation">Controls the animation & wave of the pulse</param>
 public record PulseInfo(Color Start, Color End, TimeSpan Interval, bool IsInfinite, TimeSpan TotalDuration = default)
 {
-    public PulseModulation? Modulation { get; set; }
-}
+    /// <summary>
+    /// On a graph, For the amplitude, 0 -> 1 on the Y-Axis is when the Start color will reach the End color. If the amplitude is higher than 1, say 2, 0 -> 1 would be the Start color -> End color 2 times around.
+    /// If the amplitude is lower than the inverse color will be used.
+    /// </summary>
+    /// <param name="WaveFunction">Allows you to manipulate the wave shape of the pulse based on the time that's passed An example of a "Fade In-Fade Out" would be Sin(x * Pi)</param>
+    public WaveFunction? WaveModulation;
 
-/// <summary>
-/// On a graph, For the amplitude, 0 -> 1 on the Y-Axis is when the Start color will reach the End color. If the amplitude is higher than 1, say 2, 0 -> 1 would be the Start color -> End color 2 times around.
-/// If the amplitude is lower than the inverse color will be used.
-/// </summary>
-/// <param name="WaveFunction">Allows you to manipulate the wave shape of the pulse based on the time that's passed An example of a "Fade In-Fade Out" would be Sin(x * Pi)</param>
-/// <param name="WaveAmplitude">Manipulates the Y axis amplitude of the wave</param>
-public record PulseModulation(WaveFunction WaveFunction)
-{
-    public const float DEFAULT_AMPLITUDE = 1;
+    public WaveFunction? OnNan;
 }
 
 public delegate double WaveFunction(float x);
