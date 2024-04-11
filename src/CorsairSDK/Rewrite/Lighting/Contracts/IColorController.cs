@@ -11,9 +11,11 @@ public interface IColorController : IDisposable
 
     /// <returns>The lifetime of the key being set</returns>
     IDisposable SetKeys(Color color, params KeyboardKeys[] keys);
+    IDisposable SetKeys(Color color, IEnumerable<KeyboardKeys> keys);
 
     IDisposable SetKeys(Color color, params KeyboardKey[] keys);
     void ClearKeys(params KeyboardKeys[] keys);
+    void ClearKeys(IEnumerable<KeyboardKeys> keys);
 
     /// <returns>The lifetime of the key being set</returns>
     IDisposable SetZones(Color color, KeyboardZones zones);

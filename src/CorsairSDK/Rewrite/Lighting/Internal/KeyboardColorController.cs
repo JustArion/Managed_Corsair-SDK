@@ -1,4 +1,6 @@
-﻿namespace Dawn.CorsairSDK.Rewrite.Lighting.Internal;
+﻿using System.Collections;
+
+namespace Dawn.CorsairSDK.Rewrite.Lighting.Internal;
 
 using System.Diagnostics;
 using System.Drawing;
@@ -58,14 +60,14 @@ internal class KeyboardColorController(IDeviceConnectionHandler connectionHandle
 
     private void UpdateKeyboardMap(int ledId, Color color)
     {
-        var keyboardKey = KeyboardKeys.FirstOrDefault();
+        var keyboardKey = KeyboardKeys.FirstOrDefault(x => x.Id == ledId);
         if (keyboardKey == null)
             Debug.WriteLine($"Unknown key of Id {ledId}");
         else
             keyboardKey.Color = color;
     }
 
-    private HashSet<KeyboardKey> _keyboardKeys;
+    private HashSet<KeyboardKey> _keyboardKeys = [];
     public IReadOnlySet<KeyboardKey> KeyboardKeys => _keyboardKeys;
 
     public IDisposable SetFromBitmap(byte[] bitmap)
@@ -94,16 +96,6 @@ internal class KeyboardColorController(IDeviceConnectionHandler connectionHandle
     {
         ThrowIfDisconnected();
 
-        // Skip all the keys that are in _keyboardKeys that have the same color
-
-        keys = keys.Where(x => {
-            var keyboardKey = _keyboardKeys.FirstOrDefault(y => y.Key == x);
-            if (keyboardKey == null)
-                return false;
-
-            return keyboardKey.Color != color;
-        });
-
         return Internal_SetKeys(color, keys);
     }
     public IDisposable SetKeys(Color color, params KeyboardKeys[] keys)
@@ -122,7 +114,13 @@ internal class KeyboardColorController(IDeviceConnectionHandler connectionHandle
 
     internal IDisposable Internal_SetKeys(Color color, IEnumerable<KeyboardKeys> keys)
     {
+
+        // Skip all the keys that are in _keyboardKeys that have the same color
+
+        keys = GetKeysThatAreNot(color, keys);
+
         var ids = ZoneUtility.GetIdsFromKeys(keys);
+
 
         var leys = ids.Where(IsActualKey).Select(id => {
             DirectlySetColor(id, color);
@@ -140,15 +138,28 @@ internal class KeyboardColorController(IDeviceConnectionHandler connectionHandle
     /// <returns></returns>
     private bool IsActualKey(int id) => KeyboardKeys.FirstOrDefault(x => x.Id == id) != null;
 
-    public void ClearKeys(params KeyboardKeys[] keys)
+    public void ClearKeys(params KeyboardKeys[] keys) => ClearKeys((IEnumerable<KeyboardKeys>)keys);
+
+    public void ClearKeys(IEnumerable<KeyboardKeys> keys)
     {
         ThrowIfDisconnected();
 
         Internal_ClearKeys(keys);
     }
 
+    private IEnumerable<KeyboardKeys> GetKeysThatAreNot(Color color, IEnumerable<KeyboardKeys> keys) =>
+        keys.Where(x => {
+            var keyboardKey = _keyboardKeys.FirstOrDefault(y => y.Key == x);
+            if (keyboardKey == null)
+                return false;
+
+            return keyboardKey.Color != color;
+        });
+
     private void Internal_ClearKeys(IEnumerable<KeyboardKeys> keys)
     {
+        keys = GetKeysThatAreNot(Color.Black, keys);
+
         var ids = ZoneUtility.GetIdsFromKeys(keys);
 
         _receiptHandler.RelinquishAccess(ids);

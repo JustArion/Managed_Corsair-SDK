@@ -21,7 +21,7 @@
             <_Parameter1>CorsairSDK.Tests.Unit</_Parameter1>
         </AssemblyAttribute>
     </ItemGroup>
-    
+
     <ItemGroup> <!-- Packages -->
         <PackageReference Include="OneOf" Version="3.0.263" />
         <PackageReference Include="ParallelExtensionsCore" Version="2.1.0" />

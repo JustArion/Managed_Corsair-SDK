@@ -9,13 +9,23 @@ public class ZoneUtility
 
     private static readonly Dictionary<KeyboardZones, Range[]> _zoneMap = new()
     {
-        { KeyboardZones.MainZone, [new((int)KeyboardKeys.ESC, (int)KeyboardKeys.RIGHT_CONTROL)] },
+        { KeyboardZones.MainZone,
+        [
+            new((int)KeyboardKeys.ESC, (int)KeyboardKeys.LEFT_SHIFT),
+            new((int)KeyboardKeys.Z, (int)KeyboardKeys.RIGHT_CONTROL)
+        ] },
         { KeyboardZones.PageKeys, [new((int)KeyboardKeys.PRINT_SCREEN, (int)KeyboardKeys.PAGE_DOWN)] },
         { KeyboardZones.ArrowKeys, [new((int)KeyboardKeys.ARROW_UP, (int)KeyboardKeys.ARROW_RIGHT)] },
         { KeyboardZones.MediaKeys, [new((int)KeyboardKeys.MUTE, (int)KeyboardKeys.MEDIA_NEXT)] },
-        { KeyboardZones.NumKeys, [new((int)KeyboardKeys.NUM_LOCK, (int)KeyboardKeys.NUM_PERIOD)] },
+        { KeyboardZones.NumKeys,
+            [
+                new((int)KeyboardKeys.NUM_LOCK, (int)KeyboardKeys.NUM_THREE),
+                new((int)KeyboardKeys.NUM_ENTER, (int)KeyboardKeys.NUM_PERIOD)
+            ]
+        },
         {
-            KeyboardZones.WASDKeys, [
+            KeyboardZones.WASDKeys,
+            [
                 new((int)KeyboardKeys.W, (int)KeyboardKeys.W),
                 new((int)KeyboardKeys.A, (int)KeyboardKeys.D)
             ]
@@ -27,7 +37,7 @@ public class ZoneUtility
     private const int AVERAGE_ZONE_SIZE = 16;
 
     [SuppressMessage("ReSharper", "InvertIf")]
-    public static IEnumerable<KeyboardKeys> GetKeysFromZone(KeyboardZones zones)
+    public static HashSet<KeyboardKeys> GetKeysFromZone(KeyboardZones zones)
     {
         var keys = new HashSet<KeyboardKeys>(AVERAGE_ZONE_SIZE);
 
