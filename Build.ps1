@@ -3,11 +3,16 @@
 
 $ErrorActionPreference = 'Stop'
 $workingDirectory = Get-Location
+function WriteInfo($str)
+{
+    Write-Output "[*] $str"
+}
 function NotifyExec($str)
 {
-    Write-Output "Exec | $str"
+    WriteInfo("Exec | $str")
     Invoke-Expression $str
 }
+
 
 function ResetWorkingDirectory
 {
@@ -30,11 +35,11 @@ try
     
     NotifyExec('dotnet build -c Release -o bin\Build')
     
-    Write-Output "The project has been built at location .\src\CorsairSDK\bin\Build\"
+    WriteInfo("The project has been built at location .\src\CorsairSDK\bin\Build\")
     
     NotifyExec('".\src\CorsairSDK\bin\Build\" | Set-Clipboard')
     
-    Write-Output "The path has been copied to your clipboard!"
+    WriteInfo("The path has been copied to your clipboard!")
 }
 finally
 {
