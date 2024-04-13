@@ -1,14 +1,13 @@
 ﻿using System.Text;
 using Dawn.CorsairSDK.Bindings;
-using Dawn.CorsairSDK.Extensions;
+using Dawn.CorsairSDK.Rewrite.Device;
 
-namespace Dawn.CorsairSDK.Rewrite.Device;
+namespace Dawn.CorsairSDK.Rewrite;
 
-public static class DeviceInformationUtility
+public static class CorsairInformation
 {
     public static void PrintDeviceInformation()
     {
-        Dawn.Rewrite.CorsairSDK._connectionHandler.Connect();
         foreach (var deviceInfo in Dawn.Rewrite.CorsairSDK.GetDevices())
         {
             var sb = new StringBuilder();
@@ -20,6 +19,10 @@ public static class DeviceInformationUtility
                 var propVal = deviceInfo._interop.ReadDeviceProperty(deviceInfo.Id, supportedProperty);
 
                 var cleanedVal = propVal.Value;
+
+                if (deviceInfo.Type == DeviceType.Keyboard)
+                    AddLayout(supportedProperty, ref cleanedVal);
+
                 if (cleanedVal is Array arr)
                     cleanedVal = $"[ {string.Join(", ", arr.Cast<object>())} ]";
 
@@ -30,7 +33,20 @@ public static class DeviceInformationUtility
         }
     }
 
-    private static string PresentPropertyFlags(CorsairDevice info, DeviceProperty supportedProperty)
+    private static void AddLayout(DeviceProperty supportedProperty, ref object cleanedVal)
+    {
+        if (cleanedVal is not int)
+            return;
+
+        cleanedVal = supportedProperty switch {
+            DeviceProperty.LogicalLayout => (LogicalLayout)cleanedVal,
+            DeviceProperty.PhysicalLayout => (PhysicalLayout)cleanedVal,
+            _ => cleanedVal
+        };
+    }
+
+
+    private static string PresentPropertyFlags(Device.CorsairDevice info, DeviceProperty supportedProperty)
     {
         var (_, flags) = info._interop.GetPropertyInfo(info.Id, supportedProperty);
 
