@@ -20,6 +20,21 @@ internal class EffectController(KeyboardColorController colorController) : IEffe
         colorController.ThrowIfDisconnected();
         var keysArray = keys.ToArray();
 
+        if (IsCircular(pulseInfo))
+        {
+            var circularDisposable = colorController.SetKeys(pulseInfo.Start, keysArray);
+
+            if (pulseInfo.IsInfinite)
+                return new EffectReceipt(Task.CompletedTask, circularDisposable);
+
+            // Set up a callback to cancel the set keys after the duration of the animation
+            var circularCts = new CancellationTokenSource();
+            circularCts.Token.Register(x => ((IDisposable)x!).Dispose(), circularDisposable);
+            circularCts.CancelAfter(pulseInfo.TotalDuration);
+
+            return new EffectReceipt(Task.CompletedTask, circularDisposable);
+        }
+
         // Debug.WriteLine(pulseInfo.ToString(), $"{nameof(PulseKeys)}({nameof(PulseInfo)} {nameof(pulseInfo)}, {nameof(KeyboardKeys)}[] {nameof(keys)})");
 
         var disposables = new List<IDisposable?>();
@@ -55,6 +70,9 @@ internal class EffectController(KeyboardColorController colorController) : IEffe
         });
         return new EffectReceipt(pulseTask, disposable);
     }
+
+    // We save some compute here, we don't need to animate something thats not moving.
+    private bool IsCircular(PulseInfo pulseInfo) => pulseInfo.Start == pulseInfo.End;
 
     public EffectReceipt PulseKeys(PulseInfo pulseInfo, params KeyboardKey[] keys)
         => PulseKeys(pulseInfo, keys.Select(x => x.Key));
