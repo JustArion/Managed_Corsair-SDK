@@ -1,5 +1,7 @@
 This repo is a managed implementation of the native [iCUE SDK](https://github.com/CorsairOfficial/cue-sdk) which is made by [Corsair](https://github.com/CorsairOfficial/cue-sdk/releases).
 
+![Alt](https://repobeats.axiom.co/api/embed/02619cff50e5af0e4a71a1967fa303876e0ac0b8.svg "Repobeats analytics image")
+
 Features
 - Device Lighting
     - Lighting layering system
