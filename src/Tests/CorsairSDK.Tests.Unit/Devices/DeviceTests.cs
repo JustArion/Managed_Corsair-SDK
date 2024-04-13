@@ -54,6 +54,6 @@ public class DeviceTests
         
         // Assert
         device.Should().NotBeNull();
-        headset.GetBatteryLevel().Should().BeInRange(0, 100);
+        headset.BatteryLevel.Should().BeInRange(0, 100);
     }
 }

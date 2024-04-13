@@ -17,7 +17,7 @@ if (device == null)
 }
 
 var headset = device.AsDevice<Headset>();
-var batteryLevel = headset.GetBatteryLevel();
+var batteryLevel = headset.BatteryLevel;
 
 
 Console.WriteLine($"[*] The battery level for '{device.Model}' is {batteryLevel}%");
