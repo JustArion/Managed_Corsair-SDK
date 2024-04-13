@@ -4,59 +4,34 @@ using System.Diagnostics;
 
 public class Headset : CorsairDevice
 {
-    public bool GetIsSurroundSoundEnabled()
-    {
-        const DeviceProperty PROPERTY = DeviceProperty.SurroundSoundEnabled;
-        if (SupportedFeatures.Contains(PROPERTY))
-            return _interop.ReadDeviceProperty(Id, PROPERTY).AsT0;
-
-        Debug.WriteLine($"An invocation occurred to an unsupported property: {PROPERTY}");
-        return false;
-    }
-
-    public bool IsSidetoneEnabled()
-    {
-        const DeviceProperty PROPERTY = DeviceProperty.SidetoneEnabled;
-        if (SupportedFeatures.Contains(PROPERTY))
-            return _interop.ReadDeviceProperty(Id, PROPERTY).AsT0;
-
-        Debug.WriteLine($"An invocation occurred to an unsupported property: {PROPERTY}");
-        return false;
-    }
-
-    public bool GetIsEqualizerPresent()
-    {
-        const DeviceProperty PROPERTY = DeviceProperty.EqualizerPreset;
-        if (SupportedFeatures.Contains(PROPERTY))
-            return _interop.ReadDeviceProperty(Id, PROPERTY).AsT0;
-
-        Debug.WriteLine($"An invocation occurred to an unsupported property: {PROPERTY}");
-        return false;
-    }
-
-    private const int MIN_BATTERY_LEVEL = 0;
-    private const int MAX_BATTERY_LEVEL = 100;
-    public int GetBatteryLevel()
-    {
-        const DeviceProperty PROPERTY = DeviceProperty.BatteryLevel;
-        if (SupportedFeatures.Contains(PROPERTY))
-            return _interop.ReadDeviceProperty(Id, PROPERTY).AsT1;
-
-        Debug.WriteLine($"An invocation occurred to an unsupported property: {PROPERTY}");
-        return MAX_BATTERY_LEVEL;
-    }
-
-    public bool IsMicEnabled()
-    {
-        const DeviceProperty PROPERTY = DeviceProperty.MicEnabled;
-        if (SupportedFeatures.Contains(PROPERTY))
-            return _interop.ReadDeviceProperty(Id, PROPERTY).AsT0;
-
-        Debug.WriteLine($"An invocation occurred to an unsupported property: {PROPERTY}");
-        return false;
-    }
-
     internal Headset(DeviceInformation deviceInformation) : base(deviceInformation)
     {
+        if (SupportedFeatures.Contains(DeviceProperty.SurroundSoundEnabled))
+            SurroundSoundEnabled  = _interop.ReadDeviceProperty(Id, DeviceProperty.SurroundSoundEnabled).AsT0;
+
+        if (SupportedFeatures.Contains(DeviceProperty.SidetoneEnabled))
+            SidetoneEnabled = _interop.ReadDeviceProperty(Id, DeviceProperty.SidetoneEnabled).AsT0;
+
+        if (SupportedFeatures.Contains(DeviceProperty.EqualizerPreset))
+            EqualizerPreset = _interop.ReadDeviceProperty(Id, DeviceProperty.EqualizerPreset).AsT1;
+
+        BatteryLevel = SupportedFeatures.Contains(DeviceProperty.BatteryLevel)
+            ? _interop.ReadDeviceProperty(Id, DeviceProperty.BatteryLevel).AsT1
+            : MAX_BATTERY_LEVEL;
+
+        if (SupportedFeatures.Contains(DeviceProperty.MicEnabled))
+            MicEnabled = _interop.ReadDeviceProperty(Id, DeviceProperty.MicEnabled).AsT0;
     }
+
+    public bool SurroundSoundEnabled { get; }
+    public bool SidetoneEnabled { get; }
+    public int EqualizerPreset { get; }
+    /// <summary>
+    /// 100% if the device has no battery
+    /// </summary>
+    public int BatteryLevel { get; }
+    public bool MicEnabled { get; }
+
+    public const int MIN_BATTERY_LEVEL = 0;
+    public const int MAX_BATTERY_LEVEL = 100;
 }
