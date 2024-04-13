@@ -15,13 +15,14 @@ internal static class DeviceConnectionResolver
     {
         var id = _nextId.IncrementAndGet();
         _connections.Add(id, new(connection));
+        Debug.WriteLine($"New Device Connection[{id}] created", "Device Connections");
 
         return id;
     }
     internal static void RemoveConnection(int connectionId)
     {
         _connections.Remove(connectionId);
-        Debug.WriteLine($"Device Connection[{connectionId}] removed");
+        Debug.WriteLine($"Device Connection[{connectionId}] removed", "Device Connections");
     }
 
 

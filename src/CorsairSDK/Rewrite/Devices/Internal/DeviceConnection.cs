@@ -14,7 +14,6 @@ internal unsafe class DeviceConnection : IDeviceConnection
     {
         _connectionId = DeviceConnectionResolver.GetNewId(this);
 
-        Debug.WriteLine($"New Device Connection[{_connectionId}] created", "Device Connections");
         SessionStateChanged += (_, e) => CurrentState = e;
     }
 
