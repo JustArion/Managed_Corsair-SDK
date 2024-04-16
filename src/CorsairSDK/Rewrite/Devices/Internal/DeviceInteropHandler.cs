@@ -26,7 +26,7 @@ internal unsafe class DeviceInteropHandler : IDeviceInterop
         Track.Interop(Interop.GetDevices(&filter, (int)Interop.CORSAIR_DEVICE_COUNT_MAX, buffer, &count), deviceFilter).ThrowIfNecessary();
 
         if (count is 0)
-            return Array.Empty<CorsairDevice>();
+            return [];
 
         var devices = new CorsairDevice[count];
 

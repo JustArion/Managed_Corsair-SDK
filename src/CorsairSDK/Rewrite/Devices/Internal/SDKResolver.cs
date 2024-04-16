@@ -14,11 +14,24 @@ internal static class SDKResolver
         if (libraryname is not LIBRARY_BINDING_NAME)
             return IntPtr.Zero;
 
-        return RuntimeInformation.OSArchitecture switch
-        {
-            Architecture.X86 => NativeLibrary.Load(Path.Combine("Binaries", "iCUESDK_2019.dll")),
-            Architecture.X64 => NativeLibrary.Load(Path.Combine("Binaries", "iCUESDK.x64_2019.dll")),
-            _ => throw new PlatformNotSupportedException()
+        var architecture = RuntimeInformation.OSArchitecture;
+
+        var lib = architecture switch {
+            Architecture.X86 => "iCUESDK_2019.dll",
+            Architecture.X64 => "iCUESDK.x64_2019.dll",
+            _ => string.Empty
         };
+
+
+        var libPath = Path.Combine("Binaries", lib);
+
+        var appDirLibPath = Path.Combine(AppContext.BaseDirectory, libPath);
+
+        if (File.Exists(appDirLibPath))
+            return NativeLibrary.Load(appDirLibPath);
+
+        return File.Exists(libPath)
+            ? NativeLibrary.Load(libPath)
+            : IntPtr.Zero;
     }
 }
