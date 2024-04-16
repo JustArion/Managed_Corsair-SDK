@@ -1,8 +1,8 @@
 ﻿namespace WelcomeBackExplosion;
 
-using Dawn.CorsairSDK;
-using Dawn.CorsairSDK.LowLevel;
+using Dawn.CorsairSDK.Rewrite.Device;
 using Vanara.PInvoke;
+using CorsairSDK = Dawn.Rewrite.CorsairSDK;
 
 public static class Helpers
 {
@@ -24,7 +24,7 @@ public static class Helpers
     }
     internal static void CheckDeviceConditions()
     {
-        if (CorsairSDK.GetDevices(CorsairDeviceType.CDT_Keyboard).FirstOrDefault() is not { type: CorsairDeviceType.CDT_Unknown })
+        if (CorsairSDK.GetDevices(DeviceType.Keyboard).FirstOrDefault() != null)
             return;
     
         Console.WriteLine("[!] Your system doesn't have the necessary hardware to support this kind of sample");

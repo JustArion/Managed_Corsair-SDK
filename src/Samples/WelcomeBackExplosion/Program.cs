@@ -1,7 +1,11 @@
-﻿using Dawn.CorsairSDK;
-using Dawn.CorsairSDK.Extensions;
-using Dawn.CorsairSDK.LowLevel;
+﻿#if DEBUG
+// #define IMMEDIATE_EXPLOSION
+#endif
+using Dawn.CorsairSDK.Rewrite.Device;
+using Dawn.CorsairSDK.Rewrite.Device.Devices;
+using Dawn.CorsairSDK.Rewrite.Lighting;
 using WelcomeBackExplosion;
+using CorsairSDK = Dawn.Rewrite.CorsairSDK;
 using Timer = System.Timers.Timer;
 
 /// Configuration
@@ -10,7 +14,7 @@ var inactiveThreshold = TimeSpan.FromSeconds(10);
 
 
 Helpers.CheckDeviceConditions();
-#if DEBUG
+#if IMMEDIATE_EXPLOSION
 await HandleExplosion();
 #else
 bool? explosionReady = null;
@@ -73,50 +77,49 @@ async Task HandleExplosion()
 {
     const int DELAY_MS = 75;
     const int EXPLOSION_RADIUS = 150;
-    
-    var keyboard = CorsairSDK.GetDevices(CorsairDeviceType.CDT_Keyboard).First();
 
-    var ledController = keyboard.GetLedController();
+    var keyboard = CorsairSDK.GetDevices(DeviceType.Keyboard).First().AsDevice<Keyboard>();
+    var lighting = keyboard.KeyboardLighting;
+    var colors = lighting.Colors;
 
-    var ledInformation = ledController.GetLedInformation();
+    lighting.TryInitialize();
+
+    var keys = colors.KeyboardKeys.OrderByDescending(x => x.Coordinate.Y).ToArray();
+
+    var midpoint = CalculateCenter(keys);
     
-    using (ledController.RequestControl())
+    double currentRadius = 0;
+
+    while (currentRadius < EXPLOSION_RADIUS)
     {
-        var coordinates = ledInformation.OrderByDescending(x => x.Position.cy).Select(x => x.Position).ToArray();
-
-        var midpoint = CalculateCenter(coordinates);
-        double currentRadius = 0;
-
-        while (currentRadius < EXPLOSION_RADIUS)
+        foreach (var (key, coordinate) in keys)
         {
-            foreach (var coord in coordinates)
-            {
-                var coordX = coord.cx;
-                var coordY = coord.cy;
+            var coordX = coordinate.X;
+            var coordY = coordinate.Y;
 
-                var distance = Math.Sqrt(Math.Pow(coordX - midpoint.X, 2) + Math.Pow(coordY - midpoint.Y, 2));
-                if (!(distance <= currentRadius)) 
-                    continue;
+            var distance = Math.Sqrt(Math.Pow(coordX - midpoint.X, 2) + Math.Pow(coordY - midpoint.Y, 2));
+            if (!(distance <= currentRadius)) 
+                continue;
 
-                var color = Colors.RandomColor(coord.id);
-                ledController.TrySetLedColor(color);
-            }
+            var color = ColorUtility.RandomColor();
 
-            currentRadius += 1;
-            await Task.Delay(DELAY_MS);
+            colors.SetKeys(color, key);
         }
+
+        currentRadius += 1;
+        await Task.Delay(DELAY_MS);
     }
 }
 
-(double X, double Y) CalculateCenter(IReadOnlyCollection<CorsairLedPosition> positions)
+(double X, double Y) CalculateCenter(KeyboardKey[] positions)
 {
     double sumX = 0, sumY = 0;
-    var count = positions.Count;
+    var count = positions.Length;
     
-    foreach (var position in positions)
+    foreach (var (_, position) in positions)
     {
-        sumX += position.cx;
-        sumY += position.cy;
+        sumX += position.X;
+        sumY += position.Y;
     }
 
     return (sumX / count, sumY / count);
