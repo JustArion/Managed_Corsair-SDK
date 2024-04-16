@@ -1,0 +1,62 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+option csharp_namespace = "Dawn.Apps.RemoteControlHost";
+
+package corsair;
+
+service Corsair 
+{
+  rpc GetAllKeyboardKeys(google.protobuf.Empty) returns (stream KeyboardState);
+  
+  rpc SetGlobal(Color) returns (google.protobuf.Empty);
+  rpc ClearAll(google.protobuf.Empty) returns (google.protobuf.Empty);
+  
+  rpc SetKeys(stream SetKeyOptions) returns (google.protobuf.Empty);
+  rpc ClearKeys(stream KeyboardKeys) returns  (google.protobuf.Empty);
+  
+  rpc SetZones(stream SetZoneOptions) returns (google.protobuf.Empty);
+  rpc ClearZones(KeyboardZones) returns (google.protobuf.Empty);
+}
+
+message SetZoneOptions
+{
+  Color Color = 1;
+  KeyboardZones Zone = 2;
+}
+
+message KeyboardZones
+{
+  int32 Id = 1;
+}
+
+message KeyboardKeys
+{
+  int32 Id = 1;
+}
+
+message SetKeyOptions
+{
+  repeated KeyboardKeys Key = 1;
+  Color Color = 2;
+}
+
+
+message KeyboardState
+{
+  KeyboardKeys Key = 1;
+  Vector2 Coordinate = 2;
+  Color Color = 3;  
+}
+
+message Vector2
+{
+  float X = 1;
+  float Y = 2;
+}
+message Color
+{
+  int32 A = 1;
+  int32 R = 2;
+  int32 G = 3;
+  int32 B = 4;
+}
