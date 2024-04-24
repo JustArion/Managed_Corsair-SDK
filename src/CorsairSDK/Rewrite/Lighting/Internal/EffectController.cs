@@ -61,7 +61,7 @@ internal class EffectController(KeyboardColorController colorController) : IEffe
         }));
 
         // ReSharper disable once MethodSupportsCancellation
-        var pulseTask = Task.Run(()=> DoPulseKeys(pulseInfo, controlledKeys, cts.Token));
+        var pulseTask = Task.Run(()=> DoKeyPulses(pulseInfo, controlledKeys, cts.Token));
 
 
         var disposable = Disposable.Create(disposables, list => {
@@ -77,7 +77,7 @@ internal class EffectController(KeyboardColorController colorController) : IEffe
     public EffectReceipt PulseKeys(PulseInfo pulseInfo, params KeyboardKey[] keys)
         => PulseKeys(pulseInfo, keys.Select(x => x.Key));
 
-    private async Task DoPulseKeys(PulseInfo pulseInfo, List<KeyboardKeys> controlledKeys, CancellationToken token)
+    private async Task DoKeyPulses(PulseInfo pulseInfo, List<KeyboardKeys> controlledKeys, CancellationToken token)
     {
         var startTime = Environment.TickCount;
         var intervalMs = pulseInfo.Interval.TotalMilliseconds;
@@ -150,9 +150,11 @@ internal class EffectController(KeyboardColorController colorController) : IEffe
     public EffectReceipt PulseZones(PulseInfo pulseInfo, KeyboardZones zones)
     {
         colorController.ThrowIfDisconnected();
-        //
 
-        throw new NotImplementedException();
+
+        var keys = ZoneUtility.GetKeysFromZone(zones);
+
+        return PulseKeys(pulseInfo, keys);
     }
 
     // This creates a flicker pattern every 1.5T, the flicker is logaritmic
@@ -186,12 +188,18 @@ internal class EffectController(KeyboardColorController colorController) : IEffe
         throw new NotImplementedException();
     }
 
+    public EffectReceipt FlashKeys(FlashInfo pulseInfo, IEnumerable<KeyboardKeys> keys) => throw new NotImplementedException();
+
     public EffectReceipt FlashKeys(FlashInfo pulseInfo, params KeyboardKey[] keys)
     {
         colorController.ThrowIfDisconnected();
 
         throw new NotImplementedException();
     }
+
+    public EffectReceipt FlashKeys(FlashInfo pulseInfo, IEnumerable<KeyboardKey> keys) => throw new NotImplementedException();
+
+    public EffectReceipt FlashKeys(FlashInfo pulseInfo, KeyboardZones zones) => throw new NotImplementedException();
 
     public EffectReceipt FlashZones(FlashInfo pulseInfo, KeyboardZones zones)
     {

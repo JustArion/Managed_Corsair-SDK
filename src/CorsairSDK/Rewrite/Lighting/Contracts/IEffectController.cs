@@ -19,9 +19,11 @@ public interface IEffectController : IDisposable
     EffectReceipt PulseKeys(PulseInfo pulseInfo, IEnumerable<KeyboardKey> keys);
     EffectReceipt PulseZones(PulseInfo pulseInfo, KeyboardZones zones);
 
-    EffectReceipt FlashKeys(FlashInfo flashInfo, params KeyboardKeys[] keys);
+    EffectReceipt FlashKeys(FlashInfo pulseInfo, params KeyboardKeys[] keys);
+    EffectReceipt FlashKeys(FlashInfo pulseInfo, IEnumerable<KeyboardKeys> keys);
     EffectReceipt FlashKeys(FlashInfo pulseInfo, params KeyboardKey[] keys);
-    EffectReceipt FlashZones(FlashInfo pulseInfo, KeyboardZones zones);
+    EffectReceipt FlashKeys(FlashInfo pulseInfo, IEnumerable<KeyboardKey> keys);
+    EffectReceipt FlashKeys(FlashInfo pulseInfo, KeyboardZones zones);
 
 
 
@@ -46,9 +48,12 @@ public record PulseInfo(Color Start, Color End, TimeSpan Interval, bool IsInfini
     /// <param name="WaveFunction">Allows you to manipulate the wave shape of the pulse based on the time that's passed An example of a "Fade In-Fade Out" would be Sin(x * Pi)</param>
     public WaveFunction? WaveModulation;
 
+    /// <summary>
+    /// The function is executed when <see cref="WaveModulation"/> returns a value that is NaN (Not a Number).
+    /// </summary>
     public WaveFunction? OnNan;
 }
 
 public delegate double WaveFunction(float x);
 
-public record FlashInfo(Color Color, TimeSpan FlashDuration, TimeSpan FlashInterval);
+public record FlashInfo(Color Color, TimeSpan FlashInterval, TimeSpan FlashDuration);
