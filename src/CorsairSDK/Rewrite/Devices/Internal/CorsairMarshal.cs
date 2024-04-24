@@ -1,4 +1,5 @@
-﻿using System.Reactive.Disposables;
+﻿using System.Diagnostics;
+using System.Reactive.Disposables;
 
 namespace Dawn.CorsairSDK.Rewrite.Device.Internal;
 
@@ -29,13 +30,13 @@ internal static unsafe class CorsairMarshal
     {
         var result = new T[size];
 
-        var memoryRange = Unsafe.SizeOf<T>() * size;
+        var array = new ReadOnlySpan<T>(arrayPtr, (int)size);
 
-        fixed (T* elementPtr = result)
-            Buffer.MemoryCopy(arrayPtr, elementPtr, memoryRange, memoryRange );
+        if (array.TryCopyTo(result))
+            return result.ToArray();
 
-
-        return result;
+        Debug.WriteLine("Failed to copy array");
+        return [];
     }
 
     // We don't need a memcpy here since the strings are being created in the ToString method
