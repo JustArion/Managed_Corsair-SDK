@@ -1,6 +1,6 @@
 ﻿namespace Dawn.CorsairSDK.Rewrite.Lighting;
 
-public sealed class EffectReceipt : IDisposable
+public readonly struct EffectReceipt : IDisposable
 {
     private readonly Task _task;
     private readonly IDisposable _disposable;
