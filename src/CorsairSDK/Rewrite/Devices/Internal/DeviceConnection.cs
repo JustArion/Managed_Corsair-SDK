@@ -1,6 +1,4 @@
-﻿
-using System.Diagnostics;
-using Dawn.CorsairSDK.Bindings;
+﻿using Dawn.CorsairSDK.Bindings;
 using Dawn.CorsairSDK.Rewrite.Connection;
 using Dawn.CorsairSDK.Rewrite.Device.Internal.Contracts;
 using Dawn.CorsairSDK.Rewrite.Tracing;

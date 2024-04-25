@@ -1,6 +1,4 @@
-﻿using System.Collections;
-
-namespace Dawn.CorsairSDK.Rewrite.Lighting.Internal;
+﻿namespace Dawn.CorsairSDK.Rewrite.Lighting.Internal;
 
 using System.Diagnostics;
 using System.Drawing;

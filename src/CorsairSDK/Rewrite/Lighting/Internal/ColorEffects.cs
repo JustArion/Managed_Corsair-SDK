@@ -1,5 +1,4 @@
 ﻿using System.Drawing;
-using System.Numerics;
 
 namespace Dawn.CorsairSDK.Rewrite.Lighting.Internal;
 

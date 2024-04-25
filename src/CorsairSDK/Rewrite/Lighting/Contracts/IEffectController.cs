@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-
-namespace Dawn.CorsairSDK.Rewrite.Lighting.Contracts;
+﻿namespace Dawn.CorsairSDK.Rewrite.Lighting.Contracts;
 
 using System.Drawing;
 using Rewrite;

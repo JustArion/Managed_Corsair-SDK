@@ -1,6 +1,4 @@
-﻿using Dawn.CorsairSDK.Rewrite.Lighting;
-
-namespace Dawn.CorsairSDK.Rewrite;
+﻿namespace Dawn.CorsairSDK.Rewrite;
 
 using System.Diagnostics.CodeAnalysis;
 

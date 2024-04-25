@@ -1,7 +1,5 @@
 ﻿namespace Dawn.CorsairSDK.Rewrite;
 
-using System.Diagnostics.CodeAnalysis;
-
 [Flags]
 public enum KeyboardZones
 {

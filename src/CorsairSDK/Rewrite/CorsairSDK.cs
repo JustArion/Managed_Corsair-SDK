@@ -1,9 +1,7 @@
 ﻿using Dawn.CorsairSDK.Rewrite;
 using Dawn.CorsairSDK.Rewrite.Connection.Internal;
-using Dawn.CorsairSDK.Rewrite.Connection.Internal.Contracts;
 using Dawn.CorsairSDK.Rewrite.Device;
 using Dawn.CorsairSDK.Rewrite.Device.Internal;
-using Dawn.CorsairSDK.Rewrite.Device.Internal.Contracts;
 using Dawn.CorsairSDK.Rewrite.Lighting.Contracts;
 using Dawn.CorsairSDK.Rewrite.Lighting.Internal;
 

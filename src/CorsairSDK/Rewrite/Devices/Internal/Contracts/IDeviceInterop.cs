@@ -1,6 +1,4 @@
-﻿using Dawn.CorsairSDK.Bindings;
-
-namespace Dawn.CorsairSDK.Rewrite.Device.Internal.Contracts;
+﻿namespace Dawn.CorsairSDK.Rewrite.Device.Internal.Contracts;
 
 using OneOf;
 

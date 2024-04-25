@@ -1,6 +1,4 @@
-﻿using System.Numerics;
-
-namespace Dawn.CorsairSDK.Rewrite;
+﻿namespace Dawn.CorsairSDK.Rewrite;
 
 public enum KeyboardKeys
   {

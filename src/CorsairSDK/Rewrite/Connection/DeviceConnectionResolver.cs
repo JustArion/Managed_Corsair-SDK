@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using Dawn.CorsairSDK.Bindings;
-using Dawn.CorsairSDK.Rewrite.Device.Internal;
 using Dawn.CorsairSDK.Rewrite.Device.Internal.Contracts;
 using Dawn.CorsairSDK.Rewrite.Threading;
 

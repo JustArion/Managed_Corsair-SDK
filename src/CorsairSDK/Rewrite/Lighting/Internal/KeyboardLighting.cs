@@ -1,12 +1,9 @@
 ﻿using Dawn.CorsairSDK.Bindings;
-using Dawn.CorsairSDK.Rewrite.Connection.Internal;
-using Dawn.CorsairSDK.Rewrite.Device.Devices;
 
 namespace Dawn.CorsairSDK.Rewrite.Lighting.Internal;
 
 using System.Diagnostics;
 using Connection.Internal.Contracts;
-using Contracts;
 using Device;
 using Lighting.Contracts;
 

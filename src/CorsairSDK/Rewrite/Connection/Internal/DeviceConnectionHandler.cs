@@ -6,7 +6,6 @@ namespace Dawn.CorsairSDK.Rewrite.Connection.Internal;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Contracts;
-using Device.Internal.Contracts;
 using Bindings;
 
 internal class DeviceConnectionHandler : IDeviceConnectionHandler

@@ -1,7 +1,5 @@
 ﻿namespace Dawn.CorsairSDK.Rewrite.Device.Devices;
 
-using System.Diagnostics;
-
 public class Headset : CorsairDevice
 {
     private int _batteryLevel;
