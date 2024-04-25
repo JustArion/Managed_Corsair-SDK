@@ -40,7 +40,7 @@ internal static unsafe class CorsairMarshal
     }
 
     // We don't need a memcpy here since the strings are being created in the ToString method
-    public static string[] ToArray(sbyte** arrayPtr, uint size)
+    internal static string[] ToArray(sbyte** arrayPtr, uint size)
     {
         var result = new string[size];
 
@@ -50,6 +50,6 @@ internal static unsafe class CorsairMarshal
         return result;
     }
 
-    internal static string ToString(sbyte* ptr) => SDKExtensions.ToAnsiString(ptr);
+    internal static string ToString(sbyte* ptr) => new(ptr);
 
 }
