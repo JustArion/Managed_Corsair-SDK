@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Bindings;
 
-internal static unsafe class SDKExtensions
+internal static class SDKExtensions
 {
     [StackTraceHidden]
     internal static void ThrowIfNecessary(this CorsairError error, [CallerMemberName] string memberName = "",
