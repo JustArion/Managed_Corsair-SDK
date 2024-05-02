@@ -1,5 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Reactive.Disposables;
+using System.Runtime.Intrinsics;
+using System.Text;
+using System.Text.Json;
 
 namespace Dawn.CorsairSDK.Rewrite.Device.Internal;
 
@@ -38,22 +41,21 @@ internal static unsafe class CorsairMarshal
         if (array.TryCopyTo(result))
             return result.ToArray();
 
-        Debug.WriteLine("Failed to copy array");
+        Debug.Fail("Failed to copy array");
         return [];
     }
 
     // We don't need a memcpy here since the strings are being created in the ToString method
     // https://github.com/dotnet/runtime/blob/main/src/coreclr/nativeaot/System.Private.CoreLib/src/Internal/Runtime/CompilerHelpers/StartupCode/StartupCodeHelpers.Extensions.cs#L32
-    internal static string[] ToArray(sbyte** arrayPtr, uint size)
+    internal static string[] ToArray(sbyte** stringArray, uint size)
     {
         var result = new string[size];
 
         for (var i = 0; i < size; i++)
-            result[i] = ToString(arrayPtr[i]);
+            result[i] = ToString(stringArray[i]);
 
         return result;
     }
 
     internal static string ToString(sbyte* ptr) => new(ptr);
-
 }
