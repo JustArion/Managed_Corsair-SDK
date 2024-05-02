@@ -31,6 +31,10 @@
     <PropertyGroup Label="Native Dependencies" Condition="$(NETCoreSdkRuntimeIdentifier.Contains('x64')) and '$(PlatformTarget)' != 'x86'">
         <DefineConstants>X64</DefineConstants>
     </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <DefineConstants>X64;TRACE</DefineConstants>
+    </PropertyGroup>
     <ItemGroup>
       <AdditionalFiles Include="Binaries\iCUESDK.x64_2019.dll">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
