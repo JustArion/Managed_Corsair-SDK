@@ -101,7 +101,7 @@ public class KeyboardLightingTests
     {
         // Arrange
         _lighting.TryInitialize().Should().BeTrue();
-        var expectedKeys = ZoneUtility.GetKeysFromZone(KeyboardZones.ArrowKeys);
+        var expectedKeys = ZoneUtility.GetKeysFromZones(KeyboardZones.ArrowKeys);
 
         // Act
         using (_sut.SetZones(Color.Cyan, KeyboardZones.ArrowKeys))
@@ -124,10 +124,10 @@ public class KeyboardLightingTests
     {
         // Arrange
         _lighting.TryInitialize().Should().BeTrue();
-        var expectedRedKeys = ZoneUtility.GetKeysFromZone(KeyboardZones.NumKeys | KeyboardZones.MediaKeys);
-        var expectedOrangeKeys = ZoneUtility.GetKeysFromZone(KeyboardZones.PageKeys);
-        var expectedGreenKeys = ZoneUtility.GetKeysFromZone(KeyboardZones.WASDKeys);
-        var expectedIndigoKeys = ZoneUtility.GetKeysFromZone(KeyboardZones.MainZone | KeyboardZones.Logo)
+        var expectedRedKeys = ZoneUtility.GetKeysFromZones(KeyboardZones.NumKeys | KeyboardZones.MediaKeys);
+        var expectedOrangeKeys = ZoneUtility.GetKeysFromZones(KeyboardZones.PageKeys);
+        var expectedGreenKeys = ZoneUtility.GetKeysFromZones(KeyboardZones.WASDKeys);
+        var expectedIndigoKeys = ZoneUtility.GetKeysFromZones(KeyboardZones.MainZone | KeyboardZones.Logo)
             .Except(expectedGreenKeys) // The WASD keys are within the main-zone, it's a sub-zone / zone-within-a-zone
             .ToHashSet();
 
@@ -169,7 +169,7 @@ public class KeyboardLightingTests
     {
         // Arrange
         _lighting.TryInitialize().Should().BeTrue();
-        var expectedKeys = ZoneUtility.GetKeysFromZone(KeyboardZones.MainZone);
+        var expectedKeys = ZoneUtility.GetKeysFromZones(KeyboardZones.MainZone);
 
         using (_sut.SetGlobal(Color.Red))
         {

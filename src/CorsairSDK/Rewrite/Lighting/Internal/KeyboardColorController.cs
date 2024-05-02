@@ -88,7 +88,7 @@ internal class KeyboardColorController(IDeviceConnectionHandler connectionHandle
     }
 
     private static IEnumerable<KeyboardKeys> GetKeysFromZone(KeyboardZones zones)
-        => ZoneUtility.GetKeysFromZone(zones);
+        => ZoneUtility.GetKeysFromZones(zones);
 
     public IDisposable SetKeys(Color color, IEnumerable<KeyboardKeys> keys)
     {

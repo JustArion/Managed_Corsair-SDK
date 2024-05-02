@@ -35,7 +35,7 @@ public class ZoneUtility
     private const int AVERAGE_ZONE_SIZE = 16;
 
     [SuppressMessage("ReSharper", "InvertIf")]
-    public static HashSet<KeyboardKeys> GetKeysFromZone(KeyboardZones zones)
+    public static HashSet<KeyboardKeys> GetKeysFromZones(KeyboardZones zones)
     {
         var keys = new HashSet<KeyboardKeys>(AVERAGE_ZONE_SIZE);
 

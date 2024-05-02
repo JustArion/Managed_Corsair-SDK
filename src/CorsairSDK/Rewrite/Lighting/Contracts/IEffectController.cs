@@ -21,13 +21,12 @@ public interface IEffectController : IDisposable
     EffectReceipt FlashKeys(FlashInfo pulseInfo, IEnumerable<KeyboardKeys> keys);
     EffectReceipt FlashKeys(FlashInfo pulseInfo, params KeyboardKey[] keys);
     EffectReceipt FlashKeys(FlashInfo pulseInfo, IEnumerable<KeyboardKey> keys);
-    EffectReceipt FlashKeys(FlashInfo pulseInfo, KeyboardZones zones);
 
+    EffectReceipt FlashZones(FlashInfo pulseInfo, KeyboardZones zones);
 
-
-    void StopEffectOnKeys(params KeyboardKeys[] keys);
-    void StopEffectOnKeys(params KeyboardKey[] keys);
-    void StopEffectOnZones(KeyboardZones zones);
+    void StopEffectsOn(params KeyboardKeys[] keys);
+    void StopEffectsOn(params KeyboardKey[] keys);
+    void StopEffectsOn(KeyboardZones zones);
 }
 
 
