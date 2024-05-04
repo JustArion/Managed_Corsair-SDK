@@ -25,7 +25,7 @@ internal static class DeviceConnectionResolver
     }
 
 
-    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
+    [UnmanagedCallersOnly(CallConvs = [ typeof(CallConvCdecl) ])]
     internal static unsafe void DeviceStateChangeNativeCallback(void* context, CorsairSessionStateChanged* data)
     {
         var id = (int)context;

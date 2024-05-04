@@ -8,7 +8,6 @@ using LowLevel;
 
 public static unsafe class CorsairSDK
 {
-
     public static SDKConfigurationPreferences Preferences { get; private set; } = new();
     public static bool Connect() => EnsureConnected();
 
@@ -16,7 +15,7 @@ public static unsafe class CorsairSDK
     {
         if (!_isConnected)
             return;
-        
+
         Methods.CorsairDisconnect();
     }
 
@@ -29,15 +28,15 @@ public static unsafe class CorsairSDK
         EnsureConnected();
         var details = default(CorsairSessionDetails);
         Methods.CorsairGetSessionDetails(&details).ThrowIfNecessary();
-        
+
         return details;
     }
-    
+
     private static volatile bool _isConnected;
     private static volatile bool _isConnecting;
     private static readonly SemaphoreSlim _connectionChangeAccess = new(1, 1);
     private static CancellationTokenSource? _cts;
-    
+
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
     [SuppressMessage("ReSharper", "UseCollectionExpression")]
     private static void Callback(void* context, CorsairSessionStateChanged* data)
@@ -47,7 +46,7 @@ public static unsafe class CorsairSDK
             _isConnected = true;
             _cts?.Cancel();
         }
-            
+
         Debug.WriteLine($"State Change: [{data->state}]");
         _CorsairActions.ForEach(x => x(*data));
 
@@ -99,7 +98,7 @@ public static unsafe class CorsairSDK
 
             if (!_cts.IsCancellationRequested || _isConnected)
                 return true;
-            
+
             if (Preferences.ErrorOnConnectionFailure)
                 throw new TimeoutException("Could not access Corsair information");
             return false;
@@ -132,7 +131,7 @@ public static unsafe class CorsairSDK
             if (Preferences.ErrorOnConnectionFailure)
                 throw new FileNotFoundException("Could not find Corsair iCUE executable");
         }
-    }   
+    }
 
     internal static Task<T> EnsureConnected<T>(Func<Task<T>> asyncOperation) => asyncOperation();
 
