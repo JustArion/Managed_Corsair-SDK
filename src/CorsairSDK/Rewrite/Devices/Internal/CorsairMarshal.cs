@@ -39,7 +39,7 @@ internal static unsafe class CorsairMarshal
         var array = new ReadOnlySpan<T>(arrayPtr, (int)size);
 
         if (array.TryCopyTo(result))
-            return result.ToArray();
+            return result;
 
         Debug.Fail("Failed to copy array");
         return [];
