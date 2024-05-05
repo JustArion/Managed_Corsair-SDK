@@ -24,7 +24,9 @@ internal unsafe class LightingInterop : ILightingInterop
 
 
         using (CorsairMarshal.StringToAnsiPointer(device.Id, out var id))
-            Track.Interop(Interop.RequestControl(id, ToCorsairAccessLevel(accessLevel)), device.Id, accessLevel).ThrowIfNecessary();
+            Track.Interop(
+                Interop.RequestControl(id, ToCorsairAccessLevel(accessLevel)),
+                device.Id, accessLevel).ThrowIfNecessary();
 
         Debug.WriteLine($"Requested Device Control with access level '{accessLevel}' on device 'Corsair {device.Model}'", "Lighting Interop");
 
@@ -65,7 +67,9 @@ internal unsafe class LightingInterop : ILightingInterop
         var positionsCount = default(int);
 
         using (CorsairMarshal.StringToAnsiPointer(device.Id, out var id))
-            Track.Interop(Interop.GetLedPositions(id, (int)Interop.CORSAIR_DEVICE_LEDCOUNT_MAX, buffer, &positionsCount), param: device.Id).ThrowIfNecessary();
+            Track.Interop(
+                Interop.GetLedPositions(id, (int)Interop.CORSAIR_DEVICE_LEDCOUNT_MAX, buffer, &positionsCount),
+                param: device.Id).ThrowIfNecessary();
 
 
         for (var i = 0; i < positionsCount; i++)
@@ -92,7 +96,9 @@ internal unsafe class LightingInterop : ILightingInterop
 
         #if TRACK_COLOR
         using (CorsairMarshal.StringToAnsiPointer(device.Id, out var id))
-            Track.Interop(Interop.SetLedColors(id, 1, &nColor), device.Id, (R: color.R, G: color.G, B: color.B, A: color.A, Id: ledId)).ThrowIfNecessary();
+            Track.Interop(
+                Interop.SetLedColors(id, 1, &nColor), device.Id, (R: color.R, G: color.G, B: color.B, A: color.A, Id: ledId)
+                ).ThrowIfNecessary();
         #else
         using (CorsairMarshal.StringToAnsiPointer(device.Id, out var id))
             Interop.SetLedColors(id, 1, &nColor).ThrowIfNecessary();
@@ -117,6 +123,8 @@ internal unsafe class LightingInterop : ILightingInterop
 
         using (CorsairMarshal.StringToAnsiPointer(device.Id, out var id))
             fixed (CorsairLedColor* color = &_clearColor)
-                Track.Interop(Interop.SetLedColors(id, 1, color));
+                Track.Interop(
+                    Interop.SetLedColors(id, 1, color)
+                    );
     }
 }

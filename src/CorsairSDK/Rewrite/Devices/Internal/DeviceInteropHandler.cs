@@ -23,7 +23,9 @@ internal unsafe class DeviceInteropHandler : IDeviceInterop
         var buffer = stackalloc CorsairDeviceInfo[(int)Interop.CORSAIR_DEVICE_COUNT_MAX];
         var count = default(int);
 
-        Track.Interop(Interop.GetDevices(&filter, (int)Interop.CORSAIR_DEVICE_COUNT_MAX, buffer, &count), deviceFilter).ThrowIfNecessary();
+        Track.Interop(
+            Interop.GetDevices(&filter, (int)Interop.CORSAIR_DEVICE_COUNT_MAX, buffer, &count), deviceFilter
+            ).ThrowIfNecessary();
 
         if (count is 0)
             return [];
@@ -89,7 +91,9 @@ internal unsafe class DeviceInteropHandler : IDeviceInterop
         var property = default(CorsairProperty);
 
         using (CorsairMarshal.StringToAnsiPointer(deviceId, out var id))
-            Track.Interop(Interop.ReadDeviceProperty(id, (CorsairDevicePropertyId)propertyId, 0, &property)).ThrowIfNecessary();
+            Track.Interop(
+                Interop.ReadDeviceProperty(id, (CorsairDevicePropertyId)propertyId, 0, &property)
+                ).ThrowIfNecessary();
 
         try
         {
@@ -133,8 +137,9 @@ internal unsafe class DeviceInteropHandler : IDeviceInterop
         var flags = default(CorsairPropertyFlag);
 
         using (CorsairMarshal.StringToAnsiPointer(deviceId, out var id))
-            response = Track.Interop(Interop.GetDevicePropertyInfo(id, (CorsairDevicePropertyId)property, 0, &dataType,
-                (uint*)&flags), dataType, flags);
+            response = Track.Interop(
+                Interop.GetDevicePropertyInfo(id, (CorsairDevicePropertyId)property, 0, &dataType, (uint*)&flags), dataType, flags
+                );
 
         return CorsairError.CE_Success == response
             ? new DevicePropertyInfo(dataType, flags)
