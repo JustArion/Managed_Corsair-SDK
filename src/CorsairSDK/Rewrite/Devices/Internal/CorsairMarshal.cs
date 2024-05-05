@@ -22,11 +22,17 @@ internal static unsafe class CorsairMarshal
 
     internal static IDisposable StringToAnsiPointer(string? st, out sbyte* id)
     {
-        var str = Marshal.StringToHGlobalAnsi(st);
+        if (string.IsNullOrWhiteSpace(st))
+        {
+            id = null;
+            return Disposable.Empty;
+        }
 
-        id = (sbyte*)str;
+        var marshaller = MbcsStringMarshaller.ConvertToUnmanaged(st);
 
-        return Disposable.Create(str, Marshal.FreeHGlobal);
+        id = marshaller.Pointer;
+
+        return marshaller;
     }
 
     /// <summary>
