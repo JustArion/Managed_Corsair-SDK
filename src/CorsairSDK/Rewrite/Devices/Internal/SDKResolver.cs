@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Security.Cryptography;
 
@@ -71,6 +72,7 @@ internal static class SDKResolver
                 return false;
 
             ptr = NativeLibrary.Load(appDirLibPath);
+            Debug.WriteLine($"Loaded SDK from [ {appDirLibPath} ]", "SDK Resolver");
             return true;
         }
 
@@ -78,6 +80,7 @@ internal static class SDKResolver
             return false;
 
         ptr = NativeLibrary.Load(libPath);
+        Debug.WriteLine($"Loaded SDK from [ {libPath} ]", "SDK Resolver");
         return true;
 
     }
