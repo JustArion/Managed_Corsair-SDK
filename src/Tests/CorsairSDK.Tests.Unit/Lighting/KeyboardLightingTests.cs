@@ -22,7 +22,7 @@ public class KeyboardLightingTests
     }
     
     [Test(Author = "JustArion", Description = "Keyboard lighting should be initialized for 1 sec")]
-    public async Task Should_InitializeLighting()
+    public async Task ShouldInitialize_Lighting()
     {
         // Act
         var initialized = _lighting.TryInitialize();
@@ -35,7 +35,7 @@ public class KeyboardLightingTests
     
     
     [Test(Author = "JustArion", Description = "All keys should light up Red for at least 1 second")]
-    public async Task Should_Set_GlobalKeyboardColor_Red()
+    public async Task ShouldSet_GlobalKeyboardColor_Red()
     {
         // Arrange
         _lighting.TryInitialize().Should().BeTrue();
@@ -52,7 +52,7 @@ public class KeyboardLightingTests
     }
     
     [Test(Author = "JustArion", Description = "The enter key should turn Green for 1 second")]
-    public async Task Should_Set_SingleKey_Green()
+    public async Task ShouldSet_SingleKey_Green()
     {
         // Arrange
         _lighting.TryInitialize().Should().BeTrue();
@@ -72,7 +72,7 @@ public class KeyboardLightingTests
     }
     
     [Test(Author = "JustArion", Description = "The Q, W, E, R, T, and Y keys should turn Blue for 1 second")]
-    public async Task Should_Set_MultipleKeys_Blue()
+    public async Task ShouldSet_MultipleKeys_Blue()
     {
         // Arrange
         _lighting.TryInitialize().Should().BeTrue();
@@ -97,7 +97,7 @@ public class KeyboardLightingTests
     }
     
     [Test(Author = "JustArion", Description = "The Arrow-Keys should turn Cyan for 1 second")]
-    public async Task Should_Set_Zone_Cyan()
+    public async Task ShouldSet_Zone_Cyan()
     {
         // Arrange
         _lighting.TryInitialize().Should().BeTrue();
@@ -120,7 +120,7 @@ public class KeyboardLightingTests
     }
     
     [Test(Author = "JustArion", Description = "Multiple keyboard zones should be different colors")]
-    public async Task Should_Set_MultipleZones_VariousColors()
+    public async Task ShouldSet_MultipleZones_VariousColors()
     {
         // Arrange
         _lighting.TryInitialize().Should().BeTrue();
@@ -165,7 +165,7 @@ public class KeyboardLightingTests
     }
     
     [Test(Author = "JustArion", Description = "A color is globally set, some keys, some keys are cleared")]
-    public async Task Should_Clear_MultipleKeys_FromGlobal()
+    public async Task ShouldClear_MultipleKeys_FromGlobal()
     {
         // Arrange
         _lighting.TryInitialize().Should().BeTrue();

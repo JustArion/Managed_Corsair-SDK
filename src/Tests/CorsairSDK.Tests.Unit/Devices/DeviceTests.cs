@@ -16,7 +16,7 @@ public class DeviceTests
     }
     
     [Test(Author = "JustArion", Description = "Corsair devices should be listed")]
-    public void Should_ListDevices()
+    public void ShouldList_Devices()
     {
         // Act
         var corsairDevices = CorsairSDK.GetDevices().ToArray();
@@ -27,7 +27,7 @@ public class DeviceTests
 
     
     [Test(Author = "JustArion", Description = "Corsair devices should contain proper info")]
-    public void Devices_Should_HaveInformation()
+    public void Devices_ShouldHave_Information()
     {
         // Act
         var corsairDevices = CorsairSDK.GetDevices().ToArray();
@@ -41,6 +41,23 @@ public class DeviceTests
             device.Type.Should().NotBe(DeviceType.All)
                 .And.NotBe(DeviceType.None);
             device.LedCount.Should().BeGreaterThan(0);
+        }
+    }
+    
+    [Test(Author = "JustArion", Description = "Corsair devices should contain proper info")]
+    public void Devices_ShouldHave_ValidIds()
+    {
+        // Act
+        var corsairDevices = CorsairSDK.GetDevices().ToArray();
+        
+        foreach (var device in corsairDevices)
+        {
+            var id = device.Id;
+            // Assert
+            id.Should().NotBeNullOrWhiteSpace();
+
+            id.Should().StartWith("{");
+            id.Should().EndWith("}");
         }
     }
     

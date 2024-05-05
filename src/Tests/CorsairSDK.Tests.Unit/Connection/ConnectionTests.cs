@@ -14,7 +14,7 @@ public class ConnectionTests
     }
     
     [Test(Author = "JustArion", Description = "C# SDK should connect to iCUE")]
-    public void Should_ConnectToSDK()
+    public void ShouldConnect_ToSDK()
     {
         // Act
         var connected = CorsairSDK._connectionHandler.Connect();
