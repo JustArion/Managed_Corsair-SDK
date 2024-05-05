@@ -32,15 +32,8 @@
         <DefineConstants>X64</DefineConstants>
     </PropertyGroup>
 
-    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <DefineConstants>X64;TRACE</DefineConstants>
-    </PropertyGroup>
-    <ItemGroup>
-      <AdditionalFiles Include="Binaries\iCUESDK.x64_2019.dll">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </AdditionalFiles>
-      <AdditionalFiles Include="Binaries\iCUESDK_2019.dll">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </AdditionalFiles>
+    <ItemGroup Label="Embedded Resources">
+      <EmbeddedResource Include="Binaries\iCUESDK.x64_2019.dll" />
+      <EmbeddedResource Include="Binaries\iCUESDK_2019.dll" />
     </ItemGroup>
 </Project>
