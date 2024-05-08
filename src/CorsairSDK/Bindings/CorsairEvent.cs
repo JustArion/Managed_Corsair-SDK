@@ -1,3 +1,6 @@
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
 namespace Corsair.Bindings;
 
 public unsafe partial struct CorsairEvent
@@ -10,13 +13,19 @@ public unsafe partial struct CorsairEvent
     public ref CorsairDeviceConnectionStatusChangedEvent* deviceConnectionStatusChangedEvent
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => ref MemoryMarshal.GetReference(MemoryMarshal.CreateSpan(ref this, 1)).Anonymous.deviceConnectionStatusChangedEvent;
+        get
+        {
+            return ref MemoryMarshal.GetReference(MemoryMarshal.CreateSpan(ref this, 1)).Anonymous.deviceConnectionStatusChangedEvent;
+        }
     }
 
     public ref CorsairKeyEvent* keyEvent
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => ref MemoryMarshal.GetReference(MemoryMarshal.CreateSpan(ref this, 1)).Anonymous.keyEvent;
+        get
+        {
+            return ref MemoryMarshal.GetReference(MemoryMarshal.CreateSpan(ref this, 1)).Anonymous.keyEvent;
+        }
     }
 
     [StructLayout(LayoutKind.Explicit)]

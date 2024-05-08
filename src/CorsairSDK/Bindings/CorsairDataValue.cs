@@ -1,3 +1,5 @@
+using System.Runtime.InteropServices;
+
 namespace Corsair.Bindings;
 
 [StructLayout(LayoutKind.Explicit)]
