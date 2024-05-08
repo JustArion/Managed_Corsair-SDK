@@ -4,12 +4,13 @@
         <TargetFramework>net6.0-windows</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <RootNamespace>Dawn.CorsairSDK</RootNamespace>
+        <RootNamespace>Corsair</RootNamespace>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <DebugType>embedded</DebugType>
         <GenerateDependencyFile>false</GenerateDependencyFile>
         <DebugSymbols>true</DebugSymbols>
+        <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
         <LangVersion>latest</LangVersion>
     </PropertyGroup>
 
