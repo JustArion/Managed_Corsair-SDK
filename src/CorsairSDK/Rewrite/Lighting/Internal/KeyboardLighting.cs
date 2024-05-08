@@ -10,7 +10,6 @@ using Lighting.Contracts;
 internal class KeyboardLighting : IKeyboardLighting, IDisposable
 {
     private readonly IDeviceConnectionHandler _connectionHandler;
-    private readonly CorsairDevice? _underlyingDevice;
 
     internal KeyboardLighting(IDeviceConnectionHandler connectionHandler)
     {
@@ -35,7 +34,7 @@ internal class KeyboardLighting : IKeyboardLighting, IDisposable
     {
         var connected =  _connectionHandler.Connect(DeviceReconnectPolicy.Default);
 
-        var initialized =  connected && OnConnectionEstablished(accessLevel, _underlyingDevice);
+        var initialized =  connected && OnConnectionEstablished(accessLevel);
 
         var grammar = initialized ? "is" : "is not";
         // Device is initialized
@@ -84,7 +83,6 @@ internal class KeyboardLighting : IKeyboardLighting, IDisposable
     public void Shutdown()
     {
         Colors.Dispose();
-        // TODO: Uncomment this when Effects is implemented
         Effects?.Dispose();
         _connectionHandler.Disconnect();
     }
