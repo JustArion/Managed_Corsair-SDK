@@ -10,7 +10,7 @@ using FluentAssertions;
 public class HeadsetStandTests
 {
     [Test(Author = "JustArion", Description = "Devices of type 'Headset' should be up-castable to the <Headset> class")]
-    public void Headsets_ShouldHave_HeadsetSpecific_Information()
+    public void HeadsetStands_ShouldHave_DeviceSpecific_Information()
     {
         // Act
         var device = CorsairSDK.GetDevices(DeviceType.HeadsetStand).FirstOrDefault();
