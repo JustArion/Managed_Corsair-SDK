@@ -1,10 +1,13 @@
-﻿namespace Dawn.CorsairSDK.Rewrite.Device;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Dawn.CorsairSDK.Rewrite.Device;
 
 using Internal.Contracts;
 
+[SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
 public class CorsairDevice
 {
-    internal CorsairDevice(DeviceInformation deviceInformation)
+    internal CorsairDevice(in DeviceInformation deviceInformation)
     {
         Id = deviceInformation.Id;
         Model = deviceInformation.Model;
@@ -15,9 +18,27 @@ public class CorsairDevice
         SupportedFeatures = deviceInformation.SupportedProperties;
 
         _interop = deviceInformation.InteropLayer;
+
+        DeviceOptions = new DeviceOptions { PropertyUpdateIntervalSeconds = 1 };
     }
     internal readonly IDeviceInterop _interop;
 
+
+    public DeviceOptions DeviceOptions { get; }
+    protected virtual void UpdateProperties() => _lastPropertyUpdate = Environment.TickCount;
+
+    protected int _lastPropertyUpdate;
+    protected bool PropertiesNeedUpdating() => (Environment.TickCount - _lastPropertyUpdate) * 1000 < DeviceOptions.PropertyUpdateIntervalSeconds;
+
+    protected T GetAndUpdateIfNecessary<T>(ref T field)
+    {
+        if (!PropertiesNeedUpdating())
+            return field;
+
+        UpdateProperties();
+
+        return field;
+    }
     public DeviceProperty[] SupportedFeatures { get; private set; }
 
     public bool HasFeature(DeviceProperty property) => SupportedFeatures.Contains(property);
@@ -46,11 +67,18 @@ public class CorsairDevice
     /// </summary>
     public int LedCount { get; }
 
-
     public T AsDevice<T>() where T : CorsairDevice
     {
         if (this is T device)
             return device;
         throw new InvalidCastException();
     }
+}
+
+public record DeviceOptions
+{
+    /// <summary>
+    /// If 0, properties won't be cached
+    /// </summary>
+    public uint PropertyUpdateIntervalSeconds { get; set; }
 }
