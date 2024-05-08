@@ -4,7 +4,7 @@ public class HeadsetStand : CorsairDevice
 {
     private bool _micEnabled;
     private bool _surroundSoundEnabled;
-    private int _equalizerPreset;
+    private int _equalizerPreset = -1;
 
     internal HeadsetStand(DeviceInformation deviceInformation) : base(deviceInformation) => SyncProperties();
 

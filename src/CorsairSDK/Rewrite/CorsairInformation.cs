@@ -29,6 +29,22 @@ public static class CorsairInformation
                 sb.AppendLine($"\t[{(int)supportedProperty}][{PresentPropertyFlags(deviceInfo, supportedProperty)}] {supportedProperty}: {cleanedVal}");
             }
 
+            var hasChannels = deviceInfo.ChannelCount > 0;
+            var hasLeds = deviceInfo.LedCount > 0;
+
+            if (hasChannels || hasLeds)
+            {
+                sb.AppendLine("\tExtra Info:");
+
+                if (hasChannels)
+                    sb.AppendLine($"\tChannels: {deviceInfo.ChannelCount}");
+
+                if (hasLeds)
+                    sb.AppendLine($"\tLeds: {deviceInfo.LedCount}");
+            }
+
+
+
             Console.WriteLine(sb.ToString());
         }
     }

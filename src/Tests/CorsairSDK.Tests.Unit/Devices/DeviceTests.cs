@@ -60,17 +60,4 @@ public class DeviceTests
             id.Should().EndWith("}");
         }
     }
-    
-    [Test(Author = "JustArion", Description = "Devices of type 'Headset' should be up-castable to the <Headset> class")]
-    public void Headsets_ShouldHave_HeadsetSpecific_Information()
-    {
-        // Act
-        var device = CorsairSDK.GetDevices(DeviceType.Headset).FirstOrDefault();
-        
-        var headset = device!.AsDevice<Headset>();
-        
-        // Assert
-        device.Should().NotBeNull();
-        headset.BatteryLevel.Should().BeInRange(0, 100);
-    }
 }

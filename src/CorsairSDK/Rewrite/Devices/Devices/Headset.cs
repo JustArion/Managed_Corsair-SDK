@@ -2,10 +2,10 @@
 
 public class Headset : CorsairDevice
 {
-    private int _batteryLevel;
+    private int _batteryLevel = -1;
     private bool _surroundSoundEnabled;
     private bool _sidetoneEnabled;
-    private int _equalizerPreset;
+    private int _equalizerPreset = -1;
     private bool _micEnabled;
 
     internal Headset(DeviceInformation deviceInformation) : base(deviceInformation) => SyncProperties();
