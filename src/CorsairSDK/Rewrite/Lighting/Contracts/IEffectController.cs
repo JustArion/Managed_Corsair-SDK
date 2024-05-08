@@ -53,4 +53,10 @@ public record PulseInfo(Color Start, Color End, TimeSpan Interval, bool IsInfini
 
 public delegate double WaveFunction(float x);
 
-public record FlashInfo(Color Color, TimeSpan FlashInterval, TimeSpan FlashDuration);
+// Flash Interval:  [------------[Flash Duration]]
+// Effect Duration: [------------[Flash Duration]][------------[Flash Duration]] (For 2 flashes)
+/// <param name="Color">The color of the flash</param>
+/// <param name="FlashInterval">The amount of time it takes for 1 flash to complete</param>
+/// <param name="FlashDuration">The duration of the flash being bright. Should not be shorter than the FlashInterval</param>
+/// <param name="EffectDuration">The total duration of the effect. The amount of flashes is the EffectDuration / FlashInterval</param>
+public record FlashInfo(Color Color, TimeSpan FlashInterval, TimeSpan FlashDuration, TimeSpan EffectDuration);
