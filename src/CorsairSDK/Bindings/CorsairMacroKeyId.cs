@@ -1,4 +1,4 @@
-namespace Dawn.CorsairSDK.Bindings;
+namespace Corsair.Bindings;
 
 public enum CorsairMacroKeyId
 {

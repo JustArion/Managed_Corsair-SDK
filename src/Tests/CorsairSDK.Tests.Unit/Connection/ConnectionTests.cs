@@ -1,7 +1,6 @@
 ﻿namespace CorsairSDK.Tests.Unit;
 
-using Dawn.CorsairSDK.Rewrite.Device;
-using Dawn.Rewrite;
+using Corsair;
 using FluentAssertions;
 
 [TestFixture(Category = "Connection", Description = "Mixed external requirements. Minimal: iCUE is installed. Maximum: Has a Corsair Keyboard and iCUE is installed.")]

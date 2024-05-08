@@ -1,13 +1,13 @@
-﻿namespace Dawn.Apps.RemoteControlHost.Services;
+﻿namespace Corsair.Apps.RemoteControlHost.Services;
 
-using CorsairSDK.Rewrite;
+using Dawn.Apps.RemoteControlHost;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Mapping;
 
-public class CorsairService(PlatformService platformService, ILogger<CorsairService> logger) : Corsair.CorsairBase
+public class CorsairService(PlatformService platformService, ILogger<CorsairService> logger) : Dawn.Apps.RemoteControlHost.CorsairService.CorsairServiceBase
 {
-    public override async Task GetAllKeyboardKeys(Empty request, IServerStreamWriter<KeyboardState> responseStream, ServerCallContext context)
+    public override async Task GetAllKeyboardKeys(Empty request, IServerStreamWriter<KeyboardStateMessage> responseStream, ServerCallContext context)
     {
         logger.LogInformation("GetAllKeyboardKeys");
 
@@ -17,7 +17,7 @@ public class CorsairService(PlatformService platformService, ILogger<CorsairServ
             await responseStream.WriteAsync(key.MapToKeyboardKeyMessage());
     }
 
-    public override Task<Empty> SetGlobal(Color request, ServerCallContext context)
+    public override Task<Empty> SetGlobal(ColorMessage request, ServerCallContext context)
     {
         logger.LogInformation("SetGlobal - {Color}", request);
 
@@ -35,7 +35,7 @@ public class CorsairService(PlatformService platformService, ILogger<CorsairServ
         return Task.FromResult(new Empty());
     }
 
-    public override async Task<Empty> SetKeys(IAsyncStreamReader<SetKeyOptions> requestStream, ServerCallContext context)
+    public override async Task<Empty> SetKeys(IAsyncStreamReader<SetKeyOptionsMessage> requestStream, ServerCallContext context)
     {
         logger.LogInformation("SetKeys");
         
@@ -49,7 +49,7 @@ public class CorsairService(PlatformService platformService, ILogger<CorsairServ
         return new Empty();
     }
 
-    public override async Task<Empty> ClearKeys(IAsyncStreamReader<Dawn.Apps.RemoteControlHost.KeyboardKeys> requestStream, ServerCallContext context)
+    public override async Task<Empty> ClearKeys(IAsyncStreamReader<KeyboardKeysMessage> requestStream, ServerCallContext context)
     {
         logger.LogInformation("ClearKeys");
 
@@ -62,7 +62,7 @@ public class CorsairService(PlatformService platformService, ILogger<CorsairServ
         return new Empty();
     }
 
-    public override async Task<Empty> SetZones(IAsyncStreamReader<SetZoneOptions> requestStream, ServerCallContext context)
+    public override async Task<Empty> SetZones(IAsyncStreamReader<SetZoneOptionsMessage> requestStream, ServerCallContext context)
     {
         logger.LogInformation("SetZones");
         
@@ -77,7 +77,7 @@ public class CorsairService(PlatformService platformService, ILogger<CorsairServ
         return new Empty();
     }
 
-    public override Task<Empty> ClearZones(Dawn.Apps.RemoteControlHost.KeyboardZones request, ServerCallContext context)
+    public override Task<Empty> ClearZones(KeyboardZonesMessage request, ServerCallContext context)
     {
         var zones = (KeyboardZones)request.Id;
         

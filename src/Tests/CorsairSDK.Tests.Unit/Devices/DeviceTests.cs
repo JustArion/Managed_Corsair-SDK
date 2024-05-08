@@ -1,8 +1,7 @@
 ﻿namespace CorsairSDK.Tests.Unit.Devices;
 
-using Dawn.CorsairSDK.Rewrite.Device;
-using Dawn.CorsairSDK.Rewrite.Device.Devices;
-using Dawn.Rewrite;
+using Corsair.Device;
+using Corsair;
 using FluentAssertions;
 
 [TestFixture(Category = "Device", Description = "Mixed external requirements. Minimal: iCUE is installed. Maximum: Has 1 Corsair device connected.")]

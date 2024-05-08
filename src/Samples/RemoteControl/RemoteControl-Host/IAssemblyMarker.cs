@@ -1,3 +1,3 @@
-﻿namespace Dawn.Apps.RemoteControlHost;
+﻿namespace Corsair.Apps.RemoteControlHost;
 
 internal interface IAssemblyMarker;

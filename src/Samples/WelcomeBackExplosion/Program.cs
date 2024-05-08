@@ -1,11 +1,11 @@
 ﻿#if DEBUG
 // #define IMMEDIATE_EXPLOSION
 #endif
-using Dawn.CorsairSDK.Rewrite.Device;
-using Dawn.CorsairSDK.Rewrite.Device.Devices;
-using Dawn.CorsairSDK.Rewrite.Lighting;
+using Corsair;
+using Corsair.Device;
+using Corsair.Device.Devices;
+using Corsair.Lighting;
 using WelcomeBackExplosion;
-using CorsairSDK = Dawn.Rewrite.CorsairSDK;
 using Timer = System.Timers.Timer;
 
 /// Configuration

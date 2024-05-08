@@ -1,10 +1,10 @@
 ﻿namespace CorsairSDK.Tests.Unit.Lighting;
 
 using System.Drawing;
-using Dawn.CorsairSDK.Rewrite;
-using Dawn.CorsairSDK.Rewrite.Lighting;
-using Dawn.CorsairSDK.Rewrite.Lighting.Contracts;
-using Dawn.Rewrite;
+using Corsair;
+using Corsair.Lighting;
+using Corsair.Lighting.Contracts;
+using Corsair;
 using FluentAssertions;
 
 [TestFixture(Category = "Lighting / Keyboard", Description = "Mixed external requirements. Minimal: iCUE is installed & has a Corsair Keyboard")]

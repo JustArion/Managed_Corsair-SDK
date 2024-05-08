@@ -6,11 +6,12 @@
 */
 
 using System.Drawing;
-using Dawn.CorsairSDK.Rewrite.Device;
-using Dawn.CorsairSDK.Rewrite.Device.Devices;
-using Dawn.CorsairSDK.Rewrite.Lighting;
+using Corsair;
+using Corsair.Device;
+using Corsair.Device.Devices;
+using Corsair.Lighting;
 
-var device = Dawn.Rewrite.CorsairSDK.GetDevices(DeviceType.Keyboard).FirstOrDefault();
+var device = CorsairSDK.GetDevices(DeviceType.Keyboard).FirstOrDefault();
 
 if (device == null)
 {

@@ -1,6 +1,4 @@
-using System.Runtime.InteropServices;
-
-namespace Dawn.CorsairSDK.Bindings;
+namespace Corsair.Bindings;
 
 [StructLayout(LayoutKind.Explicit)]
 public unsafe partial struct CorsairDataValue

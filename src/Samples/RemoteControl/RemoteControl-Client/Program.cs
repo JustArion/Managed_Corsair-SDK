@@ -1,13 +1,12 @@
-﻿using Dawn.Apps.RemoteControlHost;
-using Grpc.Net.Client;
+﻿using Grpc.Net.Client;
+using Dawn.Apps.RemoteControlHost;
 
 Console.WriteLine("Starting...");
-// const string ADDRESS = "http://localhost:2424";
-const string ADDRESS = "https://split-favorite-our-amongst.trycloudflare.com";
+const string ADDRESS = "http://localhost:2424";
 
 Console.WriteLine($"Connecting to {ADDRESS}");
 using var channel = GrpcChannel.ForAddress(ADDRESS);
 
-var client = new Corsair.CorsairClient(channel);
+var client = new CorsairService.CorsairServiceClient(channel);
 
-client.SetGlobal(new Color { A = 255, R = 255, B = 0, G = 0 });
+client.SetGlobal(new ColorMessage { A = 255, R = 255, B = 0, G = 0 });

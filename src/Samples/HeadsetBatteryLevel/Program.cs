@@ -4,11 +4,13 @@
         'iCUE.exe' is running.
         You have a Wireless Corsair Headset
 */
-using Dawn.CorsairSDK.Rewrite.Device;
-using Dawn.CorsairSDK.Rewrite.Device.Devices;
+
+using Corsair;
+using Corsair.Device;
+using Corsair.Device.Devices;
 
 
-var device = Dawn.Rewrite.CorsairSDK.GetDevices(DeviceType.Headset).FirstOrDefault(x => x.HasFeature(DeviceProperty.BatteryLevel));
+var device = CorsairSDK.GetDevices(DeviceType.Headset).FirstOrDefault(x => x.HasFeature(DeviceProperty.BatteryLevel));
 
 if (device == null)
 {

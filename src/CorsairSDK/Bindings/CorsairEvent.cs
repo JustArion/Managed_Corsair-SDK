@@ -1,7 +1,4 @@
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-
-namespace Dawn.CorsairSDK.Bindings;
+namespace Corsair.Bindings;
 
 public unsafe partial struct CorsairEvent
 {

@@ -1,8 +1,8 @@
 ﻿namespace WelcomeBackExplosion;
 
-using Dawn.CorsairSDK.Rewrite.Device;
+using Corsair;
+using Corsair.Device;
 using Vanara.PInvoke;
-using CorsairSDK = Dawn.Rewrite.CorsairSDK;
 
 public static class Helpers
 {

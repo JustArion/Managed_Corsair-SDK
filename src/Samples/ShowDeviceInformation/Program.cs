@@ -1,4 +1,3 @@
-﻿using Dawn.CorsairSDK;
-using Dawn.CorsairSDK.Rewrite;
+﻿using Corsair;
 
 CorsairInformation.PrintDeviceInformation();

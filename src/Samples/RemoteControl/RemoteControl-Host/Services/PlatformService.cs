@@ -1,8 +1,7 @@
-﻿namespace Dawn.Apps.RemoteControlHost.Services;
+﻿namespace Corsair.Apps.RemoteControlHost.Services;
 
-using CorsairSDK.Rewrite.Lighting;
-using CorsairSDK.Rewrite.Lighting.Contracts;
-using Rewrite;
+using Lighting;
+using Lighting.Contracts;
 
 public class PlatformService
 {

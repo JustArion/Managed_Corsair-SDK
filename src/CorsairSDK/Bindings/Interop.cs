@@ -1,6 +1,4 @@
-using System.Runtime.InteropServices;
-
-namespace Dawn.CorsairSDK.Bindings;
+namespace Corsair.Bindings;
 
 public static unsafe partial class Interop
 {
