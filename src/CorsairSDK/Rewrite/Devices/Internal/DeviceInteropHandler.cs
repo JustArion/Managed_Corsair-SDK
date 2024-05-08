@@ -68,9 +68,10 @@ internal unsafe class DeviceInteropHandler : IDeviceInterop
                 return new Keyboard(deviceInfo);
             case DeviceType.Headset:
                 return new Headset(deviceInfo);
+            case DeviceType.HeadsetStand:
+                return new HeadsetStand(deviceInfo);
             case DeviceType.Mouse:
             case DeviceType.Mousemat:
-            case DeviceType.HeadsetStand:
             case DeviceType.FanLedController:
             case DeviceType.LedController:
             case DeviceType.MemoryModule:
