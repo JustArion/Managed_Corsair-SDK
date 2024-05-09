@@ -1,4 +1,4 @@
-﻿namespace CorsairSDK.Tests.Unit.Devices;
+﻿namespace CorsairSDK.Tests.Integration.Devices;
 
 using Corsair.Device;
 using Corsair;

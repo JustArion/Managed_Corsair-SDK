@@ -1,4 +1,4 @@
-﻿namespace CorsairSDK.Tests.Unit.Lighting;
+﻿namespace CorsairSDK.Tests.Integration.Lighting;
 
 using System.Drawing;
 using Corsair;

@@ -21,6 +21,9 @@
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
             <_Parameter1>CorsairSDK.Tests.Unit</_Parameter1>
         </AssemblyAttribute>
+      <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+        <_Parameter1>CorsairSDK.Tests.Integration</_Parameter1>
+      </AssemblyAttribute>
     </ItemGroup>
 
     <ItemGroup Label="Packages">
@@ -30,7 +33,7 @@
     </ItemGroup>
 
     <PropertyGroup Label="Native Dependencies" Condition="$(NETCoreSdkRuntimeIdentifier.Contains('x64')) and '$(PlatformTarget)' != 'x86'">
-        <DefineConstants>X64</DefineConstants>
+        <DefineConstants>X64;TARGET_WINDOWS</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup Label="Embedded Resources">

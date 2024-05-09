@@ -1,4 +1,4 @@
-﻿namespace CorsairSDK.Tests.Unit.Devices;
+﻿namespace CorsairSDK.Tests.Integration.Devices;
 
 using Corsair.Device;
 using Corsair.Device.Devices;
@@ -9,7 +9,7 @@ using FluentAssertions;
     IgnoreReason = "Device Specific Test (Headset)")]
 public class HeadsetTests
 {
-    [Test(Author = "JustArion", Description = "Devices of type 'Headset' should be up-castable to the <Headset> class")]
+    [Test(Author = "JustArion", Description = "Device of type 'Headset' should be up-castable to the <Headset> class")]
     public void Headsets_ShouldHave_DeviceSpecific_Information()
     {
         // Act

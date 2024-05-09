@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Reactive.Disposables;
+using System.Text;
 
 namespace Corsair.Device.Internal;
 
@@ -35,7 +36,7 @@ internal static unsafe class CorsairMarshal
     /// <summary>
     /// Copies the array contents and returns a managed copy
     /// </summary>
-    public static T[] ToArray<T>(T* arrayPtr, uint size) where T : unmanaged
+    internal static T[] ToArray<T>(T* arrayPtr, uint size) where T : unmanaged
     {
         var result = new T[size];
 
@@ -61,4 +62,5 @@ internal static unsafe class CorsairMarshal
     }
 
     internal static string ToString(sbyte* ptr) => new(ptr);
+    // internal static string ToString(sbyte* ptr) => Encoding.Default.GetString(MemoryMarshal.CreateReadOnlySpanFromNullTerminated((byte*)ptr));
 }

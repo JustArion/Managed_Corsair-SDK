@@ -1,4 +1,4 @@
-﻿namespace CorsairSDK.Tests.Unit;
+﻿namespace CorsairSDK.Tests.Integration;
 
 using Corsair;
 using FluentAssertions;
