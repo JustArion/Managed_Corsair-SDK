@@ -18,7 +18,11 @@ internal static class SDKResolver
     internal static nint CorsairSDKResolver(string libraryname, Assembly assembly, DllImportSearchPath? searchpath)
     {
         if (libraryname is not LIBRARY_BINDING_NAME)
+        #if !NET7_0_OR_GREATER
             return IntPtr.Zero;
+        #else
+            return nint.Zero;
+        #endif
 
         var architecture = RuntimeInformation.OSArchitecture;
 
@@ -57,7 +61,11 @@ internal static class SDKResolver
 
     private static bool TrySearchForLibrary(string lib, Architecture architecture, out nint ptr)
     {
+        #if !NET7_0_OR_GREATER
         ptr = IntPtr.Zero;
+        #else
+        ptr = nint.Zero;
+        #endif
 
         var libPath = Path.Combine("Binaries", lib);
 

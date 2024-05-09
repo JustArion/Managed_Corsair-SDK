@@ -4,7 +4,6 @@ using System.Drawing;
 using Corsair;
 using Corsair.Lighting;
 using Corsair.Lighting.Contracts;
-using Corsair;
 using FluentAssertions;
 
 [TestFixture(Category = "Lighting / Keyboard", Description = "Mixed external requirements. Minimal: iCUE is installed & has a Corsair Keyboard")]

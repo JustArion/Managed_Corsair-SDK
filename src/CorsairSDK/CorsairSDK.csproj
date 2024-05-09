@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0-windows</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <RootNamespace>Corsair</RootNamespace>
@@ -12,6 +11,7 @@
         <DebugSymbols>true</DebugSymbols>
         <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
         <LangVersion>latest</LangVersion>
+        <TargetFrameworks>net6.0-windows;net7.0-windows;net8.0-windows</TargetFrameworks>
     </PropertyGroup>
 
     <ItemGroup Label="Internals">
@@ -33,7 +33,7 @@
     </ItemGroup>
 
     <PropertyGroup Label="Native Dependencies" Condition="$(NETCoreSdkRuntimeIdentifier.Contains('x64')) and '$(PlatformTarget)' != 'x86'">
-        <DefineConstants>X64;TARGET_WINDOWS</DefineConstants>
+        <DefineConstants>X64</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup Label="Embedded Resources">

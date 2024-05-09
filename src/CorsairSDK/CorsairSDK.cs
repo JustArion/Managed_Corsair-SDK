@@ -1,5 +1,4 @@
-﻿using Corsair;
-using Corsair.Connection.Internal;
+﻿using Corsair.Connection.Internal;
 using Corsair.Device;
 using Corsair.Device.Internal;
 using Corsair.Lighting.Contracts;

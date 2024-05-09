@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using System.Reactive.Disposables;
-using System.Text;
 
 namespace Corsair.Device.Internal;
 
@@ -30,7 +29,11 @@ internal static unsafe class CorsairMarshal
 
         id = marshaller.Pointer;
 
+        #if !NET7_0_OR_GREATER
         return marshaller;
+        #else
+        return Disposable.Empty;
+        #endif
     }
 
     /// <summary>
