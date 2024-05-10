@@ -8,7 +8,11 @@ public class Headset : CorsairDevice
     private int _equalizerPreset = -1;
     private bool _micEnabled;
 
-    internal Headset(DeviceInformation deviceInformation) : base(deviceInformation) => SyncProperties();
+    internal Headset(DeviceInformation deviceInformation) : base(deviceInformation)
+    {
+        IsWireless = SupportedFeatures.Contains(DeviceProperty.BatteryLevel);
+        SyncProperties();
+    }
 
     protected override void UpdateProperties()
     {
@@ -54,6 +58,7 @@ public class Headset : CorsairDevice
         private set => _equalizerPreset = value;
     }
 
+    public bool IsWireless { get; }
     /// <summary>
     /// 100% if the device has no battery
     /// </summary>
