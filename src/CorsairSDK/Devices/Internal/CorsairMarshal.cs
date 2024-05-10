@@ -18,12 +18,7 @@ internal static unsafe class CorsairMarshal
         return newObject;
     }
 
-    internal static sbyte* ToPointer(string str)
-    {
-        var bytes = Encoding.UTF8.GetBytes(str);
-
-        return new UTF8StringHandle(bytes);
-    }
+    internal static ref readonly sbyte* ToPointer(string str) => ref new UTF8StringHandle(str).Handle;
 
     /// <summary>
     /// Copies the array contents and returns a managed copy
