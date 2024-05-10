@@ -47,7 +47,8 @@ public unsafe class InteropHelperTests
             strings[2].Should().Be("{TestElement3}");
             strings[3].Should().Be("{TestElement4}");
             strings[4].Should().Be("{TestElement5}");
+            
+            NativeMemory.Free(memory);
         }
-
     }
 }
