@@ -39,7 +39,7 @@ public class CorsairDevice
 
         return field;
     }
-    public DeviceProperty[] SupportedFeatures { get; private set; }
+    public DeviceProperty[] SupportedFeatures { get; }
 
     public bool HasFeature(DeviceProperty property) => SupportedFeatures.Contains(property);
 
