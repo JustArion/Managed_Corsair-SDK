@@ -1,39 +1,39 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <RootNamespace>Corsair</RootNamespace>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-        <DebugType>embedded</DebugType>
-        <GenerateDependencyFile>false</GenerateDependencyFile>
-        <DebugSymbols>true</DebugSymbols>
-        <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-        <LangVersion>latest</LangVersion>
-        <TargetFrameworks>net6.0-windows;net7.0-windows;net8.0-windows</TargetFrameworks>
+      <TargetFrameworks>net6.0-windows;net7.0-windows;net8.0-windows</TargetFrameworks>
+      <ImplicitUsings>enable</ImplicitUsings>
+      <Nullable>enable</Nullable>
+      <RootNamespace>Corsair</RootNamespace>
+      <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+      <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+      <DebugType>embedded</DebugType>
+      <GenerateDependencyFile>false</GenerateDependencyFile>
+      <DebugSymbols>true</DebugSymbols>
+      <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+      <LangVersion>latest</LangVersion>
     </PropertyGroup>
 
     <ItemGroup Label="Internals">
-        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
-            <_Parameter1>Testing</_Parameter1>
-        </AssemblyAttribute>
-        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
-            <_Parameter1>CorsairSDK.Tests.Unit</_Parameter1>
-        </AssemblyAttribute>
+      <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+        <_Parameter1>Testing</_Parameter1>
+      </AssemblyAttribute>
+      <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+        <_Parameter1>CorsairSDK.Tests.Unit</_Parameter1>
+      </AssemblyAttribute>
       <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
         <_Parameter1>CorsairSDK.Tests.Integration</_Parameter1>
       </AssemblyAttribute>
     </ItemGroup>
 
     <ItemGroup Label="Packages">
-        <PackageReference Include="OneOf" Version="3.0.263"/>
-        <PackageReference Include="ParallelExtensionsCore" Version="2.1.0" />
-        <PackageReference Include="System.Reactive" Version="6.0.0" />
+      <PackageReference Include="OneOf" Version="3.0.263"/>
+      <PackageReference Include="ParallelExtensionsCore" Version="2.1.0" />
+      <PackageReference Include="System.Reactive" Version="6.0.0" />
     </ItemGroup>
 
     <PropertyGroup Label="Native Dependencies" Condition="$(NETCoreSdkRuntimeIdentifier.Contains('x64')) and '$(PlatformTarget)' != 'x86'">
-        <DefineConstants>X64</DefineConstants>
+      <DefineConstants>X64</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup Label="Embedded Resources">
