@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Reactive.Disposables;
+using System.Text;
 
 namespace Corsair.Device.Internal;
 
@@ -17,23 +18,11 @@ internal static unsafe class CorsairMarshal
         return newObject;
     }
 
-    internal static IDisposable StringToAnsiPointer(string? st, out sbyte* id)
+    internal static sbyte* ToPointer(string str)
     {
-        if (string.IsNullOrWhiteSpace(st))
-        {
-            id = null;
-            return Disposable.Empty;
-        }
+        var bytes = Encoding.UTF8.GetBytes(str);
 
-        var marshaller = MbcsStringMarshaller.ConvertToUnmanaged(st);
-
-        id = marshaller.Pointer;
-
-        #if !NET7_0_OR_GREATER
-        return marshaller;
-        #else
-        return Disposable.Empty;
-        #endif
+        return new UTF8StringHandle(bytes);
     }
 
     /// <summary>

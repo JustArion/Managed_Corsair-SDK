@@ -91,10 +91,9 @@ internal unsafe class DeviceInteropHandler : IDeviceInterop
     {
         var property = default(CorsairProperty);
 
-        using (CorsairMarshal.StringToAnsiPointer(deviceId, out var id))
-            Track.Interop(
-                Interop.ReadDeviceProperty(id, (CorsairDevicePropertyId)propertyId, 0, &property)
-                ).ThrowIfNecessary();
+        Track.Interop(
+            Interop.ReadDeviceProperty(CorsairMarshal.ToPointer(deviceId), (CorsairDevicePropertyId)propertyId, 0, &property)
+            ).ThrowIfNecessary();
 
         try
         {
@@ -137,10 +136,9 @@ internal unsafe class DeviceInteropHandler : IDeviceInterop
         var dataType = default(CorsairDataType);
         var flags = default(CorsairPropertyFlag);
 
-        using (CorsairMarshal.StringToAnsiPointer(deviceId, out var id))
-            response = Track.Interop(
-                Interop.GetDevicePropertyInfo(id, (CorsairDevicePropertyId)property, 0, &dataType, (uint*)&flags), dataType, flags
-                );
+        response = Track.Interop(
+            Interop.GetDevicePropertyInfo(CorsairMarshal.ToPointer(deviceId), (CorsairDevicePropertyId)property, 0, &dataType, (uint*)&flags), dataType, flags
+            );
 
         return CorsairError.CE_Success == response
             ? new DevicePropertyInfo(dataType, flags)
