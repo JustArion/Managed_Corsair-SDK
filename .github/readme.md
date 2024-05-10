@@ -19,3 +19,6 @@ The SDK is reliant upon the `iCUE.exe` process, the SDK is reliant upon `iCUESDK
 - [KeyboardColors](h../src/Samples/KeyboardColors/Program.cs) - A demonstration of Keyboard Led Control.
 - [KeyboardColors](../src/Samples/KeyboardColorsAsync/Program.cs) - A demonstration of Async Keyboard Led Control.
 - [ShowDeviceInformation](../src/Samples/ShowDeviceInformation/Program.cs) - A collection of information from all available devices.
+
+Thanks:
+Big thanks to [@ophura](https://github.com/ophura/)!
