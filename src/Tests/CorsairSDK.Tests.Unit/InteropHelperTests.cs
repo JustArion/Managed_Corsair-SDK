@@ -1,6 +1,5 @@
 ﻿namespace CorsairSDK.Tests.Unit;
 
-using System.Runtime.InteropServices;
 using Corsair.Device.Internal;
 using FluentAssertions;
 
@@ -36,30 +35,23 @@ public unsafe class InteropHelperTests
     public void NativeStringArrays_ShouldConvert_ToManagedStringArrays()
     {
         // Arrange
-        var element1Ptr = CorsairMarshal.ToPointer("{TestElement1}");
-        var element2Ptr = CorsairMarshal.ToPointer("{TestElement2}");
-        var element3Ptr = CorsairMarshal.ToPointer("{TestElement3}");
-        var element4Ptr = CorsairMarshal.ToPointer("{TestElement4}");
-        var element5Ptr = CorsairMarshal.ToPointer("{TestElement5}");
+        sbyte*[] array = 
+        [ 
+            CorsairMarshal.ToPointer("{TestElement1}"), 
+            CorsairMarshal.ToPointer("{TestElement2}"), 
+            CorsairMarshal.ToPointer("{TestElement3}"), 
+            CorsairMarshal.ToPointer("{TestElement4}"), 
+            CorsairMarshal.ToPointer("{TestElement5}")
+        ];
         
         // Act
-        var memory = (sbyte**)NativeMemory.AllocZeroed(5, (nuint)IntPtr.Size);
-        memory[0] = element1Ptr;
-        memory[1] = element2Ptr;
-        memory[2] = element3Ptr;
-        memory[3] = element4Ptr;
-        memory[4] = element5Ptr;
-        
-        var strings = CorsairMarshal.ToArray(memory, 5);
-        
+        string[] strings;
+        fixed (sbyte** ptr = array)
+            strings = CorsairMarshal.ToArray(ptr, 5);
+
         // Assert
         strings.Length.Should().Be(5);
-        strings[0].Should().Be("{TestElement1}");
-        strings[1].Should().Be("{TestElement2}");
-        strings[2].Should().Be("{TestElement3}");
-        strings[3].Should().Be("{TestElement4}");
-        strings[4].Should().Be("{TestElement5}");
-        
-        NativeMemory.Free(memory);
+        for (var i = 0; i < 5; i++) 
+            strings[i].Should().Be($"{{TestElement{i + 1}}}");
     }
 }
