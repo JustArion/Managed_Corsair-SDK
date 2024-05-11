@@ -1,6 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Reactive.Disposables;
-using System.Text;
 
 namespace Corsair.Device.Internal;
 
@@ -49,5 +47,4 @@ internal static unsafe class CorsairMarshal
     }
 
     internal static string ToString(sbyte* ptr) => new(ptr);
-    // internal static string ToString(sbyte* ptr) => Encoding.Default.GetString(MemoryMarshal.CreateReadOnlySpanFromNullTerminated((byte*)ptr));
 }
