@@ -22,7 +22,7 @@ public unsafe class InteropHelperTests
     {
         // Act
         var ptr = CorsairMarshal.ToPointer("{TestString1234}");
-        GC.AddMemoryPressure(4096);
+        GC.AddMemoryPressure((long)Math.Pow(1024, 4) * 4); // 4mb
         GC.Collect();
         GC.WaitForPendingFinalizers();
         var str = new string(ptr);
