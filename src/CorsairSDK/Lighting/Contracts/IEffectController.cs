@@ -16,10 +16,10 @@ public interface IEffectController : IDisposable
     EffectReceipt PulseKeys(PulseInfo pulseInfo, IEnumerable<KeyboardKey> keys);
     EffectReceipt PulseZones(PulseInfo pulseInfo, KeyboardZones zones);
 
-    EffectReceipt FlashKeys(FlashInfo pulseInfo, params KeyboardKeys[] keys);
-    EffectReceipt FlashKeys(FlashInfo pulseInfo, IEnumerable<KeyboardKeys> keys);
-    EffectReceipt FlashKeys(FlashInfo pulseInfo, params KeyboardKey[] keys);
-    EffectReceipt FlashKeys(FlashInfo pulseInfo, IEnumerable<KeyboardKey> keys);
+    EffectReceipt FlashKeys(FlashInfo flashInfo, params KeyboardKeys[] keys);
+    EffectReceipt FlashKeys(FlashInfo flashInfo, IEnumerable<KeyboardKeys> keys);
+    EffectReceipt FlashKeys(FlashInfo flashInfo, params KeyboardKey[] keys);
+    EffectReceipt FlashKeys(FlashInfo flashInfo, IEnumerable<KeyboardKey> keys);
 
     EffectReceipt FlashZones(FlashInfo pulseInfo, KeyboardZones zones);
 
