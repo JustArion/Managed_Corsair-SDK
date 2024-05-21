@@ -36,5 +36,5 @@ internal static class ColorEffects
         return Color.FromArgb(unchecked((byte)lerpedA), unchecked((byte)lerpedR), unchecked((byte)lerpedG), unchecked((byte)lerpedB));
     }
 
-    private static float Lerp(float start, float end, double t) => (float)(start + ((end - start) * t));
+    internal static float Lerp(float start, float end, double t) => (float)(start + ((end - start) * t));
 }
