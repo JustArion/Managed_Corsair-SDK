@@ -7,7 +7,8 @@ namespace Corsair.Lighting.Internal;
 
 internal partial class EffectController
 {
-        public EffectReceipt PulseKeys(PulseInfo pulseInfo, params KeyboardKeys[] keys) => PulseKeys(pulseInfo, (IEnumerable<KeyboardKeys>)keys);
+    // public record PulseInfo(Color Start, Color End, TimeSpan Interval, bool IsInfinite, TimeSpan TotalDuration = default)
+    public EffectReceipt PulseKeys(PulseInfo pulseInfo, params KeyboardKeys[] keys) => PulseKeys(pulseInfo, (IEnumerable<KeyboardKeys>)keys);
 
     public EffectReceipt PulseKeys(PulseInfo pulseInfo, IEnumerable<KeyboardKeys> keys)
     {
@@ -36,7 +37,7 @@ internal partial class EffectController
         var controlledKeys = new List<KeyboardKeys>(keysArray);
 
 
-        var controlledKeysReceipt = _receiptHandler.Set(keysArray, keyboardKey => Disposable.Create(keyboardKey, key => {
+        var effectKeysReceipt = _receiptHandler.Set(keysArray, keyboardKey => Disposable.Create(keyboardKey, key => {
             lock (controlledKeys)
             {
                 controlledKeys.Remove(key);
@@ -48,7 +49,7 @@ internal partial class EffectController
             }
         }));
 
-        disposables.Add(controlledKeysReceipt);
+        disposables.Add(effectKeysReceipt);
         disposables.Add(Disposable.Create(cts, source => {
             if (!source.IsCancellationRequested)
                 source.Cancel();
@@ -56,7 +57,6 @@ internal partial class EffectController
 
         // ReSharper disable once MethodSupportsCancellation
         var pulseTask = Task.Run(()=> DoKeyPulses(pulseInfo, controlledKeys, cts.Token));
-
 
         var disposable = Disposable.Create(disposables, list => {
             foreach (var disposable in list)
@@ -66,6 +66,9 @@ internal partial class EffectController
     }
 
     // We save some compute here, we don't need to animate something thats not moving.
+    /// <summary>
+    /// The Start color is the end color
+    /// </summary>
     private bool IsCircular(PulseInfo pulseInfo) => pulseInfo.Start == pulseInfo.End;
 
     public EffectReceipt PulseKeys(PulseInfo pulseInfo, params KeyboardKey[] keys)
@@ -80,7 +83,7 @@ internal partial class EffectController
         {
             var deltaTime = Environment.TickCount - startTime;
 
-            var period = Math.Clamp(intervalMs, 1, double.MaxValue);
+            var period = Math.Clamp(intervalMs, 1, double.MaxValue); // Prevent Div by 0
 
             var progress = (float)(deltaTime / period);
 
@@ -122,7 +125,7 @@ internal partial class EffectController
         }
     }
 
-    private static float InspectWave(float initial, Func<float> backup) => float.IsNaN(initial) ? backup() : initial;
+    private static float InspectWave(float initial, Func<float> onNan) => float.IsNaN(initial) ? onNan() : initial;
 
     private static float CalculateWave(PulseInfo info, float x)
         => info.WaveModulation == null ? x : (float)info.WaveModulation(x);
