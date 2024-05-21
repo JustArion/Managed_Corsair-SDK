@@ -1,4 +1,6 @@
-﻿namespace Corsair.Lighting.Contracts;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Corsair.Lighting.Contracts;
 
 using System.Drawing;
 
@@ -53,9 +55,36 @@ public record PulseInfo(Color Start, Color End, TimeSpan Interval, bool IsInfini
 public delegate double WaveFunction(float x);
 
 // Flash Interval:  [------------[Flash Duration]]
+//                                                  v -- Fade Out Duration
+// Fade Out Duration: [------------[Flash Duration]---]
 // Effect Duration: [------------[Flash Duration]][------------[Flash Duration]] (For 2 flashes)
 /// <param name="Color">The color of the flash</param>
-/// <param name="FlashInterval">The amount of time it takes for 1 flash to complete</param>
-/// <param name="FlashDuration">The duration of the flash being bright. Should not be shorter than the FlashInterval</param>
-/// <param name="EffectDuration">The total duration of the effect. The amount of flashes is the EffectDuration / FlashInterval</param>
-public record FlashInfo(Color Color, TimeSpan FlashInterval, TimeSpan FlashDuration, TimeSpan EffectDuration);
+/// <param name="SingleFlashDuration">The amount of time it takes for 1 flash to complete</param>
+/// <param name="FlashPeakDuration">The duration of the flash being bright. Should not be shorter than the SingleFlashDuration</param>
+/// <param name="IsInfinite">The total duration of the effect is infinite.</param>
+/// <param name="EffectDuration">The total duration of the effect. The amount of flashes is the EffectDuration / SingleFlashDuration</param>
+[SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
+[SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Global")]
+[SuppressMessage("ReSharper", "UnusedMember.Global")]
+public record FlashInfo(
+    Color Color,
+    TimeSpan SingleFlashDuration,
+    TimeSpan FlashPeakDuration,
+    bool IsInfinite,
+    TimeSpan EffectDuration = default)
+{
+    public Color Color { get; set; } = Color;
+
+    public TimeSpan SingleFlashDuration { get; set; } = SingleFlashDuration;
+
+    public TimeSpan FlashPeakDuration { get; set; } = FlashPeakDuration;
+
+    public bool IsInfinite { get; set; } = IsInfinite;
+
+    public TimeSpan EffectDuration { get; set; } = EffectDuration;
+
+    public TimeSpan FadeOutDuration { get; set; }
+
+    public static readonly FlashInfo Default = new(Color.White, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(1.5),
+        true);
+}
