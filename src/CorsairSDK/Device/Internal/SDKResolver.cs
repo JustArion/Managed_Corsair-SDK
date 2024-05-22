@@ -103,7 +103,6 @@ internal static class SDKResolver
 
     private static bool IsValidHash(string path, string expectedHash)
     {
-
         byte[] sha256;
         using (var hFile = File.Open(path, FileMode.Open, FileAccess.Read))
             sha256 = SHA256.Create().ComputeHash(hFile);
