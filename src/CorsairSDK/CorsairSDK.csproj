@@ -27,9 +27,8 @@
     </ItemGroup>
 
     <ItemGroup Label="Packages">
-      <PackageReference Include="OneOf" Version="3.0.263"/>
-      <PackageReference Include="ParallelExtensionsCore" Version="2.1.0" />
-      <PackageReference Include="System.Reactive" Version="6.0.0" />
+      <PackageReference Label="Interop Helper for Unions" Include="OneOf" Version="3.0.271" />
+      <PackageReference Label="Binding Attributes" Include="ParallelExtensionsCore" Version="2.1.0" />
     </ItemGroup>
 
     <PropertyGroup Label="Native Dependencies" Condition="$(NETCoreSdkRuntimeIdentifier.Contains('x64')) and '$(PlatformTarget)' != 'x86'">
