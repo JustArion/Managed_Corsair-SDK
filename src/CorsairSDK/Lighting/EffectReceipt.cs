@@ -11,6 +11,8 @@ public readonly struct EffectReceipt : IDisposable
         _disposable = disposable;
     }
 
+    public void CancelAfter(TimeSpan ts) => _task.Wait((int)ts.TotalMilliseconds);
+
     /// <summary>
     /// Will wait for the effect to complete (if infinite, you may be waiting a while ;) )
     /// </summary>
