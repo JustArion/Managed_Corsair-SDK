@@ -1,7 +1,6 @@
 # 2024 / github.com/JustArion
 # CorsairSDK Test Runner
 
-$ErrorActionPreference = 'Stop'
 $workingDirectory = Get-Location
 function WriteInfo($str)
 {
