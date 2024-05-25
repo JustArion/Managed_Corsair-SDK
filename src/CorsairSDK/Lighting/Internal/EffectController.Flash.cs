@@ -5,7 +5,6 @@ using Corsair.Lighting.Contracts;
 
 namespace Corsair.Lighting.Internal;
 
-// public record FlashInfo(Color Color, TimeSpan SingleFlashDuration, TimeSpan FlashPeakDuration, bool IsInfinite, TimeSpan EffectDuration = default);
 internal partial class EffectController
 {
     public EffectReceipt FlashKeys(FlashInfo flashInfo, IEnumerable<KeyboardKeys> keys)
@@ -51,13 +50,8 @@ internal partial class EffectController
 
     private void VerifyBounds(FlashInfo flashInfo)
     {
-        if (flashInfo.SingleFlashDuration == default)
-            throw new ArgumentException($"{nameof(flashInfo)}.{nameof(flashInfo.SingleFlashDuration)} cannot be default. An effect requires a flash interval", nameof(flashInfo));
-
-        if (flashInfo.FlashPeakDuration > flashInfo.SingleFlashDuration)
-            throw new ArgumentException(
-                $"{nameof(flashInfo)}.{nameof(flashInfo.FlashPeakDuration)} cannot be greater than {nameof(flashInfo)}.{nameof(flashInfo.SingleFlashDuration)}",
-                nameof(flashInfo));
+        if (flashInfo.FlashDuration == default)
+            throw new ArgumentException($"{nameof(flashInfo)}.{nameof(flashInfo.FlashDuration)} cannot be default. An effect requires a flash interval", nameof(flashInfo));
 
         if (flashInfo.IsInfinite)
             return;
@@ -66,27 +60,16 @@ internal partial class EffectController
             throw new ArgumentException(
                 $"{nameof(flashInfo)}.{nameof(flashInfo.EffectDuration)} cannot be default. An effect requires a duration (or Infinite)",
                 nameof(flashInfo));
-
-        if (flashInfo.FlashPeakDuration > flashInfo.EffectDuration)
-            throw new ArgumentException(
-                $"{nameof(flashInfo)}.{nameof(flashInfo.FlashPeakDuration)} cannot be greater than {nameof(flashInfo)}.{nameof(flashInfo.EffectDuration)}",
-                nameof(flashInfo));
     }
-    // public record FlashInfo(Color Color, TimeSpan SingleFlashDuration, TimeSpan FlashPeakDuration, bool IsInfinite, TimeSpan EffectDuration = default);
-    // Flash Interval:  [------------[Flash Duration]]
-    //                                                  v -- Fade Out Duration
-    // Fade Out Duration: [------------[Flash Duration]---]
-    // Effect Duration: [------------[Flash Duration]][------------[Flash Duration]] (For 2 flashes)
-    // TODO: IMPLEMENT THE FADE OUT DURATION. It should be a modifier on the flashPercent. Reducing it from the FlashInterval.
-    // TODO: Remaining Flash Interval = Flash Duration - Fade Out Duration
+
     private async Task DoKeyFlashes(FlashInfo flashInfo, List<KeyboardKeys> controlledKeys, CancellationToken token)
     {
-        var startTime = Environment.TickCount;
-        var intervalMs = flashInfo.SingleFlashDuration.TotalMilliseconds;
-        var flashDurationMS = flashInfo.FlashPeakDuration.TotalMilliseconds;
-        var flashPercent = 1 - (flashDurationMS / intervalMs);
+        var effectStartTime = Environment.TickCount;
+        var startTime = effectStartTime;
 
-        while (!token.IsCancellationRequested && FlashIsOccurring(flashInfo, startTime))
+        var intervalMs = flashInfo.FlashDuration.TotalMilliseconds;
+
+        while (!token.IsCancellationRequested && FlashIsOccurring(flashInfo, effectStartTime))
         {
             var deltaTime = Environment.TickCount - startTime;
 
@@ -94,22 +77,19 @@ internal partial class EffectController
 
             var progress = Math.Clamp((float)(deltaTime / period), 0, 1);
 
-            if (progress >= flashPercent)
-                colorController.SetKeys(flashInfo.Color, controlledKeys);
-            else
-            {
-                var lerpColor = ColorEffects.LerpColor(Color.Black, flashInfo.Color, progress);
+            var lerpColor = ColorEffects.LerpColor(flashInfo.Color, Color.Black, progress);
 
-                #if DEBUG
-                Trace.WriteLine($"{deltaTime / 1000}s \t| {lerpColor}");
-                #endif
-
-                colorController.SetKeys(lerpColor, controlledKeys);
-            }
+            colorController.SetKeys(lerpColor, controlledKeys);
 
             await Task.Delay(1, token);
-            if (progress >= 1)
-                startTime = Environment.TickCount;
+
+            var isComplete = progress >= 1;
+            if (!isComplete)
+                continue;
+
+            colorController.SetKeys(flashInfo.Color, controlledKeys);
+
+            startTime = Environment.TickCount; // We reset the clock and do another round.
         }
     }
 
