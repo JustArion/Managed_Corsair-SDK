@@ -12,6 +12,7 @@
       <DebugSymbols>true</DebugSymbols>
       <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
       <LangVersion>latest</LangVersion>
+      <DefineConstants>TRACE</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup Label="Internals">
@@ -32,7 +33,7 @@
     </ItemGroup>
 
     <PropertyGroup Label="Native Dependencies" Condition="$(NETCoreSdkRuntimeIdentifier.Contains('x64')) and '$(PlatformTarget)' != 'x86'">
-      <DefineConstants>X64</DefineConstants>
+      <DefineConstants>X64;TRACE</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup Label="Embedded Resources">
