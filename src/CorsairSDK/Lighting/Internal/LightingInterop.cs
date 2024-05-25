@@ -22,10 +22,11 @@ internal unsafe class LightingInterop : ILightingInterop
         if (device == null)
             throw new DeviceNotConnectedException();
 
+        var result = Interop.RequestControl(CorsairMarshal.ToPointer(device.Id), ToCorsairAccessLevel(accessLevel));
 
-        Track.Interop(
-            Interop.RequestControl(CorsairMarshal.ToPointer(device.Id), ToCorsairAccessLevel(accessLevel)),
-            device.Id, accessLevel).ThrowIfNecessary();
+        InteropTracing.Trace(result, device.Id, accessLevel);
+
+        result.ThrowIfNecessary();
 
         Debug.WriteLine($"Requested Device Control with access level '{accessLevel}' on device 'Corsair {device.Model}'", "Lighting Interop");
 
@@ -41,7 +42,7 @@ internal unsafe class LightingInterop : ILightingInterop
 
         Debug.WriteLine("Releasing Device Control", "Lighting Interop");
 
-        Track.Interop(Interop.ReleaseControl(CorsairMarshal.ToPointer(device.Id)), param: device.Id);
+        InteropTracing.Trace(Interop.ReleaseControl(CorsairMarshal.ToPointer(device.Id)), param: device.Id);
     }
 
     public void SetDeviceContext(Device.CorsairDevice deviceContext)
@@ -64,10 +65,12 @@ internal unsafe class LightingInterop : ILightingInterop
         var buffer = stackalloc CorsairLedPosition[(int)Interop.CORSAIR_DEVICE_LEDCOUNT_MAX];
         var positionsCount = default(int);
 
-        Track.Interop(
-            Interop.GetLedPositions(CorsairMarshal.ToPointer(device.Id), (int)Interop.CORSAIR_DEVICE_LEDCOUNT_MAX, buffer, &positionsCount),
-            param: device.Id).ThrowIfNecessary();
+        var result = Interop.GetLedPositions(CorsairMarshal.ToPointer(device.Id),
+            (int)Interop.CORSAIR_DEVICE_LEDCOUNT_MAX, buffer, &positionsCount);
 
+        InteropTracing.Trace(result,  param: device.Id);
+
+        result.ThrowIfNecessary();
 
         for (var i = 0; i < positionsCount; i++)
         {
@@ -92,9 +95,12 @@ internal unsafe class LightingInterop : ILightingInterop
         var nColor = ToCorsairColor(color) with { id = (uint)ledId };
 
         #if TRACK_COLOR
-        Track.Interop(
-            Interop.SetLedColors(CorsairMarshal.ToPointer(device.Id), 1, &nColor), device.Id, (R: color.R, G: color.G, B: color.B, A: color.A, Id: ledId)
-            ).ThrowIfNecessary();
+
+        var result = Interop.SetLedColors(CorsairMarshal.ToPointer(device.Id), 1, &nColor);
+
+        InteropTracing.Interop(result, device.Id, (color.R, color.G, color.B, color.A, Id: ledId));
+
+        result.ThrowIfNecessary();
         #else
         Interop.SetLedColors(CorsairMarshal.ToPointer(device.Id), 1, &nColor).ThrowIfNecessary();
         #endif
@@ -117,7 +123,7 @@ internal unsafe class LightingInterop : ILightingInterop
         _clearColor.id = (uint)ledId;
 
         fixed (CorsairLedColor* color = &_clearColor)
-            Track.Interop(
+            InteropTracing.Trace(
                 Interop.SetLedColors(CorsairMarshal.ToPointer(device.Id), 1, color)
                 );
     }

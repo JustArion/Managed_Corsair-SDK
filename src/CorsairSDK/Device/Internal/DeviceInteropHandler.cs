@@ -23,9 +23,11 @@ internal unsafe class DeviceInteropHandler : IDeviceInterop
         var buffer = stackalloc CorsairDeviceInfo[(int)Interop.CORSAIR_DEVICE_COUNT_MAX];
         var count = default(int);
 
-        Track.Interop(
-            Interop.GetDevices(&filter, (int)Interop.CORSAIR_DEVICE_COUNT_MAX, buffer, &count), deviceFilter
-            ).ThrowIfNecessary();
+        var result = Interop.GetDevices(&filter, (int)Interop.CORSAIR_DEVICE_COUNT_MAX, buffer, &count);
+
+        InteropTracing.Trace(result, filter, count);
+
+        result.ThrowIfNecessary();
 
         if (count is 0)
             return [];
@@ -91,9 +93,12 @@ internal unsafe class DeviceInteropHandler : IDeviceInterop
     {
         var property = default(CorsairProperty);
 
-        Track.Interop(
-            Interop.ReadDeviceProperty(CorsairMarshal.ToPointer(deviceId), (CorsairDevicePropertyId)propertyId, 0, &property)
-            ).ThrowIfNecessary();
+        var result = Interop.ReadDeviceProperty(CorsairMarshal.ToPointer(deviceId), (CorsairDevicePropertyId)propertyId,
+            0, &property);
+
+        InteropTracing.Trace(result, deviceId, propertyId, property);
+
+        result.ThrowIfNecessary();
 
         try
         {
@@ -125,22 +130,21 @@ internal unsafe class DeviceInteropHandler : IDeviceInterop
         }
         finally
         {
-            Track.Interop(Interop.FreeProperty(&property));
+            InteropTracing.Trace(Interop.FreeProperty(&property));
         }
 
     }
 
     public DevicePropertyInfo GetPropertyInfo(string deviceId, DeviceProperty property)
     {
-        CorsairError response;
         var dataType = default(CorsairDataType);
         var flags = default(CorsairPropertyFlag);
 
-        response = Track.Interop(
-            Interop.GetDevicePropertyInfo(CorsairMarshal.ToPointer(deviceId), (CorsairDevicePropertyId)property, 0, &dataType, (uint*)&flags), dataType, flags
-            );
+        var result = Interop.GetDevicePropertyInfo(CorsairMarshal.ToPointer(deviceId), (CorsairDevicePropertyId)property, 0, &dataType, (uint*)&flags);
 
-        return CorsairError.CE_Success == response
+        InteropTracing.Trace(result, deviceId, property, dataType, flags);
+
+        return CorsairError.CE_Success == result
             ? new DevicePropertyInfo(dataType, flags)
             : default;
     }

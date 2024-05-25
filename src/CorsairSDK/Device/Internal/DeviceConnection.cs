@@ -18,13 +18,13 @@ internal unsafe class DeviceConnection : IDeviceConnection
         SessionStateChanged += (_, e) => CurrentState = e;
     }
 
-    ~DeviceConnection() => DeviceConnectionResolver.RemoveConnection(_connectionId);
-
     public bool Connect()
     {
         // If this shows an error in the IDE, it's lying. It compiles!
         // It's because of the collection expression on the attribute
-        var result = Track.Interop(Bindings.Interop.Connect(&DeviceConnectionResolver.DeviceStateChangeNativeCallback, (void*)_connectionId), _connectionId);
+        var result = Interop.Connect(&DeviceConnectionResolver.DeviceStateChangeNativeCallback, (void*)_connectionId);
+
+        InteropTracing.Trace(result, _connectionId);
 
 
         return result == CorsairError.CE_Success;
@@ -37,11 +37,23 @@ internal unsafe class DeviceConnection : IDeviceConnection
     public CorsairSessionDetails GetConnectionDetails()
     {
         var details = default(CorsairSessionDetails);
-        Track.Interop<CorsairSessionDetails>(Interop.GetSessionDetails(&details), details).ThrowIfNecessary();
+
+        var result = Interop.GetSessionDetails(&details);
+
+        InteropTracing.Trace(result, details);
+
+        result.ThrowIfNecessary();
         return details;
     }
 
-    public void Disconnect() => Track.Interop(Interop.Disconnect()).ThrowIfNecessary();
+    public void Disconnect()
+    {
+        var result = Interop.Disconnect();
 
+        InteropTracing.Trace(result);
 
+        result.ThrowIfNecessary();
+    }
+
+    ~DeviceConnection() => DeviceConnectionResolver.RemoveConnection(_connectionId);
 }
