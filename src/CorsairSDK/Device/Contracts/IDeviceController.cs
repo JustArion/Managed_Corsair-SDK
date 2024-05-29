@@ -1,8 +1,8 @@
 ﻿using Corsair.Lighting;
 
-namespace Corsair.Device.Internal.Contracts;
+namespace Corsair.Device.Contracts;
 
-internal interface IDeviceController : IDisposable
+public interface IDeviceController : IDisposable
 {
     IDisposable RequestControl(AccessLevel accessLevel);
     void ReleaseControl();

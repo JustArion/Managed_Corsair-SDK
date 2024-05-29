@@ -14,5 +14,5 @@ public class PlatformService
         logger.LogInformation("Platform Service established");
     }
 
-    public IColorController Colors => _keyboard.Colors;
+    public IKeyboardColorController Colors => _keyboard.Colors;
 }

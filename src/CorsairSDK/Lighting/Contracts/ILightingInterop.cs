@@ -1,13 +1,20 @@
-﻿namespace Corsair.Lighting.Internal.Contracts;
+﻿namespace Corsair.Lighting.Contracts;
 
 using System.Drawing;
 using System.Numerics;
 using Device;
-using Device.Internal.Contracts;
+using Device.Contracts;
 
-internal interface ILightingInterop : IDeviceController
+public interface ILightingInterop : IDeviceController
 {
     void SetDeviceContext(CorsairDevice deviceContext);
+
+    /// <summary>
+    /// int - LED ID
+    /// LedInfo - LED info
+    /// </summary>
+    /// <returns></returns>
+    Dictionary<int, LedInfo> GetPositionInfo();
 
     Vector2 GetPosition(int ledId);
 

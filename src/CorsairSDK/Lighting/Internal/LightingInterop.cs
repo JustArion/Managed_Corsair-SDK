@@ -6,7 +6,7 @@ using System.Reactive.Disposables;
 using Corsair.Bindings;
 using Corsair.Device.Internal;
 using Corsair.Exceptions;
-using Corsair.Lighting.Internal.Contracts;
+using Corsair.Lighting.Contracts;
 using Corsair.Tracing;
 
 namespace Corsair.Lighting.Internal;
@@ -17,6 +17,49 @@ internal unsafe class LightingInterop : ILightingInterop
 
     public void Dispose() => ReleaseControl();
 
+
+    private const int MAX_LEDS = (int)Interop.CORSAIR_DEVICE_LEDCOUNT_MAX;
+    public Dictionary<int, LedInfo> GetPositionInfo()
+    {
+        if (device == null)
+            throw new DeviceNotConnectedException();
+
+        var retVal = new Dictionary<int, LedInfo>();
+
+        var positionBuffer = stackalloc CorsairLedPosition[MAX_LEDS];
+        var count = default(int);
+
+
+        var deviceId = CorsairMarshal.ToPointer(device.Id);
+        var result =
+            Interop.GetLedPositions(deviceId, MAX_LEDS, positionBuffer, &count);
+
+        InteropTracing.Trace(result, param: device.Id);
+
+        result.ThrowIfNecessary();
+
+        var colorBuffer = stackalloc CorsairLedColor[count];
+
+        for (var i = 0; i < count; i++)
+            colorBuffer[i].id = positionBuffer[i].id;
+
+
+        result = Interop.GetLedColors(deviceId, count, colorBuffer);
+
+        InteropTracing.Trace(result, param: device.Id);
+
+        result.ThrowIfNecessary();
+
+        for (var i = 0; i < count; i++)
+        {
+            var led = positionBuffer[i];
+            var color = colorBuffer[i];
+            var info = new LedInfo(Color.FromArgb(color.a, color.r, color.g, color.b), new Vector2((float)led.cx, (float)led.cy));
+            retVal.Add((int)led.id, info);
+        }
+
+        return retVal;
+    }
     public IDisposable RequestControl(AccessLevel accessLevel)
     {
         if (device == null)

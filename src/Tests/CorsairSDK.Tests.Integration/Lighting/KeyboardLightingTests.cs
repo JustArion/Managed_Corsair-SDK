@@ -11,7 +11,7 @@ public class KeyboardLightingTests
 {
     
     private static IKeyboardLighting _lighting => CorsairSDK.KeyboardLighting;
-    private static IColorController _sut => _lighting.Colors;
+    private static IKeyboardColorController _sut => _lighting.Colors;
 
     private static IEnumerable<KeyboardKey> _keys => _sut.KeyboardKeys;
     [TearDown]

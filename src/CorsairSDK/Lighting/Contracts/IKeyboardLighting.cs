@@ -11,9 +11,9 @@ public interface IKeyboardLighting
     /// </summary>
     /// <param name="accessLevel">Shared by other programs / presets or exclusive control</param>
     /// <returns>Initialization succeeded</returns>
-    bool TryInitialize(AccessLevel accessLevel = AccessLevel.Exclusive);
+    bool TryInitialize(AccessLevel accessLevel = AccessLevel.Shared);
 
-    IColorController Colors { get; }
+    IKeyboardColorController Colors { get; }
 
     IEffectController Effects { get; }
 

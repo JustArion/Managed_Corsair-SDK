@@ -2,7 +2,7 @@
 
 using System.Drawing;
 
-public interface IColorController : IDisposable
+public interface IKeyboardColorController : IDisposable
 {
     IReadOnlySet<KeyboardKey> KeyboardKeys { get; }
 
@@ -32,4 +32,9 @@ public interface IColorController : IDisposable
     /// <returns></returns>
     IDisposable SetGlobal(Color color);
     void ClearAll();
+
+    /// <summary>
+    /// Native Interop doesn't have optimized tracking for colors already in use (Red -> Red), using the two interchangably may lead to undefined behaviour.
+    /// </summary>
+    ILightingInterop NativeInterop { get; }
 }

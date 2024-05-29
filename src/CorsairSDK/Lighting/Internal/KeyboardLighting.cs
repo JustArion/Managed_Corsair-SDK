@@ -77,7 +77,7 @@ internal class KeyboardLighting : IKeyboardLighting, IDisposable
 
 
     private readonly KeyboardColorController _colorController;
-    public IColorController Colors => _colorController;
+    public IKeyboardColorController Colors => _colorController;
     public IEffectController Effects { get; }
 
     public void Shutdown()

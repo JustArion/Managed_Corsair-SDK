@@ -7,17 +7,18 @@ using Connection;
 using Connection.Internal.Contracts;
 using Contracts;
 using Exceptions;
-using Lighting.Contracts;
 
 // TODO: Move away from locks (It's currently a simple implementation)
 // The current implementation acts as scaffolding for future optimization
 // It uses a limited amount of methods in the interop layer to set lighting
-internal class KeyboardColorController(IDeviceConnectionHandler connectionHandler) : IColorController
+internal class KeyboardColorController(IDeviceConnectionHandler connectionHandler) : IKeyboardColorController
 {
     /// <summary>
     /// We only allow disposal to occur if the receipt holder has the correct reciept (The IDisposable is the receipt)
     /// </summary>
     private readonly ReceiptHandler<int> _receiptHandler = new();
+
+    public ILightingInterop NativeInterop => _lighting;
 
     internal readonly ILightingInterop _lighting = new LightingInterop();
 

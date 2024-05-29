@@ -6,7 +6,7 @@ using Internal;
 
 public static class Extensions
 {
-    public static void SetColorFromId(this IColorController colorController, int ledId, Color color)
+    public static void SetColorFromId(this IKeyboardColorController colorController, int ledId, Color color)
     {
         if (colorController is not KeyboardColorController controller)
             throw new NotSupportedException();
@@ -14,7 +14,7 @@ public static class Extensions
         controller._lighting.SetLedColor(ledId, color);
     }
 
-    public static void ClearColorFromId(this IColorController colorController, int ledId)
+    public static void ClearColorFromId(this IKeyboardColorController colorController, int ledId)
     {
         if (colorController is not KeyboardColorController controller)
             throw new NotSupportedException();

@@ -2,17 +2,19 @@
 
 public interface IAnimation
 {
-    TimeSpan Duration { get; }
+    TimeSpan Duration { get; set; }
     TimeSpan CurrentTime { get; }
+
+    public byte FPS { get; }
 
     bool Loop { get; set; }
 
     bool IsPaused { get; set; }
 
-    void Play();
+    Task Play();
     void Pause();
     void Stop();
-    void Restart();
+    Task Restart();
 
     event EventHandler Started;
     event EventHandler Ended;
