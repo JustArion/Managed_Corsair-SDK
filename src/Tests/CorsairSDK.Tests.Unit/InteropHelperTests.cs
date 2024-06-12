@@ -47,7 +47,7 @@ public unsafe class InteropHelperTests
         // Act
         string[] strings;
         fixed (sbyte** ptr = array)
-            strings = CorsairMarshal.ToArray(ptr, 5);
+            strings = CorsairMarshal.ToArray(ptr, array.Length);
 
         // Assert
         strings.Length.Should().Be(5);
