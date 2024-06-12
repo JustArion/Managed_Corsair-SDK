@@ -39,8 +39,13 @@ internal static unsafe class CorsairMarshal
 
     // We don't need a memcpy here since the strings are being created in the ToString method
     // https://github.com/dotnet/runtime/blob/main/src/coreclr/nativeaot/System.Private.CoreLib/src/Internal/Runtime/CompilerHelpers/StartupCode/StartupCodeHelpers.Extensions.cs#L32
+    internal static string[] ToArray(sbyte** stringArray, int size) => ToArray(stringArray, (uint)size);
+
     internal static string[] ToArray(sbyte** stringArray, uint size)
     {
+        if (size == 0)
+            return [];
+
         var result = new string[size];
 
         for (var i = 0; i < size; i++)
