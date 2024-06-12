@@ -1,31 +1,28 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Buffers;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace Corsair.Device.Internal;
 
 internal sealed unsafe class UTF8StringHandle : IDisposable
 {
-    private readonly sbyte* _value;
+    private MemoryHandle _underlyingStringMemoryHandle;
     private bool _disposed;
 
-    internal UTF8StringHandle(ReadOnlySpan<char> str)
+    internal UTF8StringHandle(string str)
     {
-        var byteLength = Encoding.UTF8.GetByteCount(str);
-
-        _value = (sbyte*)NativeMemory.Alloc((nuint)byteLength);
-        _value[byteLength] = 0; // Ensure Null-Terminated
-
-        Encoding.UTF8.GetBytes(str, new Span<byte>(_value, byteLength));
+        var bytes = Encoding.UTF8.GetBytes(str);
+        _underlyingStringMemoryHandle = new ReadOnlyMemory<byte>(bytes).Pin();
     }
 
-    public ref readonly sbyte* Value
+    public sbyte* Value
     {
         get
         {
             if (_disposed)
                 throw new ObjectDisposedException(nameof(UTF8StringHandle));
 
-            return ref _value;
+            return (sbyte*)_underlyingStringMemoryHandle.Pointer;
         }
     }
 
@@ -37,9 +34,11 @@ internal sealed unsafe class UTF8StringHandle : IDisposable
             return;
         _disposed = true;
 
-        NativeMemory.Free(_value);
+        _underlyingStringMemoryHandle.Dispose();
         GC.SuppressFinalize(this);
     }
 
     ~UTF8StringHandle() => Dispose();
+
+    public override string ToString() => new(Value);
 }
