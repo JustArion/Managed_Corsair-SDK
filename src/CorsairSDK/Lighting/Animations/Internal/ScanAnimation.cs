@@ -136,9 +136,9 @@ public class ScanAnimation : IAnimation
 
     private void SetAllBlack()
     {
-        foreach (var position in _positions)
-        foreach (var key in position)
-            _colorController.NativeInterop.SetLedColor(key.Key, Color.Black);
+        var keys = _positions.SelectMany(x => x.Select(y => y.Key));
+        foreach (var key in keys)
+            _colorController.NativeInterop.SetLedColor(key, Color.Black);
     }
 
     public void Pause() => IsPaused = true;
