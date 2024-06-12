@@ -28,8 +28,10 @@
     </ItemGroup>
 
     <ItemGroup Label="Packages">
-      <PackageReference Label="Interop Helper for Unions" Include="OneOf" Version="3.0.271" />
-      <PackageReference Label="Binding Attributes" Include="ParallelExtensionsCore" Version="2.1.0" />
+      <PackageReference Label="Managed Unions"
+                        Include="OneOf" Version="3.0.271" />
+      <PackageReference Label="Attributes for ClangSharp Bindings"
+                        Include="ParallelExtensionsCore" Version="2.1.0" />
     </ItemGroup>
 
     <PropertyGroup Label="Native Dependencies" Condition="$(NETCoreSdkRuntimeIdentifier.Contains('x64')) and '$(PlatformTarget)' != 'x86'">
