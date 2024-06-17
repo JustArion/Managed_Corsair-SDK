@@ -25,7 +25,7 @@ internal unsafe class DeviceInteropHandler : IDeviceInterop
 
         var result = Interop.GetDevices(&filter, (int)Interop.CORSAIR_DEVICE_COUNT_MAX, buffer, &count);
 
-        InteropTracing.Trace(result, filter, count);
+        InteropTracing.DebugTrace(result, filter, count);
 
         result.ThrowIfNecessary();
 
@@ -96,7 +96,7 @@ internal unsafe class DeviceInteropHandler : IDeviceInterop
         var result = Interop.ReadDeviceProperty(CorsairMarshal.ToPointer(deviceId), (CorsairDevicePropertyId)propertyId,
             0, &property);
 
-        InteropTracing.Trace(result, deviceId, propertyId, property);
+        InteropTracing.DebugTrace(result, deviceId, propertyId, property);
 
         result.ThrowIfNecessary();
 
@@ -130,7 +130,7 @@ internal unsafe class DeviceInteropHandler : IDeviceInterop
         }
         finally
         {
-            InteropTracing.Trace(Interop.FreeProperty(&property));
+            InteropTracing.DebugTrace(Interop.FreeProperty(&property));
         }
 
     }
@@ -142,7 +142,7 @@ internal unsafe class DeviceInteropHandler : IDeviceInterop
 
         var result = Interop.GetDevicePropertyInfo(CorsairMarshal.ToPointer(deviceId), (CorsairDevicePropertyId)property, 0, &dataType, (uint*)&flags);
 
-        InteropTracing.Trace(result, deviceId, property, dataType, flags);
+        InteropTracing.DebugTrace(result, deviceId, property, dataType, flags);
 
         return CorsairError.CE_Success == result
             ? new DevicePropertyInfo(dataType, flags)

@@ -34,7 +34,7 @@ internal unsafe class LightingInterop : ILightingInterop
         var result =
             Interop.GetLedPositions(deviceId, MAX_LEDS, positionBuffer, &count);
 
-        InteropTracing.Trace(result, param: device.Id);
+        InteropTracing.DebugTrace(result, param: device.Id);
 
         result.ThrowIfNecessary();
 
@@ -46,7 +46,7 @@ internal unsafe class LightingInterop : ILightingInterop
 
         result = Interop.GetLedColors(deviceId, count, colorBuffer);
 
-        InteropTracing.Trace(result, param: device.Id);
+        InteropTracing.DebugTrace(result, param: device.Id);
 
         result.ThrowIfNecessary();
 
@@ -67,7 +67,7 @@ internal unsafe class LightingInterop : ILightingInterop
 
         var result = Interop.RequestControl(CorsairMarshal.ToPointer(device.Id), ToCorsairAccessLevel(accessLevel));
 
-        InteropTracing.Trace(result, device.Id, accessLevel);
+        InteropTracing.DebugTrace(result, device.Id, accessLevel);
 
         result.ThrowIfNecessary();
 
@@ -85,7 +85,7 @@ internal unsafe class LightingInterop : ILightingInterop
 
         Debug.WriteLine("Releasing Device Control", "Lighting Interop");
 
-        InteropTracing.Trace(Interop.ReleaseControl(CorsairMarshal.ToPointer(device.Id)), param: device.Id);
+        InteropTracing.DebugTrace(Interop.ReleaseControl(CorsairMarshal.ToPointer(device.Id)), param: device.Id);
     }
 
     public void SetDeviceContext(Device.CorsairDevice deviceContext)
@@ -111,7 +111,7 @@ internal unsafe class LightingInterop : ILightingInterop
         var result = Interop.GetLedPositions(CorsairMarshal.ToPointer(device.Id),
             (int)Interop.CORSAIR_DEVICE_LEDCOUNT_MAX, buffer, &positionsCount);
 
-        InteropTracing.Trace(result,  param: device.Id);
+        InteropTracing.DebugTrace(result,  param: device.Id);
 
         result.ThrowIfNecessary();
 
@@ -166,7 +166,7 @@ internal unsafe class LightingInterop : ILightingInterop
         _clearColor.id = (uint)ledId;
 
         fixed (CorsairLedColor* color = &_clearColor)
-            InteropTracing.Trace(
+            InteropTracing.DebugTrace(
                 Interop.SetLedColors(CorsairMarshal.ToPointer(device.Id), 1, color)
                 );
     }

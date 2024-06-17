@@ -24,7 +24,7 @@ internal unsafe class DeviceConnection : IDeviceConnection
         // It's because of the collection expression on the attribute
         var result = Interop.Connect(&DeviceConnectionResolver.DeviceStateChangeNativeCallback, (void*)_connectionId);
 
-        InteropTracing.Trace(result, _connectionId);
+        InteropTracing.DebugTrace(result, _connectionId);
 
 
         return result == CorsairError.CE_Success;
@@ -40,7 +40,7 @@ internal unsafe class DeviceConnection : IDeviceConnection
 
         var result = Interop.GetSessionDetails(&details);
 
-        InteropTracing.Trace(result, details);
+        InteropTracing.DebugTrace(result, details);
 
         result.ThrowIfNecessary();
         return details;
@@ -50,7 +50,7 @@ internal unsafe class DeviceConnection : IDeviceConnection
     {
         var result = Interop.Disconnect();
 
-        InteropTracing.Trace(result);
+        InteropTracing.DebugTrace(result);
 
         result.ThrowIfNecessary();
     }
