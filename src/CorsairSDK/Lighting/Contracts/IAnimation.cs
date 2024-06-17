@@ -1,6 +1,6 @@
 ﻿namespace Corsair.Lighting.Contracts;
 
-public interface IAnimation
+public interface IAnimation : IDisposable
 {
     TimeSpan Duration { get; set; }
     TimeSpan CurrentTime { get; }

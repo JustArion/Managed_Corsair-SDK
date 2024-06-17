@@ -1,4 +1,5 @@
 ﻿using Corsair.Lighting.Contracts;
+using Corsair.Threading;
 
 namespace Corsair.Lighting.Animations.Internal;
 
@@ -12,10 +13,11 @@ public class ScanAnimation : IAnimation
     private readonly  IKeyboardColorController _colorController;
 
     private readonly IGrouping<float, KeyValuePair<int, LedInfo>>[] _positions;
+    private AtomicBoolean _shouldStop;
     private bool _positions_inverted;
     private TimeSpan _duration;
 
-    public ScanAnimation(ScanAnimationOptions options, IKeyboardColorController colorController)
+    protected ScanAnimation(ScanAnimationOptions options, IKeyboardColorController colorController)
     {
         _options = options;
         _colorController = colorController;
@@ -34,7 +36,7 @@ public class ScanAnimation : IAnimation
             ? axisGroup.ToArray()
             : axisGroup.Reverse().ToArray();
 
-        Duration = DefaultDuration;
+        Duration = options.Duration;
 
         Started += OnStarted;
         Ended += OnEnded;
@@ -66,8 +68,6 @@ public class ScanAnimation : IAnimation
         Debug.WriteLine($"{(_options.IsVertical ? "Vertical" : "Horizontal")} Scan Animation Started", "Animation");
     }
 
-    private static readonly TimeSpan DefaultDuration = TimeSpan.FromSeconds(3);
-
     // During the animations, the contents of the array may be reversed. To restore an animation, the contents should be revertable.
     private void ReverseArray()
     {
@@ -81,7 +81,7 @@ public class ScanAnimation : IAnimation
         set
         {
             _duration = value;
-            FPS = (byte)(_positions.Length / _duration.TotalSeconds);
+            FPS = (byte)(_positions.Length / Math.Clamp(_duration.TotalSeconds, 1, int.MaxValue));
             Debug.WriteLine($"FPS Set to '{FPS}'");
         }
     }
@@ -102,12 +102,17 @@ public class ScanAnimation : IAnimation
     {
         var thisFPS = FPS;
         var frameWaitTime = GetFrameWaitTimeMS(thisFPS);
+        var startTime = Environment.TickCount64;
+        long interopDuration = 0;
 
         // A -> B & B -> A
         for (var i = 0; Loop || i < LAPS; i++)
         {
             for (var iPos = 0; iPos < _positions.Length; iPos++)
             {
+                if (_shouldStop.CompareAndSet(true, false))
+                    break;
+
                 var position = _positions[iPos];
 
                 // We keep the last 6 keys since we can't determine what is a new column on the horizon.
@@ -117,22 +122,60 @@ public class ScanAnimation : IAnimation
 
                 if (erasePosition >= 0)
                     foreach (var prevKeyId in _positions[erasePosition].Select(x => x.Key))
+                    {
+                        var interopStartTime = Environment.TickCount64;
                         _colorController.NativeInterop.SetLedColor(prevKeyId, Color.Black);
+                        interopDuration += Environment.TickCount64 - interopStartTime;
+                    }
 
                 var keys = position.Select(x => x.Key).ToArray();
                 foreach (var keyId in keys)
+                {
+                    var interopStartTime = Environment.TickCount64;
                     _colorController.NativeInterop.SetLedColor(keyId, _options.Color);
+                    interopDuration += Environment.TickCount64 - interopStartTime;
+                }
 
-                CurrentTime = TimeSpan.FromMilliseconds(iPos * frameWaitTime * LAPS);
+                // Adds on the previous Laps' progress to the CurrentTime
+                // This makes each lap not start at 00:00
+                CurrentTime = TimeSpan.FromMilliseconds(((_positions.Length * i) + iPos) * frameWaitTime);
                 // FPS
-                await Task.Delay(frameWaitTime);
-                Debug.WriteLine($"{CurrentTime:g}/{Duration:g} | Reversed: {_positions_inverted}", "Animation");
+                await Task.Delay(frameWaitTime / LAPS);
+
+                Debug.WriteLine($"\t{TimeSpan.FromMilliseconds(Environment.TickCount64 - startTime):g} | {frameWaitTime} | {CurrentTime:g}/{Duration:g} | Reversed: {_positions_inverted}", "Animation");
             }
 
+            if (_shouldStop.CompareAndSet(true, false))
+                break;
             // Left -> Right becomes Right -> Left (and vice-versa)
             ReverseArray();
         }
+        var endTime = Environment.TickCount64;
+        SetAllBlack();
+        Debug.WriteLine("Finished", "Animation");
+
+        OnAnimationEnd(TimeSpan.FromMilliseconds(endTime - startTime), frameWaitTime, thisFPS, interopDuration);
     }
+
+    private void OnAnimationEnd(TimeSpan actualDuration, int frameTime, int fps, long interopTime)
+    {
+        Debug.WriteLine("Preparing Animation Stats", "Animation");
+        Debug.WriteLine(new string('-', 40), "Animation");
+        var frameLoss = actualDuration - Duration;
+        WriteStat("Frame Time", $"{frameTime}ms");
+        WriteStat("FPS", fps);
+        if (frameLoss.TotalMilliseconds > 0)
+        {
+            WriteStat("C-Frame Loss", $"{frameLoss.TotalMilliseconds - interopTime}ms");
+            WriteStat("Total Frame Loss", $"{frameLoss.TotalMilliseconds}ms");
+        }
+        WriteStat("End Time", CurrentTime);
+        WriteStat("Ideal Duration", Duration);
+        WriteStat("Actual Duration", actualDuration);
+    }
+
+    private void WriteStat<T>(string statName, T stat)
+        => Debug.WriteLine($"{statName, -17}| {stat}", "Animation");
 
     private void SetAllBlack()
     {
@@ -145,10 +188,14 @@ public class ScanAnimation : IAnimation
 
     public void Stop()
     {
+        Debug.WriteLine("Stopping Animation");
+        _shouldStop.CompareAndSet(false, true);
+        IsPaused = false;
     }
 
     public async Task Restart()
     {
+        Debug.WriteLine("Restarting Animation");
         Stop();
 
         // We reset the array to its original state
@@ -162,4 +209,10 @@ public class ScanAnimation : IAnimation
     public event EventHandler Ended;
     public event EventHandler Paused;
     public event EventHandler Resumed;
+
+    public void Dispose()
+    {
+        SetAllBlack();
+        GC.SuppressFinalize(this);
+    }
 }
