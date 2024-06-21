@@ -1,5 +1,6 @@
 ﻿using Corsair.Lighting.Contracts;
 using Corsair.Threading;
+using Corsair.Threading.Internal;
 
 namespace Corsair.Lighting.Animations.Internal;
 
@@ -7,15 +8,13 @@ using System.Diagnostics;
 using System.Drawing;
 using Contracts;
 
-public class ScanAnimation : IAnimation
+public class ScanAnimation : AnimationBase
 {
     private readonly ScanAnimationOptions _options;
     private readonly  IKeyboardColorController _colorController;
 
-    private readonly IGrouping<float, KeyValuePair<int, LedInfo>>[] _positions;
     private AtomicBoolean _shouldStop;
     private bool _positions_inverted;
-    private TimeSpan _duration;
 
     protected ScanAnimation(ScanAnimationOptions options, IKeyboardColorController colorController)
     {
@@ -37,31 +36,27 @@ public class ScanAnimation : IAnimation
             : axisGroup.Reverse().ToArray();
 
         Duration = options.Duration;
-
-        Started += OnStarted;
-        Ended += OnEnded;
-        Resumed += OnResumed;
-        Paused += OnPaused;
     }
 
-    private void OnPaused(object? sender, EventArgs e)
+    protected override void OnPaused(object? sender, EventArgs e)
     {
         Debug.WriteLine($"{(_options.IsVertical ? "Vertical" : "Horizontal")} Scan Animation Paused", "Animation");
     }
 
-    private void OnResumed(object? sender, EventArgs e)
+    protected override void OnResumed(object? sender, EventArgs e)
     {
         Debug.WriteLine($"{(_options.IsVertical ? "Vertical" : "Horizontal")} Scan Animation Resumed", "Animation");
     }
 
-    private void OnEnded(object? sender, EventArgs e)
+    protected override void OnEnded(object? sender, EventArgs e)
     {
         SetAllBlack();
+        _colorController.ClearAll();
 
         Debug.WriteLine($"{(_options.IsVertical ? "Vertical" : "Horizontal")} Scan Animation Finished", "Animation");
     }
 
-    private void OnStarted(object? sender, EventArgs e)
+    protected override void OnStarted(object? sender, EventArgs e)
     {
         _colorController.ClearAll();
 
@@ -75,31 +70,22 @@ public class ScanAnimation : IAnimation
         _positions_inverted = !_positions_inverted;
     }
 
-    public TimeSpan Duration
-    {
-        get => _duration;
-        set
-        {
-            _duration = value;
-            FPS = (byte)(_positions.Length / Math.Clamp(_duration.TotalSeconds, 1, int.MaxValue));
-            Debug.WriteLine($"FPS Set to '{FPS}'");
-        }
-    }
-
-    public TimeSpan CurrentTime { get; private set; }
-
-    public byte FPS { get; private set; }
-
     private static int GetFrameWaitTimeMS(int targetFPS) => 1000 / Math.Clamp(targetFPS, 1, int.MaxValue) / LAPS;
-
-    public bool Loop { get; set; }
-    public bool IsPaused { get; set; }
 
     // Left -> Right becomes Right -> Left (and vice-versa)
     private const int LAPS = 2;
     private const int KEYS_PEY_COLUMN = 6;
-    public async Task Play()
+
+    public override void Reverse()
     {
+        ReverseArray();
+        SetAllBlack();
+    }
+
+    public override async Task Play()
+    {
+        RaiseStarted(this);
+        Debug.WriteLine("Playing Animation", "Animation");
         var thisFPS = FPS;
         var frameWaitTime = GetFrameWaitTimeMS(thisFPS);
         var startTime = Environment.TickCount64;
@@ -110,6 +96,9 @@ public class ScanAnimation : IAnimation
         {
             for (var iPos = 0; iPos < _positions.Length; iPos++)
             {
+                // Wait if paused
+                await _pauseResetEventSlim.WaitAsync();
+                // Stop if requested
                 if (_shouldStop.CompareAndSet(true, false))
                     break;
 
@@ -184,16 +173,15 @@ public class ScanAnimation : IAnimation
             _colorController.NativeInterop.SetLedColor(key, Color.Black);
     }
 
-    public void Pause() => IsPaused = true;
-
-    public void Stop()
+    public override void Stop()
     {
         Debug.WriteLine("Stopping Animation");
         _shouldStop.CompareAndSet(false, true);
-        IsPaused = false;
+
+        base.Stop();
     }
 
-    public async Task Restart()
+    public override async Task Restart()
     {
         Debug.WriteLine("Restarting Animation");
         Stop();
@@ -205,12 +193,7 @@ public class ScanAnimation : IAnimation
         await Play();
     }
 
-    public event EventHandler Started;
-    public event EventHandler Ended;
-    public event EventHandler Paused;
-    public event EventHandler Resumed;
-
-    public void Dispose()
+    public override void Dispose()
     {
         SetAllBlack();
         GC.SuppressFinalize(this);
