@@ -64,7 +64,7 @@ public class ScanAnimation : AnimationBase
     }
 
     // During the animations, the contents of the array may be reversed. To restore an animation, the contents should be revertable.
-    private void ReverseArray()
+    private void ReversePositions()
     {
         Array.Reverse(_positions);
         _positions_inverted = !_positions_inverted;
@@ -78,7 +78,7 @@ public class ScanAnimation : AnimationBase
 
     public override void Reverse()
     {
-        ReverseArray();
+        ReversePositions();
         SetAllBlack();
     }
 
@@ -137,11 +137,12 @@ public class ScanAnimation : AnimationBase
             if (_shouldStop.CompareAndSet(true, false))
                 break;
             // Left -> Right becomes Right -> Left (and vice-versa)
-            ReverseArray();
+            ReversePositions();
         }
         var endTime = Environment.TickCount64;
-        SetAllBlack();
         Debug.WriteLine("Finished", "Animation");
+
+        RaiseEnded(this);
 
         OnAnimationEnd(TimeSpan.FromMilliseconds(endTime - startTime), frameWaitTime, thisFPS, interopDuration);
     }
@@ -188,7 +189,7 @@ public class ScanAnimation : AnimationBase
 
         // We reset the array to its original state
         if (_positions_inverted)
-            ReverseArray();
+            ReversePositions();
 
         await Play();
     }
