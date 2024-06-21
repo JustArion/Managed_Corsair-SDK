@@ -99,7 +99,7 @@ public class ScanAnimation : AnimationBase
                 // Wait if paused
                 await _pauseResetEventSlim.WaitAsync();
                 // Stop if requested
-                if (_shouldStop.CompareAndSet(true, false))
+                if (_shouldStop)
                     break;
 
                 var position = _positions[iPos];
