@@ -20,4 +20,11 @@ public static class CorsairSDK
         _connectionHandler.Connect(DeviceReconnectPolicy.Default);
         return _deviceInterop.GetDevices(deviceFilter);
     }
+
+    public static T? GetDeviceAs<T>() where T : CorsairDevice
+    {
+        var device = GetDevices().FirstOrDefault(x => x.IsDeviceType<T>());
+
+        return device?.AsDevice<T>();
+    }
 }
