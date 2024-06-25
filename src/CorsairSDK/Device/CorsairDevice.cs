@@ -1,4 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Corsair.Lighting.Contracts;
+using Corsair.Lighting.Internal;
 
 namespace Corsair.Device;
 
@@ -20,8 +22,16 @@ public class CorsairDevice
         _interop = deviceInformation.InteropLayer;
 
         DeviceOptions = new DeviceOptions { PropertyUpdateIntervalSeconds = 1 };
+
+        if (LedCount <= 0)
+            return;
+
+        LightingInterop = new LightingInterop();
+        LightingInterop.SetDeviceContext(this);
     }
     internal readonly IDeviceInterop _interop;
+
+    public ILightingInterop? LightingInterop { get; protected set; }
 
 
     public DeviceOptions DeviceOptions { get; }
@@ -73,6 +83,8 @@ public class CorsairDevice
             return device;
         throw new InvalidCastException();
     }
+
+    public bool IsDeviceType<T>() where T : CorsairDevice => this is T;
 }
 
 public record DeviceOptions
