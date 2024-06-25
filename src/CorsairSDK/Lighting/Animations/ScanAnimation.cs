@@ -15,7 +15,7 @@ public class ScanAnimation : LightingAnimation
     private AtomicBoolean _shouldStop;
     private bool _positions_inverted;
 
-    protected ScanAnimation(ScanAnimationOptions options, IKeyboardColorController colorController)
+    public ScanAnimation(ScanAnimationOptions options, IKeyboardColorController colorController)
     {
         _options = options;
         _colorController = colorController;
