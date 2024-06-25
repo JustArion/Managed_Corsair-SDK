@@ -3,20 +3,29 @@ using Corsair.Lighting.Contracts;
 
 namespace Corsair.Lighting.Animations;
 
-public abstract class AnimationBase : IAnimation
+public abstract class LightingAnimation : IAnimation
 {
     private bool _isPaused;
     private TimeSpan _duration;
 
     protected IGrouping<float, KeyValuePair<int, LedInfo>>[] _positions = [];
     protected readonly ManualResetEventSlim _pauseResetEventSlim;
-    protected AnimationBase()
+
+    protected bool IsPlaying { get; private set; }
+
+    protected LightingAnimation()
     {
+        // Initial State is unpaused
         _pauseResetEventSlim = new(true);
         Started += OnStarted;
         Ended += OnEnded;
         Resumed += OnResumed;
         Paused += OnPaused;
+
+        Started += delegate { IsPlaying = true; };
+        Resumed += delegate { IsPlaying = true; };
+        Ended += delegate { IsPlaying = false; };
+        Paused += delegate { IsPlaying = false; };
     }
 
     private void UpdateAnimationState(bool isPaused)
@@ -88,10 +97,10 @@ public abstract class AnimationBase : IAnimation
         await Play();
     }
 
-    protected static void RaiseStarted(AnimationBase animation) => animation.Started.Invoke(animation, EventArgs.Empty);
-    protected static void RaiseEnded(AnimationBase animation) => animation.Ended.Invoke(animation, EventArgs.Empty);
-    protected static void RaisePaused(AnimationBase animation) => animation.Paused.Invoke(animation, EventArgs.Empty);
-    protected static void RaiseResumed(AnimationBase animation) => animation.Resumed.Invoke(animation, EventArgs.Empty);
+    protected static void RaiseStarted(LightingAnimation animation) => animation.Started.Invoke(animation, EventArgs.Empty);
+    protected static void RaiseEnded(LightingAnimation animation) => animation.Ended.Invoke(animation, EventArgs.Empty);
+    protected static void RaisePaused(LightingAnimation animation) => animation.Paused.Invoke(animation, EventArgs.Empty);
+    protected static void RaiseResumed(LightingAnimation animation) => animation.Resumed.Invoke(animation, EventArgs.Empty);
 
     public event EventHandler Started;
     public event EventHandler Ended;
