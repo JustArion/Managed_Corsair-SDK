@@ -13,6 +13,7 @@
       <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
       <LangVersion>latest</LangVersion>
       <DefineConstants>TRACE</DefineConstants>
+      <AssemblyName>Dawn.CorsairSDK</AssemblyName>
     </PropertyGroup>
 
     <ItemGroup Label="Internals">
