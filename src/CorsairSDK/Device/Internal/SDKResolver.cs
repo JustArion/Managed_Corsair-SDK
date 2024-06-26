@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Corsair.Device.Internal;
 
@@ -33,7 +34,7 @@ internal static class SDKResolver
         };
 
 
-        if (TrySearchForLibrary(lib, architecture, out var ptr))
+        if (TrySearchForLibrary(lib, out var ptr))
             return ptr;
 
 
@@ -59,7 +60,7 @@ internal static class SDKResolver
     }
 
 
-    private static bool TrySearchForLibrary(string lib, Architecture architecture, out nint ptr)
+    private static bool TrySearchForLibrary(string lib, out nint ptr)
     {
         #if !NET7_0_OR_GREATER
         ptr = IntPtr.Zero;
@@ -72,48 +73,47 @@ internal static class SDKResolver
         var appDirLibPath = Path.Combine(AppContext.BaseDirectory, libPath);
 
 
-        // Corsair's DLLs are signed, but a SHA256 is easier for now.
-
         if (File.Exists(appDirLibPath))
         {
-            if (!VerifySHA256(appDirLibPath, architecture))
+            if (!IsSignedAndVerified(appDirLibPath))
                 return false;
 
-            ptr = NativeLibrary.Load(appDirLibPath);
+            ptr = LoadLibrary(appDirLibPath);
             Debug.WriteLine($"Loaded SDK from [ {appDirLibPath} ]", "SDK Resolver");
             return true;
         }
 
-        if (!File.Exists(libPath) || !VerifySHA256(libPath, architecture))
+        if (!File.Exists(libPath) || !IsSignedAndVerified(libPath))
             return false;
 
-        ptr = NativeLibrary.Load(libPath);
-        Debug.WriteLine($"Loaded SDK from [ {libPath} ]", "SDK Resolver");
+        ptr = LoadLibrary(libPath);
         return true;
 
     }
 
-    [SuppressMessage("ReSharper", "SwitchStatementMissingSomeEnumCasesNoDefault")]
-    private static bool VerifySHA256(string path, Architecture architecture) =>
-        architecture switch {
-            Architecture.X86 => IsValidHash(path, Hashes.X86_SHA256),
-            Architecture.X64 => IsValidHash(path, Hashes.X64_SHA256),
-            _ => false
-        };
-
-    private static bool IsValidHash(string path, string expectedHash)
+    private static bool IsSignedAndVerified(string path)
     {
-        byte[] sha256;
-        using (var hFile = File.Open(path, FileMode.Open, FileAccess.Read))
-            sha256 = SHA256.Create().ComputeHash(hFile);
+        try
+        {
+            // Signed
+            using var cert = X509Certificate.CreateFromSignedFile(path);
 
-        var actualHash = BitConverter.ToString(sha256).Replace("-", "").ToLower();
-
-        return expectedHash == actualHash;
+            // Verified
+            return cert.Subject == """CN="Corsair Memory, Inc.", O="Corsair Memory, Inc.", L=Fremont, S=California, C=US""";
+        }
+        catch (CryptographicException)
+        {
+            return false;
+        }
     }
 
     private static nint LoadLibrary(string path)
     {
-        return NativeLibrary.Load(path);
+        var loaded = NativeLibrary.TryLoad(path, out var handle);
+
+        if (loaded)
+            Debug.WriteLine($"Loaded SDK from [ {path} ]", "SDK Resolver");
+
+        return handle;
     }
 }
