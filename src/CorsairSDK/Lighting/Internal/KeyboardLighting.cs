@@ -1,4 +1,5 @@
 ﻿using Corsair.Bindings;
+using Corsair.Device.Devices;
 
 namespace Corsair.Lighting.Internal;
 
@@ -59,9 +60,9 @@ internal class KeyboardLighting : IKeyboardLighting, IDisposable
         string VersionToString(CorsairVersion version) => $"{version.major}.{version.minor}.{version.patch}";
     }
 
-    private bool OnConnectionEstablished(AccessLevel accessLevel, CorsairDevice? keyboard = null)
+    private bool OnConnectionEstablished(AccessLevel accessLevel, Keyboard? keyboard = null)
     {
-        keyboard ??= CorsairSDK.GetDevices(DeviceType.Keyboard).FirstOrDefault();
+        keyboard ??= CorsairSDK.GetDeviceAs<Keyboard>();
 
         if (keyboard == null)
         {

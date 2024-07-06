@@ -1,9 +1,12 @@
-﻿namespace Corsair.Lighting.Contracts;
+﻿using Corsair.Device.Devices;
+
+namespace Corsair.Lighting.Contracts;
 
 using System.Drawing;
 
 public interface IKeyboardColorController : IDisposable
 {
+    Keyboard Device { get; }
     IReadOnlySet<KeyboardKey> KeyboardKeys { get; }
 
     IDisposable SetFromBitmap(byte[] bitmap);

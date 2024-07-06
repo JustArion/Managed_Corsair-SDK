@@ -1,4 +1,6 @@
-﻿namespace Corsair.Lighting.Internal;
+﻿using Corsair.Device.Devices;
+
+namespace Corsair.Lighting.Internal;
 
 using System.Diagnostics;
 using System.Drawing;
@@ -13,6 +15,8 @@ using Exceptions;
 // It uses a limited amount of methods in the interop layer to set lighting
 internal class KeyboardColorController(IDeviceConnectionHandler connectionHandler) : IKeyboardColorController
 {
+    public Keyboard Device { get; private set; } = null!;
+
     /// <summary>
     /// We only allow disposal to occur if the receipt holder has the correct reciept (The IDisposable is the receipt)
     /// </summary>
@@ -24,13 +28,15 @@ internal class KeyboardColorController(IDeviceConnectionHandler connectionHandle
 
     private readonly List<IDisposable?> _disposables = [];
 
-    internal void SetContext(Device.CorsairDevice keyboard, AccessLevel accessLevel)
+    internal void SetContext(Keyboard keyboard, AccessLevel accessLevel)
     {
         _lighting.SetDeviceContext(keyboard);
+        Device = keyboard;
         SyncKeyboardKeys();
 
         _disposables.Add(_lighting.RequestControl(accessLevel));
 
+        Debug.WriteLine($"Context set for device {keyboard.Model} as a Keyboard", "Color Controller");
     }
 
     private void SyncKeyboardKeys()
