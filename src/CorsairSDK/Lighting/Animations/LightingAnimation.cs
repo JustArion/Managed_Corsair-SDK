@@ -7,20 +7,22 @@ public abstract class LightingAnimation : IAnimation
 {
     private bool _isPaused;
     private TimeSpan _duration;
+    protected bool _positionsInverted;
 
-    protected IGrouping<float, KeyValuePair<int, LedInfo>>[] _positions = [];
-    protected readonly ManualResetEventSlim _pauseResetEventSlim;
+    protected abstract IGrouping<float, KeyValuePair<int, LedInfo>>[] Positions { get; init; }
+    protected readonly ManualResetEventSlim _pauseResetEvent;
 
     protected bool IsPlaying { get; private set; }
 
     protected LightingAnimation()
     {
         // Initial State is unpaused
-        _pauseResetEventSlim = new(true);
+        _pauseResetEvent = new(true);
         Started += OnStarted;
         Ended += OnEnded;
         Resumed += OnResumed;
         Paused += OnPaused;
+        Errored += OnErrored;
 
         Started += delegate { IsPlaying = true; };
         Resumed += delegate { IsPlaying = true; };
@@ -31,15 +33,16 @@ public abstract class LightingAnimation : IAnimation
     private void UpdateAnimationState(bool isPaused)
     {
         if (isPaused)
-            _pauseResetEventSlim.Reset();
+            _pauseResetEvent.Reset();
         else
-            _pauseResetEventSlim.Set();
+            _pauseResetEvent.Set();
     }
 
     protected virtual void OnStarted(object? sender, EventArgs e) { }
     protected virtual void OnEnded(object? sender, EventArgs e) { }
     protected virtual void OnResumed(object? sender, EventArgs e) { }
     protected virtual void OnPaused(object? sender, EventArgs e) { }
+    protected virtual void OnErrored(object? sender, Exception e) { }
 
     public TimeSpan Duration
     {
@@ -47,7 +50,7 @@ public abstract class LightingAnimation : IAnimation
         set
         {
             _duration = value;
-            FPS = (int)(_positions.Length / Math.Clamp(_duration.TotalSeconds, 1, int.MaxValue));
+            FPS = (int)(Positions.Length / Math.Clamp(_duration.TotalSeconds, 1, int.MaxValue));
             Debug.WriteLine($"FPS Set to '{FPS}'", "Animation");
         }
     }
@@ -68,7 +71,15 @@ public abstract class LightingAnimation : IAnimation
         }
     }
 
-    public abstract void Reverse();
+
+    // During the animations, the contents of the array may be reversed. To restore an animation, the contents should be revertable.
+    protected virtual void ReversePositions()
+    {
+        Array.Reverse(Positions);
+        _positionsInverted = !_positionsInverted;
+    }
+
+    public virtual void Reverse() => ReversePositions();
 
     public abstract Task Play();
 
@@ -101,7 +112,9 @@ public abstract class LightingAnimation : IAnimation
     protected static void RaiseEnded(LightingAnimation animation) => animation.Ended.Invoke(animation, EventArgs.Empty);
     protected static void RaisePaused(LightingAnimation animation) => animation.Paused.Invoke(animation, EventArgs.Empty);
     protected static void RaiseResumed(LightingAnimation animation) => animation.Resumed.Invoke(animation, EventArgs.Empty);
+    protected static void RaiseErrored(LightingAnimation animation, Exception exception) => animation.Errored.Invoke(animation, exception);
 
+    protected event EventHandler<Exception> Errored;
     public event EventHandler Started;
     public event EventHandler Ended;
     public event EventHandler Paused;
