@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Threading.Async;
 using Corsair.Device;
 using Corsair.Lighting.Internal;
@@ -7,7 +8,7 @@ namespace Corsair.Lighting.Animations.Internal;
 
 internal static class DeviceAnimationSemaphore
 {
-    private static readonly Dictionary<string, AnimationLock> _locks = new();
+    private static readonly ConcurrentDictionary<string, AnimationLock> _locks = new();
 
     /// <summary>
     /// Wait's if the current device is under a lock. Locks the device until released.
@@ -19,13 +20,13 @@ internal static class DeviceAnimationSemaphore
             await animationLock.WaitAsync();
 
         var deviceAnimationLock = new DisposableAnimationLock<CorsairDevice>(OnDispose, device);
-        _locks.Add(device.Id, deviceAnimationLock);
+        _locks.TryAdd(device.Id, deviceAnimationLock);
         return deviceAnimationLock;
     }
 
     private static void OnDispose(CorsairDevice dev)
     {
         Debug.WriteLine($"Animation lock released for {dev.Type.ToString().ToLower()} device '{dev.Model}'", nameof(DeviceAnimationSemaphore));
-        _locks.Remove(dev.Id);
+        _locks.TryRemove(dev.Id, out _);
     }
 }
