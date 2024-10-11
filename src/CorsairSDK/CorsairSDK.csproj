@@ -6,17 +6,20 @@
       <Nullable>enable</Nullable>
       <RootNamespace>Corsair</RootNamespace>
       <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-      <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+      <!-- https://github.com/dotnet/msbuild/issues/3787 -->
+      <!-- <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>-->
       <DebugType>embedded</DebugType>
       <GenerateDependencyFile>false</GenerateDependencyFile>
       <DebugSymbols>true</DebugSymbols>
+      <PathMap>$(MSBuildProjectDirectory)=/</PathMap>
       <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
       <LangVersion>latest</LangVersion>
       <DefineConstants>TRACE</DefineConstants>
       <AssemblyName>Dawn.CorsairSDK</AssemblyName>
     </PropertyGroup>
 
-    <ItemGroup Label="Internals">
+    <!-- For Tests -->
+    <ItemGroup>
       <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
         <_Parameter1>Testing</_Parameter1>
       </AssemblyAttribute>
@@ -28,18 +31,21 @@
       </AssemblyAttribute>
     </ItemGroup>
 
-    <ItemGroup Label="Packages">
+    <!-- Managed Dependencies -->
+    <ItemGroup>
       <PackageReference Label="Managed Unions"
                         Include="OneOf" Version="3.0.271" />
       <PackageReference Label="Attributes for ClangSharp Bindings"
                         Include="ParallelExtensionsCore" Version="2.1.0" />
     </ItemGroup>
 
-    <PropertyGroup Label="Native Dependencies" Condition="$(NETCoreSdkRuntimeIdentifier.Contains('x64')) and '$(PlatformTarget)' != 'x86'">
+    <!-- Native Dependencies -->
+    <PropertyGroup Condition="$(NETCoreSdkRuntimeIdentifier.Contains('x64')) and '$(PlatformTarget)' != 'x86'">
       <DefineConstants>X64;TRACE</DefineConstants>
     </PropertyGroup>
 
-    <ItemGroup Label="Embedded Resources">
+    <!-- Native Binaries -->
+    <ItemGroup>
       <EmbeddedResource Include="Binaries\iCUESDK.x64_2019.dll" />
       <EmbeddedResource Include="Binaries\iCUESDK_2019.dll" />
     </ItemGroup>
