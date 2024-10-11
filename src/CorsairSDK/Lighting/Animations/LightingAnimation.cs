@@ -3,6 +3,9 @@ using Corsair.Lighting.Contracts;
 
 namespace Corsair.Lighting.Animations;
 
+/// <summary>
+/// A base class for creating and managing lighting animations filled with useful methods and events
+/// </summary>
 public abstract class LightingAnimation : IAnimation
 {
     private bool _isPaused;

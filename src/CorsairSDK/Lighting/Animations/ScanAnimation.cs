@@ -18,6 +18,8 @@ public class ScanAnimation : LightingAnimation
 
     protected sealed override IGrouping<float, KeyValuePair<int, LedInfo>>[] Positions { get; init; }
 
+    /// <exception cref="T:Corsair.Exceptions.DeviceNotConnectedException">The device is not connected, the operation could not be completed</exception>
+    /// <exception cref="T:Corsair.Exceptions.CorsairException">An unexpected event happened, the device may have gotten disconnected</exception>
     public ScanAnimation(ScanAnimationOptions options, IKeyboardColorController colorController)
     {
         _options = options;

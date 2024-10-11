@@ -17,8 +17,8 @@ internal unsafe class LightingInterop : ILightingInterop
 
     public void Dispose() => ReleaseControl();
 
-
     private const int MAX_LEDS = (int)Interop.CORSAIR_DEVICE_LEDCOUNT_MAX;
+
     public Dictionary<int, LedInfo> GetPositionInfo()
     {
         if (device == null)
@@ -60,6 +60,7 @@ internal unsafe class LightingInterop : ILightingInterop
 
         return retVal;
     }
+
     public IDisposable RequestControl(AccessLevel accessLevel)
     {
         if (device == null)
@@ -90,6 +91,9 @@ internal unsafe class LightingInterop : ILightingInterop
 
     public void SetDeviceContext(Device.CorsairDevice deviceContext)
     {
+        if (deviceContext == null)
+            throw new NullReferenceException(nameof(deviceContext));
+
         _positionMap.Clear();
         device = deviceContext;
     }

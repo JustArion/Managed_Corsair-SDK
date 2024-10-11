@@ -1,7 +1,7 @@
 ﻿namespace Corsair.Lighting.Contracts;
 
 /// <summary>
-/// Lighting & Effects for the keyboard
+/// Lighting and Effects for the keyboard
 /// </summary>
 public interface IKeyboardLighting
 {
@@ -20,6 +20,5 @@ public interface IKeyboardLighting
     /// <summary>
     /// Shuts down all lighting on the keyboard and disconnects from iCUE
     /// </summary>
-
     void Shutdown();
 }

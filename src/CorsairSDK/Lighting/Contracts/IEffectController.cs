@@ -4,6 +4,7 @@ namespace Corsair.Lighting.Contracts;
 
 using System.Drawing;
 
+/// <exception cref="T:Corsair.Exceptions.CorsairException">An unexpected event happened, the device may have gotten disconnected</exception>
 public interface IEffectController : IDisposable
 {
     EffectReceipt FlickerKeys(PulseInfo pulseInfo, params KeyboardKeys[] keys);
