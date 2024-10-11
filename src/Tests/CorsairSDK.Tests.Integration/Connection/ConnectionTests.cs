@@ -3,7 +3,7 @@
 using Corsair;
 using FluentAssertions;
 
-[TestFixture(Category = "Connection", Description = "Mixed external requirements. Minimal: iCUE is installed. Maximum: Has a Corsair Keyboard and iCUE is installed.")]
+[TestFixture(Author = "JustArion", Category = "Connection", Description = "Mixed external requirements. Minimal: iCUE is installed. Maximum: Has a Corsair Keyboard and iCUE is installed.")]
 public class ConnectionTests
 {
     [TearDown]
@@ -12,7 +12,7 @@ public class ConnectionTests
         CorsairSDK._connectionHandler.Disconnect();
     }
     
-    [Test(Author = "JustArion", Description = "C# SDK should connect to iCUE")]
+    [Test(Description = "C# SDK should connect to iCUE")]
     public void ShouldConnect_ToSDK()
     {
         // Act

@@ -6,7 +6,7 @@ using Corsair.Lighting;
 using Corsair.Lighting.Contracts;
 using FluentAssertions;
 
-[TestFixture(Category = "Lighting / Keyboard", Description = "Mixed external requirements. Minimal: iCUE is installed & has a Corsair Keyboard")]
+[TestFixture(Author = "JustArion", Category = "Lighting / Keyboard", Description = "Mixed external requirements. Minimal: iCUE is installed & has a Corsair Keyboard")]
 public class KeyboardLightingTests
 {
     
@@ -20,7 +20,7 @@ public class KeyboardLightingTests
         _lighting.Shutdown();
     }
     
-    [Test(Author = "JustArion", Description = "Keyboard lighting should be initialized for 1 sec")]
+    [Test(Description = "Keyboard lighting should be initialized for 1 sec")]
     public async Task ShouldInitialize_Lighting()
     {
         // Act
@@ -33,7 +33,7 @@ public class KeyboardLightingTests
     }
     
     
-    [Test(Author = "JustArion", Description = "All keys should light up Red for at least 1 second")]
+    [Test(Description = "All keys should light up Red for at least 1 second")]
     public async Task ShouldSet_GlobalKeyboardColor_Red()
     {
         // Arrange
@@ -50,7 +50,7 @@ public class KeyboardLightingTests
         }
     }
     
-    [Test(Author = "JustArion", Description = "The enter key should turn Green for 1 second")]
+    [Test(Description = "The enter key should turn Green for 1 second")]
     public async Task ShouldSet_SingleKey_Green()
     {
         // Arrange
@@ -70,7 +70,7 @@ public class KeyboardLightingTests
         }
     }
     
-    [Test(Author = "JustArion", Description = "The Q, W, E, R, T, and Y keys should turn Blue for 1 second")]
+    [Test(Description = "The Q, W, E, R, T, and Y keys should turn Blue for 1 second")]
     public async Task ShouldSet_MultipleKeys_Blue()
     {
         // Arrange
@@ -95,7 +95,7 @@ public class KeyboardLightingTests
         }
     }
     
-    [Test(Author = "JustArion", Description = "The Arrow-Keys should turn Cyan for 1 second")]
+    [Test(Description = "The Arrow-Keys should turn Cyan for 1 second")]
     public async Task ShouldSet_Zone_Cyan()
     {
         // Arrange
@@ -118,7 +118,7 @@ public class KeyboardLightingTests
         }
     }
     
-    [Test(Author = "JustArion", Description = "Multiple keyboard zones should be different colors")]
+    [Test(Description = "Multiple keyboard zones should be different colors")]
     public async Task ShouldSet_MultipleZones_VariousColors()
     {
         // Arrange
@@ -163,7 +163,7 @@ public class KeyboardLightingTests
         }
     }
     
-    [Test(Author = "JustArion", Description = "A color is globally set, some keys, some keys are cleared")]
+    [Test(Description = "A color is globally set, some keys, some keys are cleared")]
     public async Task ShouldClear_MultipleKeys_FromGlobal()
     {
         // Arrange

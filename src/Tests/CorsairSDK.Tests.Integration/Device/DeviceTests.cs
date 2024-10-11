@@ -4,7 +4,7 @@ using Corsair.Device;
 using Corsair;
 using FluentAssertions;
 
-[TestFixture(Category = "Device", Description = "Mixed external requirements. Minimal: iCUE is installed. Maximum: Has 1 Corsair device connected.")]
+[TestFixture(Author = "JustArion", Category = "Device", Description = "Mixed external requirements. Minimal: iCUE is installed. Maximum: Has 1 Corsair device connected.")]
 public class DeviceTests
 {
     
@@ -14,7 +14,7 @@ public class DeviceTests
         CorsairSDK.KeyboardLighting.Shutdown();
     }
     
-    [Test(Author = "JustArion", Description = "Corsair devices should be listed")]
+    [Test(Description = "Corsair devices should be listed")]
     public void ShouldList_Devices()
     {
         // Act
@@ -25,7 +25,7 @@ public class DeviceTests
     }
 
     
-    [Test(Author = "JustArion", Description = "Corsair devices should contain proper info")]
+    [Test(Description = "Corsair devices should contain proper info")]
     public void Devices_ShouldHave_Information()
     {
         // Act
@@ -43,7 +43,7 @@ public class DeviceTests
         }
     }
     
-    [Test(Author = "JustArion", Description = "Corsair devices should contain proper info")]
+    [Test(Description = "Corsair devices should contain proper info")]
     public void Devices_ShouldHave_ValidIds()
     {
         // Act
