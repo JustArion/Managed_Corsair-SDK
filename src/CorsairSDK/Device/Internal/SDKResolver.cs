@@ -19,24 +19,22 @@ internal static class SDKResolver
     internal static nint CorsairSDKResolver(string libraryname, Assembly assembly, DllImportSearchPath? searchpath)
     {
         if (libraryname is not LIBRARY_BINDING_NAME)
-        #if !NET7_0_OR_GREATER
-            return IntPtr.Zero;
-        #else
-            return nint.Zero;
-        #endif
+            return 0;
 
         var architecture = RuntimeInformation.OSArchitecture;
 
-        var lib = architecture switch {
-            Architecture.X86 => X86_FILENAME,
-            Architecture.X64 => X64_FILENAME,
-            _ => throw new PlatformNotSupportedException()
-        };
+        if (architecture is not (Architecture.X64 or Architecture.X86))
+            return 0;
 
+        var lib = architecture == Architecture.X64
+            ? X64_FILENAME
+            : X86_FILENAME;
+
+        if (string.IsNullOrWhiteSpace(lib))
+            return 0;
 
         if (TrySearchForLibrary(lib, out var ptr))
             return ptr;
-
 
         var path = ExtractBinary(lib, Path.Combine(AppContext.BaseDirectory, "Binaries", lib));
 
@@ -62,11 +60,7 @@ internal static class SDKResolver
 
     private static bool TrySearchForLibrary(string lib, out nint ptr)
     {
-        #if !NET7_0_OR_GREATER
-        ptr = IntPtr.Zero;
-        #else
-        ptr = nint.Zero;
-        #endif
+        ptr = 0;
 
         var libPath = Path.Combine("Binaries", lib);
 
