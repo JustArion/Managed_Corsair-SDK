@@ -11,6 +11,7 @@ using Lighting.Contracts;
 internal class KeyboardLighting : IKeyboardLighting, IDisposable
 {
     private readonly IDeviceConnectionHandler _connectionHandler;
+    private readonly Keyboard? _device;
 
     internal KeyboardLighting(IDeviceConnectionHandler connectionHandler)
     {
@@ -21,13 +22,14 @@ internal class KeyboardLighting : IKeyboardLighting, IDisposable
         Effects = new EffectController(_colorController);
     }
 
-    internal KeyboardLighting(IDeviceConnectionHandler connectionHandler, CorsairDevice device)
+    internal KeyboardLighting(IDeviceConnectionHandler connectionHandler, Keyboard device)
     {
         _connectionHandler = connectionHandler;
 
         _colorController = new KeyboardColorController(_connectionHandler);
 
         Effects = new EffectController(_colorController);
+        _device = device;
     }
 
 
@@ -35,13 +37,13 @@ internal class KeyboardLighting : IKeyboardLighting, IDisposable
     {
         var connected =  _connectionHandler.Connect(DeviceReconnectPolicy.Default);
 
-        var initialized =  connected && OnConnectionEstablished(accessLevel);
+        var initialized =  connected && OnConnectionEstablished(accessLevel, _device);
 
-        var grammar = initialized ? "is" : "is not";
         // Device is initialized
         // Device is not initialized
-        Debug.WriteLine($"Device {grammar} initialized", "Keyboard Lighting");
-
+        Debug.WriteLine($"Device {(initialized
+            ? "is"
+            : "is not")} initialized", "Keyboard Lighting");
 
         LogSessionInfo();
         return initialized;
