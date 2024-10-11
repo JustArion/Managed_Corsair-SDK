@@ -73,7 +73,7 @@ internal class DeviceConnectionHandler : IDeviceConnectionHandler
 
     private void SetAndRefreshWaitHandler()
     {
-        _connectionWaitHandler?.SetResult();
+        _connectionWaitHandler.SetResult();
         _connectionWaitHandler = new();
     }
 
