@@ -3,6 +3,7 @@ using Corsair.Device;
 using Corsair.Device.Internal;
 using Corsair.Lighting.Contracts;
 using Corsair.Lighting.Internal;
+using Corsair.Options;
 
 namespace Corsair;
 
@@ -11,6 +12,7 @@ namespace Corsair;
 /// </summary>
 public static class CorsairSDK
 {
+    public static AdvancedSDKOptions AdvancedOptions { get; } = new();
 
     internal static readonly DeviceConnectionHandler _connectionHandler = new();
     internal static readonly DeviceInteropHandler _deviceInterop = new();

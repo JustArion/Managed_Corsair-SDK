@@ -13,13 +13,16 @@ internal static class SDKResolver
 
     private const string X86_FILENAME = "iCUESDK_2019.dll";
     private const string X64_FILENAME = "iCUESDK.x64_2019.dll";
+    private static nint _libaryPointer;
 
-    [SuppressMessage("ReSharper", "SwitchExpressionHandlesSomeKnownEnumValuesWithExceptionInDefault")]
     // If the binary exists
     internal static nint CorsairSDKResolver(string libraryname, Assembly assembly, DllImportSearchPath? searchpath)
     {
         if (libraryname is not LIBRARY_BINDING_NAME)
             return 0;
+
+        if (CorsairSDK.AdvancedOptions.CacheNativeSDK && _libaryPointer != 0)
+            return _libaryPointer;
 
         var architecture = RuntimeInformation.OSArchitecture;
 
@@ -34,27 +37,51 @@ internal static class SDKResolver
             return 0;
 
         if (TrySearchForLibrary(lib, out var ptr))
-            return ptr;
+            _libaryPointer = ptr;
+        else
+        {
+            var path = Path.Combine(AppContext.BaseDirectory, "Binaries", lib);
+            if (!ExtractBinary(lib, path))
+                return 0;
 
-        var path = ExtractBinary(lib, Path.Combine(AppContext.BaseDirectory, "Binaries", lib));
+            _libaryPointer = LoadLibrary(path);
+        }
 
-        return LoadLibrary(path);
+        return _libaryPointer;
     }
 
-    private static string ExtractBinary(string resourceKey, string outputFilePath)
+    private static bool ExtractBinary(string resourceKey, string outputFilePath)
     {
         var asm = Assembly.GetExecutingAssembly();
-        var resourcePath = asm.GetManifestResourceNames().First(x => x.Contains(resourceKey));
+        var resourcePath = asm.GetManifestResourceNames().FirstOrDefault(x => x.Contains(resourceKey));
 
-        using var stream = asm.GetManifestResourceStream(resourcePath);
+        if (string.IsNullOrWhiteSpace(resourcePath))
+        {
+            Debug.WriteLine($"Could not find resource {resourceKey}", "SDK Resolver");
+            return false;
+        }
 
-        if (stream is null)
-            throw new FileNotFoundException($"Could not find resource {resourcePath}");
+        try
+        {
+            using var stream = asm.GetManifestResourceStream(resourcePath);
 
-        using var fs = File.Create(outputFilePath);
-        stream.CopyTo(fs);
+            if (stream is null)
+            {
+                // If the project is built correctly, this should never happen
+                Debug.WriteLine($"Could not find resource {resourcePath}", "SDK Resolver");
+                return false;
+            }
 
-        return outputFilePath;
+            using var fs = File.Create(outputFilePath);
+            stream.CopyTo(fs);
+
+            return true;
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine($"Exception when extracting binary for resource '{resourceKey}': {e}", "SDK Resolver");
+            return false;
+        }
     }
 
 
@@ -73,7 +100,7 @@ internal static class SDKResolver
                 return false;
 
             ptr = LoadLibrary(appDirLibPath);
-            Debug.WriteLine($"Loaded SDK from [ {appDirLibPath} ]", "SDK Resolver");
+            Debug.WriteLineIf(ptr != 0, $"Loaded SDK from [ {appDirLibPath} ]", "SDK Resolver");
             return true;
         }
 
@@ -85,18 +112,26 @@ internal static class SDKResolver
 
     }
 
+    private const string CORSAIR_CERTIFICATE_SUBJECT = """
+                                                       CN="Corsair Memory, Inc.", O="Corsair Memory, Inc.", L=Fremont, S=California, C=US
+                                                       """;
     private static bool IsSignedAndVerified(string path)
     {
         try
         {
             // Signed
-            using var cert = X509Certificate.CreateFromSignedFile(path);
+            using var signedCertificate = new X509Certificate2(path);
 
             // Verified
-            return cert.Subject == """CN="Corsair Memory, Inc.", O="Corsair Memory, Inc.", L=Fremont, S=California, C=US""";
+            var isVerified = signedCertificate.Subject == CORSAIR_CERTIFICATE_SUBJECT && signedCertificate.Verify();
+
+            Debug.WriteLine($"SDK Verified [ {isVerified} ]", "SDK Resolver");
+
+            return isVerified;
         }
-        catch (CryptographicException)
+        catch (CryptographicException e)
         {
+            Debug.WriteLine($"SDK Verified [ False ] : {e.Message}", "SDK Resolver");
             return false;
         }
     }
@@ -105,8 +140,7 @@ internal static class SDKResolver
     {
         var loaded = NativeLibrary.TryLoad(path, out var handle);
 
-        if (loaded)
-            Debug.WriteLine($"Loaded SDK from [ {path} ]", "SDK Resolver");
+        Debug.WriteLineIf(!loaded, $"Failed to load library [ {path} ]", "SDK Resolver");
 
         return handle;
     }
