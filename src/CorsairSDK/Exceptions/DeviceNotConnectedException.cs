@@ -2,7 +2,7 @@
 
 namespace Corsair.Exceptions;
 
-public class DeviceNotConnectedException : Exception
+public class DeviceNotConnectedException : CorsairException
 {
     public DeviceNotConnectedException() : base("Device is not initialized") => Debugger.Break();
 }
