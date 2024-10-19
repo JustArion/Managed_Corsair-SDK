@@ -21,6 +21,8 @@ internal static class DeviceAnimationSemaphore
 
         var deviceAnimationLock = new DisposableAnimationLock<CorsairDevice>(OnDispose, device);
         _locks.TryAdd(device.Id, deviceAnimationLock);
+
+        Debug.WriteLine($"Animation lock acquired for {device.Type.ToString().ToLower()} device '{device.Model}'", nameof(DeviceAnimationSemaphore));
         return deviceAnimationLock;
     }
 
