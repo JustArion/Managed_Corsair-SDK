@@ -60,7 +60,7 @@ internal class DeviceConnectionHandler : IDeviceConnectionHandler
                 break;
             case ConnectionState.Disconnected:
                 SetAndRefreshWaitHandler();
-                Debug.WriteLine("Lost connection, reconnecting...", "Device Connection Handler");
+                // Debug.WriteLine("Lost connection, reconnecting...", "Device Connection Handler");
                 // Task.Run(()=> _reconnectHandler.RequestReconnection(TryReconnect));
                 break;
             case ConnectionState.Connecting:
