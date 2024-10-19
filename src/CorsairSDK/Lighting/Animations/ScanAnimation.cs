@@ -88,18 +88,19 @@ public class ScanAnimation : LightingAnimation
 
     }
 
+    // The semaphore will wait for another animation to play and finish first.
+    /* If the user does something like
+     * -----------------------
+     * instance.Play();
+     * await instance.Play();
+     *-----------------------
+     * The second await will also wait for the first animation to finish due to the DeviceAnimationSemaphore
+     */
     public override async Task Play()
     {
         IsPaused = false;
         using (await DeviceAnimationSemaphore.WaitAsync(_colorController.Device))
         {
-            if (IsPlaying)
-            {
-                Debug.WriteLine("Animation is already playing", "Animation");
-                await Restart();
-                return;
-            }
-
             RaiseStarted(this);
             Debug.WriteLine("Playing Animation", "Animation");
             var interop = _colorController.NativeInterop;
@@ -159,7 +160,9 @@ public class ScanAnimation : LightingAnimation
         // FPS
         await Task.Delay(frameWaitTime / LAPS);
 
+        #if LOG_PROGRESS
         Debug.WriteLine($"\t{TimeSpan.FromMilliseconds(Environment.TickCount64 - startTime):g} | {frameWaitTime} | {CurrentTime:g}/{Duration:g} | Reversed: {_positionsInverted}", "Animation");
+        #endif
     }
 
     private void RemoveFillIfNeccessary(int iPos, ILightingInterop interop, scoped ref long interopDuration)
@@ -179,6 +182,7 @@ public class ScanAnimation : LightingAnimation
         }
     }
 
+    [Conditional("DEBUG")]
     private void OnAnimationEnd(TimeSpan actualDuration, int frameTime, int fps, long interopTime)
     {
         Debug.WriteLine(new string('-', 40), "Animation");
@@ -189,7 +193,7 @@ public class ScanAnimation : LightingAnimation
         WriteStat("FPS", fps);
         if (frameLoss.TotalMilliseconds > 0)
         {
-            WriteStat("C-Frame Loss", $"{frameLoss.TotalMilliseconds - interopTime}ms"); // Frame loss due to our C# Framework
+            WriteStat("C-Frame Loss", $"{frameLoss.TotalMilliseconds - interopTime}ms"); // Frame loss due to managed code
             WriteStat("I-Frame Loss", $"{interopTime}ms"); // Frame loss due to interop
             WriteStat("Total Frame Loss", $"{frameLoss.TotalMilliseconds}ms");
         }
@@ -199,6 +203,7 @@ public class ScanAnimation : LightingAnimation
         Debug.WriteLine(new string('-', 40), "Animation");
     }
 
+    [Conditional("DEBUG")]
     private void WriteStat<T>(string statName, T stat)
         => Debug.WriteLine($"{statName, -17}| {stat}", "Animation");
 
@@ -226,9 +231,8 @@ public class ScanAnimation : LightingAnimation
     public override async Task Restart()
     {
         Debug.WriteLine("Restarting Animation");
-        Stop();
 
-        await Play();
+        await base.Restart();
     }
 
     public override void Dispose()
