@@ -1,5 +1,6 @@
 ﻿using Corsair.Bindings;
 using Corsair.Device.Devices;
+using Corsair.Exceptions;
 
 namespace Corsair.Lighting.Internal;
 
@@ -64,18 +65,26 @@ internal class KeyboardLighting : IKeyboardLighting, IDisposable
 
     private bool OnConnectionEstablished(AccessLevel accessLevel, Keyboard? keyboard = null)
     {
-        keyboard ??= CorsairSDK.GetDeviceAs<Keyboard>();
-
-        if (keyboard == null)
+        try
         {
-            Debug.WriteLine("iCUE could connect, but did not detect a Corsair Keyboard connected to this system");
+            keyboard ??= CorsairSDK.GetDeviceAs<Keyboard>();
+
+            if (keyboard == null)
+            {
+                Debug.WriteLine("iCUE could connect, but did not detect a Corsair Keyboard connected to this system");
+                return false;
+            }
+            _colorController.SetContext(keyboard, accessLevel);
+
+            Debug.WriteLine($"Lighting established for Device 'Corsair {keyboard.Model}'", "Keyboard Lighting");
+            return true;
+        }
+        catch (CorsairException ex)
+        {
+            Debug.WriteLine($"Failed to establish Lighting: {ex}", "Keyboard Lighting");
             return false;
         }
 
-        _colorController.SetContext(keyboard, accessLevel);
-
-        Debug.WriteLine($"Lighting established for Device 'Corsair {keyboard.Model}'", "Keyboard Lighting");
-        return true;
     }
 
 
