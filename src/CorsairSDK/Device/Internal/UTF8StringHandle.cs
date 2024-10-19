@@ -1,19 +1,14 @@
 ﻿using System.Buffers;
-using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics;
 using System.Text;
+using Corsair.Threading;
 
 namespace Corsair.Device.Internal;
 
-internal sealed unsafe class UTF8StringHandle : IDisposable
+internal sealed unsafe class UTF8StringHandle(string str) : IDisposable
 {
-    private MemoryHandle _underlyingStringMemoryHandle;
-    private bool _disposed;
-
-    internal UTF8StringHandle(string str)
-    {
-        var bytes = Encoding.UTF8.GetBytes(str);
-        _underlyingStringMemoryHandle = new ReadOnlyMemory<byte>(bytes).Pin();
-    }
+    private MemoryHandle _underlyingStringMemoryHandle = new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes(str)).Pin();
+    private AtomicBoolean _disposed;
 
     public sbyte* Value
     {
@@ -30,12 +25,13 @@ internal sealed unsafe class UTF8StringHandle : IDisposable
 
     public void Dispose()
     {
-        if (_disposed)
+        if (!_disposed.CompareAndSet(false, true))
             return;
-        _disposed = true;
 
         _underlyingStringMemoryHandle.Dispose();
         GC.SuppressFinalize(this);
+
+        Debug.WriteLine($"Cleaned up a string used in Managed -> Native interop | {str}");
     }
 
     ~UTF8StringHandle() => Dispose();
