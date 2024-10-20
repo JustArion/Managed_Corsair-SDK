@@ -10,8 +10,8 @@ public unsafe class InteropHelperTests
     public void Strings_ShouldBeMarshalled_ToPointers()
     {
         // Act
-        var ptr = CorsairMarshal.ToPointer("{TestString1234}");
-        var str = new string(ptr);
+        var handle = CorsairMarshal.ToUTF8Handle("{TestString1234}");
+        var str = new string(handle);
         
         // Assert
         str.Should().Be("{TestString1234}");
@@ -21,11 +21,11 @@ public unsafe class InteropHelperTests
     public void References_ShouldWithstand_GC()
     {
         // Act
-        var ptr = CorsairMarshal.ToPointer("{TestString1234}");
+        var handle = CorsairMarshal.ToUTF8Handle("{TestString1234}");
         GC.AddMemoryPressure((long)Math.Pow(1024, 4) * 4); // 4mb
         GC.Collect();
         GC.WaitForPendingFinalizers();
-        var str = new string(ptr);
+        var str = new string(handle);
         
         // Assert
         str.Should().Be("{TestString1234}");
