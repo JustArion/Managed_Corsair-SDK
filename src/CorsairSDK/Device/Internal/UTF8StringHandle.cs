@@ -36,5 +36,5 @@ internal sealed unsafe class UTF8StringHandle(string str) : IDisposable
 
     ~UTF8StringHandle() => Dispose();
 
-    public override string ToString() => new(Value);
+    public override string ToString() => str;
 }
