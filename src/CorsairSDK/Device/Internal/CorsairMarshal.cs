@@ -17,9 +17,10 @@ internal static unsafe class CorsairMarshal
     }
 
     // This acts like a sbyte* but with the benefit of the conversion only happening when needed. Minimizing the time the handle is exposed as a sbyte* when held as a stack variable.
-    // This would normally happen if you have a sbyte* to the string handle, some gc pressure causes a collection and some time passes after you have your ToPointer as a astack variable.
+    // This would normally happen if you have a sbyte* to the string handle, some gc pressure causes a collection and some time passes after you have your ToPointer as a stack variable.
     // This limits the exposure of sbyte* until necessary.
     internal static UTF8StringHandle ToPointer(string str) => new(str);
+    internal static UTF8StringHandle ToUTF8Handle(string str) => new(str);
 
     /// <summary>
     /// Copies the array contents and returns a managed copy
