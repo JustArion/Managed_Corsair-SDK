@@ -5,7 +5,7 @@ namespace Corsair.Lighting.Animations;
 
 /// <exception cref="T:Corsair.Exceptions.DeviceNotConnectedException">The device is not connected, the operation could not be completed</exception>
 /// <exception cref="T:Corsair.Exceptions.CorsairException">An unexpected event happened, the device may have gotten disconnected</exception>
-public sealed class VerticalScanAnimation(ScanAnimationOptions options, IKeyboardColorController colorController) : ScanAnimation(VSAOptionsFormatter.Format(options), colorController)
+public sealed class VerticalScanAnimation(ScanAnimationOptions options, IKeyboardColorController keyboardColors) : ScanAnimation(VSAOptionsFormatter.Format(options), keyboardColors)
 {
     /// <summary>
     /// A vertical scan animation using the first available Corsair keyboard

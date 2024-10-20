@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Drawing;
 using Corsair.Lighting.Contracts;
 
 namespace Corsair.Lighting.Animations;
@@ -41,7 +42,7 @@ public abstract class LightingAnimation : IAnimation
             _pauseResetEvent.Set();
     }
 
-    protected virtual void OnStarted(object? sender, EventArgs e) { }
+    protected virtual void OnStarted(object? sender, LightingAnimationState state) { }
     protected virtual void OnEnded(object? sender, EventArgs e) { }
     protected virtual void OnResumed(object? sender, EventArgs e) { }
     protected virtual void OnPaused(object? sender, EventArgs e) { }
@@ -104,6 +105,13 @@ public abstract class LightingAnimation : IAnimation
         Ended(this, EventArgs.Empty);
     }
 
+    protected void ClearControlledColors(ILightingInterop interopLayer)
+    {
+        var keys = Positions.SelectMany(x => x.Select(y => y.Key));
+        foreach (var key in keys)
+            interopLayer.SetLedColor(key, Color.Black);
+    }
+
     public virtual async Task Restart()
     {
         Stop();
@@ -111,17 +119,17 @@ public abstract class LightingAnimation : IAnimation
         await Play();
     }
 
-    protected static void RaiseStarted(LightingAnimation animation) => animation.Started.Invoke(animation, EventArgs.Empty);
-    protected static void RaiseEnded(LightingAnimation animation) => animation.Ended.Invoke(animation, EventArgs.Empty);
-    protected static void RaisePaused(LightingAnimation animation) => animation.Paused.Invoke(animation, EventArgs.Empty);
-    protected static void RaiseResumed(LightingAnimation animation) => animation.Resumed.Invoke(animation, EventArgs.Empty);
-    protected static void RaiseErrored(LightingAnimation animation, Exception exception) => animation.Errored.Invoke(animation, exception);
-
-    protected event EventHandler<Exception> Errored;
-    public event EventHandler Started;
+    public event EventHandler<LightingAnimationState> Started;
     public event EventHandler Ended;
     public event EventHandler Paused;
     public event EventHandler Resumed;
+    protected event EventHandler<Exception> Errored;
+
+    protected void RaiseStarted(LightingAnimationState currentState) => Started.Invoke(this, currentState);
+    protected void RaiseEnded() => Ended.Invoke(this, EventArgs.Empty);
+    protected void RaisePaused() => Paused.Invoke(this, EventArgs.Empty);
+    protected void RaiseResumed() => Resumed.Invoke(this, EventArgs.Empty);
+    protected void RaiseErrored(Exception ex) => Errored.Invoke(this, ex);
 
     public abstract void Dispose();
 }

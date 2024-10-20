@@ -1,4 +1,6 @@
-﻿namespace Corsair.Lighting.Contracts;
+﻿using Corsair.Lighting.Animations;
+
+namespace Corsair.Lighting.Contracts;
 
 public interface IAnimation : IDisposable
 {
@@ -19,7 +21,7 @@ public interface IAnimation : IDisposable
     void Stop();
     Task Restart();
 
-    event EventHandler Started;
+    event EventHandler<LightingAnimationState> Started;
     event EventHandler Ended;
     event EventHandler Paused;
     event EventHandler Resumed;

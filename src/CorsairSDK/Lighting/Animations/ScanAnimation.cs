@@ -1,4 +1,5 @@
-﻿using Corsair.Threading;
+﻿using System.Diagnostics.CodeAnalysis;
+using Corsair.Threading;
 using Corsair.Threading.Internal;
 
 namespace Corsair.Lighting.Animations.Internal;
@@ -10,34 +11,30 @@ using Contracts;
 public class ScanAnimation : LightingAnimation
 {
     private readonly ScanAnimationOptions _options;
-    private readonly  IKeyboardColorController _colorController;
-
+    private readonly  IKeyboardColorController _keyboardColors;
     private AtomicBoolean _shouldStop;
 
-    private readonly bool _isVertical;
 
     protected sealed override IGrouping<float, KeyValuePair<int, LedInfo>>[] Positions { get; init; }
 
     /// <exception cref="T:Corsair.Exceptions.DeviceNotConnectedException">The device is not connected, the operation could not be completed</exception>
     /// <exception cref="T:Corsair.Exceptions.CorsairException">An unexpected event happened, the device may have gotten disconnected</exception>
-    public ScanAnimation(ScanAnimationOptions options, IKeyboardColorController colorController)
+    public ScanAnimation(ScanAnimationOptions options, IKeyboardColorController keyboardColors)
     {
         _options = options;
-        _colorController = colorController;
-        var positionInfos = _colorController.NativeInterop.GetPositionInfo();
-
-        _isVertical = options.StartPosition is StartingPosition.TopToBottom or StartingPosition.BottomToTop;
+        _keyboardColors = keyboardColors;
+        var positionInfos = _keyboardColors.NativeInterop.GetPositionInfo();
 
         // X = Horizontal
         // We get groupings based on the X or Y axis of the keyboard
         // If X we get all the Columns of the keyboard keys
         // If Y we get all the Rows of the keyboard keys
         var axisGroup = positionInfos.OrderBy(x =>
-                _isVertical
+                options.IsVertical
                     ? x.Value.Position.Y
                     : x.Value.Position.X)
             .GroupBy(x =>
-                _isVertical
+                options.IsVertical
                     ? x.Value.Position.Y
                     : x.Value.Position.X);
         Positions = options.StartPosition is StartingPosition.LeftToRight or StartingPosition.TopToBottom
@@ -47,24 +44,24 @@ public class ScanAnimation : LightingAnimation
         Duration = options.Duration;
     }
 
-    protected override void OnPaused(object? sender, EventArgs e) => Debug.WriteLine($"{(_isVertical ? "Vertical" : "Horizontal")} Scan Animation Paused", "Animation");
+    protected override void OnPaused(object? sender, EventArgs e) => Debug.WriteLine($"{(_options.IsVertical ? "Vertical" : "Horizontal")} Scan Animation Paused", "Animation");
 
-    protected override void OnResumed(object? sender, EventArgs e) => Debug.WriteLine($"{(_isVertical ? "Vertical" : "Horizontal")} Scan Animation Resumed", "Animation");
+    protected override void OnResumed(object? sender, EventArgs e) => Debug.WriteLine($"{(_options.IsVertical ? "Vertical" : "Horizontal")} Scan Animation Resumed", "Animation");
 
     protected override void OnEnded(object? sender, EventArgs e)
     {
-        SetAllBlack();
-        _colorController.ClearAll();
+        ClearControlledColors(_keyboardColors.NativeInterop);
+        _keyboardColors.ClearAll();
 
-        Debug.WriteLine($"{(_isVertical ? "Vertical" : "Horizontal")} Scan Animation Finished", "Animation");
+        Debug.WriteLine($"{(_options.IsVertical ? "Vertical" : "Horizontal")} Scan Animation Finished", "Animation");
     }
 
 
-    protected override void OnStarted(object? sender, EventArgs e)
+    protected override void OnStarted(object? sender, LightingAnimationState state)
     {
-        _colorController.ClearAll();
+        _keyboardColors.ClearAll();
 
-        Debug.WriteLine($"{(_isVertical ? "Vertical" : "Horizontal")} Scan Animation Started", "Animation");
+        Debug.WriteLine($"{(_options.IsVertical ? "Vertical" : "Horizontal")} Scan Animation Started", "Animation");
     }
 
     private static int GetFrameWaitTimeMS(int targetFPS) => 1000 / Math.Clamp(targetFPS, 1, int.MaxValue) / LAPS;
@@ -76,7 +73,7 @@ public class ScanAnimation : LightingAnimation
     public override void Reverse()
     {
         base.Reverse();
-        SetAllBlack();
+        ClearControlledColors(_keyboardColors.NativeInterop);
     }
 
     protected override void OnErrored(object? sender, Exception e)
@@ -99,15 +96,15 @@ public class ScanAnimation : LightingAnimation
     public override async Task Play()
     {
         IsPaused = false;
-        using (await DeviceAnimationSemaphore.WaitAsync(_colorController.Device))
+        using (await DeviceAnimationSemaphore.WaitAsync(_keyboardColors.Device))
         {
-            RaiseStarted(this);
-            Debug.WriteLine("Playing Animation", "Animation");
-            var interop = _colorController.NativeInterop;
+            Debug.WriteLine("Playing Scan Animation", "Animation");
+            var interop = _keyboardColors.NativeInterop;
             var thisFPS = FPS;
             var frameWaitTime = GetFrameWaitTimeMS(thisFPS);
             var startTime = Environment.TickCount64;
             long interopDuration = 0;
+            RaiseStarted(new LightingAnimationState(frameWaitTime, DateTimeOffset.Now - TimeSpan.FromMilliseconds(startTime), this));
 
             // A -> B & B -> A
             for (var i = 0; Loop || i < LAPS; i++)
@@ -133,11 +130,11 @@ public class ScanAnimation : LightingAnimation
                 // Left -> Right becomes Right -> Left (and vice-versa)
                 Reverse();
             }
+
             var endTime = Environment.TickCount64;
             Debug.WriteLine("Finished", "Animation");
 
-            RaiseEnded(this);
-
+            RaiseEnded();
             OnAnimationEnd(TimeSpan.FromMilliseconds(endTime - startTime), frameWaitTime, thisFPS, interopDuration);
         }
     }
@@ -152,6 +149,7 @@ public class ScanAnimation : LightingAnimation
         }
     }
 
+    [SuppressMessage("ReSharper", "UnusedParameter.Local")]
     private async Task SyncAnimationTime(int i, int iPos, int frameWaitTime, long startTime)
     {
         // Adds on the previous Laps' progress to the CurrentTime
@@ -207,14 +205,6 @@ public class ScanAnimation : LightingAnimation
     private void WriteStat<T>(string statName, T stat)
         => Debug.WriteLine($"{statName, -17}| {stat}", "Animation");
 
-    private void SetAllBlack()
-    {
-        var interop = _colorController.NativeInterop;
-        var keys = Positions.SelectMany(x => x.Select(y => y.Key));
-        foreach (var key in keys)
-            interop.SetLedColor(key, Color.Black);
-    }
-
     public override void Stop()
     {
         Debug.WriteLine("Stopping Animation");
@@ -237,7 +227,8 @@ public class ScanAnimation : LightingAnimation
 
     public override void Dispose()
     {
-        SetAllBlack();
+        Stop();
+        ClearControlledColors(_keyboardColors.NativeInterop);
         GC.SuppressFinalize(this);
     }
 }
