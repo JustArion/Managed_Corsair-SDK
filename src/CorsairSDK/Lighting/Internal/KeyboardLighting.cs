@@ -91,6 +91,7 @@ internal class KeyboardLighting : IKeyboardLighting, IDisposable
     private readonly KeyboardColorController _colorController;
     public IKeyboardColorController Colors => _colorController;
     public IEffectController Effects { get; }
+    public Keyboard Device => Colors.Device;
 
     public void Shutdown()
     {
