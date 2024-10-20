@@ -1,4 +1,6 @@
-﻿namespace Corsair.Lighting.Contracts;
+﻿using Corsair.Device.Devices;
+
+namespace Corsair.Lighting.Contracts;
 
 /// <summary>
 /// Lighting and Effects for the keyboard
@@ -16,6 +18,8 @@ public interface IKeyboardLighting
     IKeyboardColorController Colors { get; }
 
     IEffectController Effects { get; }
+
+    Keyboard Device { get; }
 
     /// <summary>
     /// Shuts down all lighting on the keyboard and disconnects from iCUE
