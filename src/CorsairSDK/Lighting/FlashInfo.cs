@@ -57,6 +57,8 @@ public readonly struct FlashInfo
 
     public bool IsInfinite { get; }
 
+    public bool UseSmoothFlashes { get; init; } = true;
+
     public TimeSpan EffectDuration { get; }
 
     public static readonly FlashInfo Default = new(Color.White, TimeSpan.FromMilliseconds(500));

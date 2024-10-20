@@ -98,8 +98,9 @@ internal partial class EffectController
                     () => progress));
 
 
-
-            var lerpedColor = ColorEffects.LerpColor(pulseInfo.Start, pulseInfo.End, t);
+            var lerpedColor = pulseInfo.UseSmoothPulses
+                ? ColorUtility.SlerpColor(pulseInfo.Start, pulseInfo.End, t)
+                : ColorUtility.LerpColor(pulseInfo.Start, pulseInfo.End, t);
 
 
             #if DEBUG
@@ -128,7 +129,7 @@ internal partial class EffectController
     private static float InspectWave(float initial, Func<float> onNan) => float.IsNaN(initial) ? onNan() : initial;
 
     private static float CalculateWave(PulseInfo info, float x)
-        => info.WaveModulation == null ? x : (float)info.WaveModulation(x);
+        => info.WaveModulation == null ? (float)CommonWaveModulations.Sine(x) : (float)info.WaveModulation(x);
 
     private static bool PulseIsOccurring(PulseInfo pulseInfo, int startTime)
     {

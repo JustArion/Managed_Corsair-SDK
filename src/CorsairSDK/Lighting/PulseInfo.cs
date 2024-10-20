@@ -8,7 +8,7 @@ namespace Corsair.Lighting;
 /// <param name="Interval">The full interval that it takes Start -> End -> Start (0 -> 1T)</param>
 /// <param name="IsInfinite">If the animation should not have an end duration, it will loop the interval</param>
 /// <param name="PulseModulation">Controls the animation & wave of the pulse</param>
-public record PulseInfo
+public record struct PulseInfo
 {
     public PulseInfo(Color start, Color end, TimeSpan interval)
     {
@@ -35,6 +35,8 @@ public record PulseInfo
 
     public bool IsInfinite { get; init; }
 
+    public bool UseSmoothPulses { get; init; } = true;
+
     public TimeSpan TotalDuration { get; init; }
 
     /// <summary>
@@ -42,10 +44,10 @@ public record PulseInfo
     /// If the amplitude is lower than the inverse color will be used.
     /// </summary>
     /// <param name="WaveFunction">Allows you to manipulate the wave shape of the pulse based on the time that's passed An example of a "Fade In-Fade Out" would be Sin(x * Pi)</param>
-    public WaveFunction? WaveModulation;
+    public WaveFunction? WaveModulation { get; init; }
 
     /// <summary>
     /// The function is executed when <see cref="WaveModulation"/> returns a value that is NaN (Not a Number).
     /// </summary>
-    public WaveFunction? OnNan;
+    public WaveFunction? OnNan { get; init; }
 }

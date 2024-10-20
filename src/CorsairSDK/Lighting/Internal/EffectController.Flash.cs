@@ -77,7 +77,9 @@ internal partial class EffectController
 
             var progress = Math.Clamp((float)(deltaTime / period), 0, 1);
 
-            var lerpColor = ColorEffects.LerpColor(flashInfo.Color, Color.Black, progress);
+            var lerpColor = flashInfo.UseSmoothFlashes
+                ? ColorUtility.SlerpColor(flashInfo.Color, Color.Black, progress)
+                : ColorUtility.LerpColor(flashInfo.Color, Color.Black, progress);
 
             colorController.SetKeys(lerpColor, controlledKeys);
 
