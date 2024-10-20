@@ -14,6 +14,7 @@ namespace Corsair.Lighting.Internal;
 internal unsafe class LightingInterop : ILightingInterop
 {
     private Device.CorsairDevice? device;
+    private IDisposable? _internalState;
 
     public void Dispose() => ReleaseControl();
 
@@ -66,6 +67,9 @@ internal unsafe class LightingInterop : ILightingInterop
         if (device == null)
             throw new DeviceNotConnectedException();
 
+        if (_internalState != null)
+            return _internalState;
+
         var result = Interop.RequestControl(CorsairMarshal.ToPointer(device.Id), ToCorsairAccessLevel(accessLevel));
 
         InteropTracing.DebugTrace(result, device.Id, accessLevel);
@@ -74,7 +78,8 @@ internal unsafe class LightingInterop : ILightingInterop
 
         Debug.WriteLine($"Requested Device Control with access level '{accessLevel}' on device 'Corsair {device.Model}'", "Lighting Interop");
 
-        return Disposable.Create(ReleaseControl);
+        _internalState = Disposable.Create(ReleaseControl);
+        return _internalState;
     }
 
     private CorsairAccessLevel ToCorsairAccessLevel(AccessLevel accessLevel) => (CorsairAccessLevel)accessLevel;
@@ -86,7 +91,12 @@ internal unsafe class LightingInterop : ILightingInterop
 
         Debug.WriteLine("Releasing Device Control", "Lighting Interop");
 
-        InteropTracing.DebugTrace(Interop.ReleaseControl(CorsairMarshal.ToPointer(device.Id)), param: device.Id);
+        var result = Interop.ReleaseControl(CorsairMarshal.ToPointer(device.Id));
+
+        InteropTracing.DebugTrace(result, param: device.Id);
+
+        if (result == CorsairError.CE_Success)
+            _internalState = null;
     }
 
     public void SetDeviceContext(Device.CorsairDevice deviceContext)
