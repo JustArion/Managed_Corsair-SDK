@@ -30,7 +30,7 @@ public static class CorsairSDK
     }
 
     /// <exception cref="T:Corsair.Exceptions.CorsairException">An unexpected event happened, the device may have gotten disconnected</exception>
-    public static T? GetDeviceAs<T>() where T : CorsairDevice
+    public static T? GetDevice<T>() where T : CorsairDevice
     {
         var device = GetDevices().FirstOrDefault(x => x.IsDeviceType<T>());
 

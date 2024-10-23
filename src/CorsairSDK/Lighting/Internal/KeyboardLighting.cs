@@ -67,7 +67,7 @@ internal class KeyboardLighting : IKeyboardLighting, IDisposable
     {
         try
         {
-            keyboard ??= CorsairSDK.GetDeviceAs<Keyboard>();
+            keyboard ??= CorsairSDK.GetDevice<Keyboard>();
 
             if (keyboard == null)
             {
