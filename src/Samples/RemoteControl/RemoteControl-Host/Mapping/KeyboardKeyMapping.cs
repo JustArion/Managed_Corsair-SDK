@@ -7,20 +7,20 @@ using Dawn.Apps.RemoteControlHost;
 
 public static class KeyboardKeyMapping
 {
-    public static KeyboardKey MapToKeyboardKey(this KeyboardStateMessage message)
+    public static KeyboardKeyState MapToKeyboardKey(this KeyboardStateMessage message)
     {
-        return new KeyboardKey((KeyboardKeys)message.Key.Id, message.Coordinate.MapToVector2())
+        return new KeyboardKeyState((KeyboardKey)message.Key.Id, message.Coordinate.MapToVector2())
         {
             Color = message.Color.MapToColor(),
         };
     }
-    public static KeyboardStateMessage MapToKeyboardKeyMessage(this KeyboardKey key)
+    public static KeyboardStateMessage MapToKeyboardKeyMessage(this KeyboardKeyState keyState)
     {
         return new KeyboardStateMessage
         {
-            Key = new KeyboardKeysMessage() { Id = (int)key.Key},
-            Color = key.Color.MapToColorMessage(),
-            Coordinate = key.Coordinate.MapToVector2Message(),
+            Key = new KeyboardKeysMessage() { Id = (int)keyState.Key},
+            Color = keyState.Color.MapToColorMessage(),
+            Coordinate = keyState.Coordinate.MapToVector2Message(),
         };
     }
 

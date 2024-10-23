@@ -29,7 +29,7 @@ public sealed class ProgressAnimation : LightingAnimation
         var positions = keyboardLighting.Colors.NativeInterop.GetPositionInfo();
 
         var keys = options.Keys.ToHashSet();
-        var keyInfos = positions.Where(x => keys.Contains((KeyboardKeys)x.Key)).ToArray();
+        var keyInfos = positions.Where(x => keys.Contains((KeyboardKey)x.Key)).ToArray();
 
         var axisGroup = keyInfos.OrderBy(x =>
                 options.IsVertical
@@ -120,7 +120,7 @@ public sealed class ProgressAnimation : LightingAnimation
         }
     }
 
-    private KeyboardKey GetPercentageKey()
+    private KeyboardKeyState GetPercentageKey()
     {
         throw new NotImplementedException();
     }

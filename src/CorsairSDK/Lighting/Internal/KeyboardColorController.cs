@@ -41,11 +41,11 @@ internal class KeyboardColorController(IDeviceConnectionHandler connectionHandle
 
     private void SyncKeyboardKeys()
         => _keyboardKeys = [
-            ..(from keyboardKey in Enum.GetValues<KeyboardKeys>()
+            ..(from keyboardKey in Enum.GetValues<KeyboardKey>()
                 select keyboardKey into keyId
                 let position = _lighting.GetPosition((int)keyId)
                 where position != default
-                select new KeyboardKey(keyId, position) { Color = Color.Black })
+                select new KeyboardKeyState(keyId, position) { Color = Color.Black })
             .ToArray()
         ];
 
@@ -72,8 +72,8 @@ internal class KeyboardColorController(IDeviceConnectionHandler connectionHandle
             keyboardKey.Color = color;
     }
 
-    private HashSet<KeyboardKey> _keyboardKeys = [];
-    public IReadOnlySet<KeyboardKey> KeyboardKeys => _keyboardKeys;
+    private HashSet<KeyboardKeyState> _keyboardKeys = [];
+    public IReadOnlySet<KeyboardKeyState> KeyboardKeys => _keyboardKeys;
 
     public IDisposable SetFromBitmap(byte[] bitmap)
     {
@@ -94,30 +94,30 @@ internal class KeyboardColorController(IDeviceConnectionHandler connectionHandle
        return  _receiptHandler.Set(keys, id => Disposable.Create(id, ClearColor));
     }
 
-    private static IEnumerable<KeyboardKeys> GetKeysFromZone(KeyboardZones zones)
-        => ZoneUtility.GetKeysFromZones(zones);
+    private static IEnumerable<KeyboardKey> GetKeysFromZone(KeyboardZones zones, Keyboard device)
+        => ZoneUtility.GetKeysFromZones(zones, device);
 
-    public IDisposable SetKeys(Color color, IEnumerable<KeyboardKeys> keys)
+    public IDisposable SetKeys(Color color, IEnumerable<KeyboardKey> keys)
     {
         ThrowIfDisconnected();
 
         return Internal_SetKeys(color, keys);
     }
-    public IDisposable SetKeys(Color color, params KeyboardKeys[] keys)
-    {
-        ThrowIfDisconnected();
-
-        return Internal_SetKeys(color, keys);
-    }
-
     public IDisposable SetKeys(Color color, params KeyboardKey[] keys)
+    {
+        ThrowIfDisconnected();
+
+        return Internal_SetKeys(color, keys);
+    }
+
+    public IDisposable SetKeys(Color color, params KeyboardKeyState[] keys)
     {
         ThrowIfDisconnected();
 
         return Internal_SetKeys(color, keys.Select(x => x.Key));
     }
 
-    internal IDisposable Internal_SetKeys(Color color, IEnumerable<KeyboardKeys> keys)
+    internal IDisposable Internal_SetKeys(Color color, IEnumerable<KeyboardKey> keys)
     {
 
         // Skip all the keys that are in _keyboardKeys that have the same color
@@ -143,16 +143,16 @@ internal class KeyboardColorController(IDeviceConnectionHandler connectionHandle
     /// <returns></returns>
     private bool IsActualKey(int id) => KeyboardKeys.FirstOrDefault(x => x.Id == id) != null;
 
-    public void ClearKeys(params KeyboardKeys[] keys) => ClearKeys((IEnumerable<KeyboardKeys>)keys);
+    public void ClearKeys(params KeyboardKey[] keys) => ClearKeys((IEnumerable<KeyboardKey>)keys);
 
-    public void ClearKeys(IEnumerable<KeyboardKeys> keys)
+    public void ClearKeys(IEnumerable<KeyboardKey> keys)
     {
         ThrowIfDisconnected();
 
         Internal_ClearKeys(keys);
     }
 
-    private IEnumerable<KeyboardKeys> GetKeysThatAreNot(Color color, IEnumerable<KeyboardKeys> keys) =>
+    private IEnumerable<KeyboardKey> GetKeysThatAreNot(Color color, IEnumerable<KeyboardKey> keys) =>
         keys.Where(x => {
             var keyboardKey = _keyboardKeys.FirstOrDefault(y => y.Key == x);
             if (keyboardKey == null)
@@ -161,7 +161,7 @@ internal class KeyboardColorController(IDeviceConnectionHandler connectionHandle
             return keyboardKey.Color != color;
         });
 
-    private void Internal_ClearKeys(IEnumerable<KeyboardKeys> keys)
+    private void Internal_ClearKeys(IEnumerable<KeyboardKey> keys)
     {
         keys = GetKeysThatAreNot(Color.Black, keys);
 
@@ -172,10 +172,9 @@ internal class KeyboardColorController(IDeviceConnectionHandler connectionHandle
 
     public IDisposable SetZones(Color color, KeyboardZones zones)
     {
-
         ThrowIfDisconnected();
 
-        var keys = GetKeysFromZone(zones);
+        var keys = GetKeysFromZone(zones, Device);
         return Internal_SetKeys(color, keys);
     }
 
@@ -183,7 +182,7 @@ internal class KeyboardColorController(IDeviceConnectionHandler connectionHandle
     {
         ThrowIfDisconnected();
 
-        var keys = GetKeysFromZone(zones);
+        var keys = GetKeysFromZone(zones, Device);
         Internal_ClearKeys(keys);
     }
 

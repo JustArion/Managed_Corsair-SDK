@@ -8,9 +8,9 @@ namespace Corsair.Lighting.Internal;
 internal partial class EffectController
 {
     // public record PulseInfo(Color Start, Color End, TimeSpan Interval, bool IsInfinite, TimeSpan TotalDuration = default)
-    public EffectReceipt PulseKeys(PulseInfo pulseInfo, params KeyboardKeys[] keys) => PulseKeys(pulseInfo, (IEnumerable<KeyboardKeys>)keys);
+    public EffectReceipt PulseKeys(PulseInfo pulseInfo, params KeyboardKey[] keys) => PulseKeys(pulseInfo, (IEnumerable<KeyboardKey>)keys);
 
-    public EffectReceipt PulseKeys(PulseInfo pulseInfo, IEnumerable<KeyboardKeys> keys)
+    public EffectReceipt PulseKeys(PulseInfo pulseInfo, IEnumerable<KeyboardKey> keys)
     {
         colorController.ThrowIfDisconnected();
         var keysArray = keys.ToArray();
@@ -34,7 +34,7 @@ internal partial class EffectController
 
         var disposables = new List<IDisposable?>();
         var cts = new CancellationTokenSource();
-        var controlledKeys = new List<KeyboardKeys>(keysArray);
+        var controlledKeys = new List<KeyboardKey>(keysArray);
 
 
         var effectKeysReceipt = _receiptHandler.Set(keysArray, keyboardKey => Disposable.Create(keyboardKey, key => {
@@ -42,7 +42,7 @@ internal partial class EffectController
             {
                 controlledKeys.Remove(key);
                 colorController.ClearKeys(key);
-                Debug.WriteLine($"Clearing Key: {key}", $"{nameof(PulseKeys)}({nameof(PulseInfo)} {nameof(pulseInfo)}, {nameof(KeyboardKeys)}[] {nameof(keys)})");
+                Debug.WriteLine($"Clearing Key: {key}", $"{nameof(PulseKeys)}({nameof(PulseInfo)} {nameof(pulseInfo)}, {nameof(KeyboardKey)}[] {nameof(keys)})");
 
                 if (controlledKeys.Count == 0)
                     cts.Cancel();
@@ -71,10 +71,10 @@ internal partial class EffectController
     /// </summary>
     private bool IsCircular(PulseInfo pulseInfo) => pulseInfo.Start == pulseInfo.End;
 
-    public EffectReceipt PulseKeys(PulseInfo pulseInfo, params KeyboardKey[] keys)
+    public EffectReceipt PulseKeys(PulseInfo pulseInfo, params KeyboardKeyState[] keys)
         => PulseKeys(pulseInfo, keys.Select(x => x.Key));
 
-    private async Task DoKeyPulses(PulseInfo pulseInfo, List<KeyboardKeys> controlledKeys, CancellationToken token)
+    private async Task DoKeyPulses(PulseInfo pulseInfo, List<KeyboardKey> controlledKeys, CancellationToken token)
     {
         var startTime = Environment.TickCount;
         var intervalMs = pulseInfo.Interval.TotalMilliseconds;
@@ -142,7 +142,7 @@ internal partial class EffectController
     }
 
 
-    public EffectReceipt PulseKeys(PulseInfo pulseInfo, IEnumerable<KeyboardKey> keys)
+    public EffectReceipt PulseKeys(PulseInfo pulseInfo, IEnumerable<KeyboardKeyState> keys)
         => PulseKeys(pulseInfo, keys.Select(x => x.Key));
 
     public EffectReceipt PulseZones(PulseInfo pulseInfo, KeyboardZones zones)
@@ -150,7 +150,7 @@ internal partial class EffectController
         colorController.ThrowIfDisconnected();
 
 
-        var keys = ZoneUtility.GetKeysFromZones(zones);
+        var keys = ZoneUtility.GetKeysFromZones(zones, _device);
 
         return PulseKeys(pulseInfo, keys);
     }

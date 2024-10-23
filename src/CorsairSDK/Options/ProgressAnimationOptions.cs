@@ -4,7 +4,7 @@ namespace Corsair.Lighting.Animations;
 
 public readonly record struct ProgressAnimationOptions(
     StartingPosition StartPosition,
-    KeyboardKeys[] Keys,
+    KeyboardKey[] Keys,
     Color ShiftColor = default,
     Color PercentFlashColor = default,
     byte InitialProgress = 0

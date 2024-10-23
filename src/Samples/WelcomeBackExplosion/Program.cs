@@ -111,7 +111,7 @@ async Task HandleExplosion()
     }
 }
 
-(double X, double Y) CalculateCenter(KeyboardKey[] positions)
+(double X, double Y) CalculateCenter(KeyboardKeyState[] positions)
 {
     double sumX = 0, sumY = 0;
     var count = positions.Length;

@@ -2,5 +2,5 @@
 
 public static class KeyUtility
 {
-    public static KeyboardKeys[] From(KeyboardKeys start, KeyboardKeys to) => Enum.GetValues<KeyboardKeys>().Where(k => k >= start && k <= to).ToArray();
+    public static KeyboardKey[] From(KeyboardKey start, KeyboardKey to) => Enum.GetValues<KeyboardKey>().Where(k => k >= start && k <= to).ToArray();
 }

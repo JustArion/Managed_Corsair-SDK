@@ -7,7 +7,7 @@ namespace Corsair.Lighting.Internal;
 
 internal partial class EffectController
 {
-    public EffectReceipt FlashKeys(FlashInfo flashInfo, IEnumerable<KeyboardKeys> keys)
+    public EffectReceipt FlashKeys(FlashInfo flashInfo, IEnumerable<KeyboardKey> keys)
     {
         VerifyBounds(flashInfo);
         colorController.ThrowIfDisconnected();
@@ -16,14 +16,14 @@ internal partial class EffectController
 
         var disposables = new List<IDisposable?>();
         var cts = new CancellationTokenSource();
-        var controlledKeys = new List<KeyboardKeys>(array);
+        var controlledKeys = new List<KeyboardKey>(array);
 
         var effectKeysReceipt = _receiptHandler.Set(array, keyboardKey => Disposable.Create(keyboardKey, key => {
             lock (controlledKeys)
             {
                 controlledKeys.Remove(key);
                 colorController.ClearKeys(key);
-                Debug.WriteLine($"Clearing Key: {key}",$"{nameof(FlashKeys)}({nameof(FlashInfo)}) {nameof(flashInfo)}, {nameof(KeyboardKeys)}[] {nameof(keys)}");
+                Debug.WriteLine($"Clearing Key: {key}",$"{nameof(FlashKeys)}({nameof(FlashInfo)}) {nameof(flashInfo)}, {nameof(KeyboardKey)}[] {nameof(keys)}");
 
                 if (controlledKeys.Count == 0)
                     cts.Cancel();
@@ -62,7 +62,7 @@ internal partial class EffectController
                 nameof(flashInfo));
     }
 
-    private async Task DoKeyFlashes(FlashInfo flashInfo, List<KeyboardKeys> controlledKeys, CancellationToken token)
+    private async Task DoKeyFlashes(FlashInfo flashInfo, List<KeyboardKey> controlledKeys, CancellationToken token)
     {
         var effectStartTime = Environment.TickCount;
         var startTime = effectStartTime;
@@ -104,18 +104,18 @@ internal partial class EffectController
         return durationPassed < flashInfo.EffectDuration.TotalMilliseconds;
     }
 
-    public EffectReceipt FlashKeys(FlashInfo flashInfo, params KeyboardKeys[] keys)
-        => FlashKeys(flashInfo, (IEnumerable<KeyboardKeys>)keys);
-
     public EffectReceipt FlashKeys(FlashInfo flashInfo, params KeyboardKey[] keys)
+        => FlashKeys(flashInfo, (IEnumerable<KeyboardKey>)keys);
+
+    public EffectReceipt FlashKeys(FlashInfo flashInfo, params KeyboardKeyState[] keys)
         => FlashKeys(flashInfo, keys.Select(x => x.Key));
 
-    public EffectReceipt FlashKeys(FlashInfo flashInfo, IEnumerable<KeyboardKey> keys)
+    public EffectReceipt FlashKeys(FlashInfo flashInfo, IEnumerable<KeyboardKeyState> keys)
         => FlashKeys(flashInfo, keys.Select(x => x.Key));
 
     public EffectReceipt FlashZones(FlashInfo pulseInfo, KeyboardZones zones)
     {
-        var keys = ZoneUtility.GetKeysFromZones(zones);
+        var keys = ZoneUtility.GetKeysFromZones(zones, _device);
 
         return FlashKeys(pulseInfo, keys);
     }

@@ -1,4 +1,7 @@
-﻿namespace Corsair;
+﻿using Corsair.Device.Devices;
+using Corsair.Lighting;
+
+namespace Corsair;
 
 using System.Diagnostics.CodeAnalysis;
 
@@ -9,37 +12,38 @@ public class ZoneUtility
     {
         { KeyboardZones.MainZone,
         [
-            new((int)KeyboardKeys.ESC, (int)KeyboardKeys.LEFT_SHIFT),
-            new((int)KeyboardKeys.Z, (int)KeyboardKeys.RIGHT_CONTROL)
+            new((int)KeyboardKey.ESC, (int)KeyboardKey.LEFT_SHIFT),
+            new((int)KeyboardKey.Z, (int)KeyboardKey.RIGHT_CONTROL),
+            new Range(129, 129) // FN
         ] },
-        { KeyboardZones.PageKeys, [new((int)KeyboardKeys.PRINT_SCREEN, (int)KeyboardKeys.PAGE_DOWN)] },
-        { KeyboardZones.ArrowKeys, [new((int)KeyboardKeys.ARROW_UP, (int)KeyboardKeys.ARROW_RIGHT)] },
-        { KeyboardZones.MediaKeys, [new((int)KeyboardKeys.MUTE, (int)KeyboardKeys.MEDIA_NEXT)] },
+        { KeyboardZones.PageKeys, [new((int)KeyboardKey.PRINT_SCREEN, (int)KeyboardKey.PAGE_DOWN)] },
+        { KeyboardZones.ArrowKeys, [new((int)KeyboardKey.ARROW_UP, (int)KeyboardKey.ARROW_RIGHT)] },
+        { KeyboardZones.MediaKeys, [new((int)KeyboardKey.MUTE, (int)KeyboardKey.MEDIA_NEXT)] },
         { KeyboardZones.NumKeys,
             [
-                new((int)KeyboardKeys.NUM_LOCK, (int)KeyboardKeys.NUM_THREE),
-                new((int)KeyboardKeys.NUM_ENTER, (int)KeyboardKeys.NUM_PERIOD)
+                new((int)KeyboardKey.NUM_LOCK, (int)KeyboardKey.NUM_THREE),
+                new((int)KeyboardKey.NUM_ENTER, (int)KeyboardKey.NUM_PERIOD)
             ]
         },
         {
             KeyboardZones.WASDKeys,
             [
-                new((int)KeyboardKeys.W, (int)KeyboardKeys.W),
-                new((int)KeyboardKeys.A, (int)KeyboardKeys.D)
+                new((int)KeyboardKey.W, (int)KeyboardKey.W),
+                new((int)KeyboardKey.A, (int)KeyboardKey.D)
             ]
         },
-        { KeyboardZones.Logo, [new((int)KeyboardKeys.Logo, (int)KeyboardKeys.LogoBacklight)] },
+        { KeyboardZones.Logo, [new((int)KeyboardKey.SpecialLight1, (int)KeyboardKey.SpecialLight5)] },
     };
 
     // _zoneMap.Select(x => x.Value).Average(x => x.Average(a => (a.End.Value + 1) - a.Start.Value))
     private const int AVERAGE_ZONE_SIZE = 16;
 
     [SuppressMessage("ReSharper", "InvertIf")]
-    public static HashSet<KeyboardKeys> GetKeysFromZones(KeyboardZones zones)
+    internal static HashSet<KeyboardKey> GetKeysFromZones(KeyboardZones zones)
     {
-        var keys = new HashSet<KeyboardKeys>(AVERAGE_ZONE_SIZE);
+        var keys = new HashSet<KeyboardKey>(AVERAGE_ZONE_SIZE);
 
-        var eachZone = Enum.GetValues(typeof(KeyboardZones)).Cast<KeyboardZones>();
+        var eachZone = Enum.GetValues<KeyboardZones>();
 
         foreach (var zone in eachZone)
             if (zones.HasFlag(zone))
@@ -53,18 +57,40 @@ public class ZoneUtility
         return keys;
     }
 
+    private static readonly Dictionary<string, HashSet<KeyboardKey>> _deviceKeys = new();
 
-    private static IEnumerable<KeyboardKeys> KeysForZone(KeyboardZones zone)
+    public static HashSet<KeyboardKey> GetKeysFromZones(KeyboardZones zones, Keyboard forDevice)
+    {
+        var keys = new HashSet<KeyboardKey>(forDevice.LedCount);
+
+        if (!_deviceKeys.TryGetValue(forDevice.Id, out var deviceKeyboardKeys))
+        {
+            var positions = forDevice.LightingInterop.GetPositionInfo();
+
+            deviceKeyboardKeys = [..positions.Select(x => (KeyboardKey)x.Key)];
+            _deviceKeys[forDevice.Id] = deviceKeyboardKeys;
+        }
+
+        foreach (var zone in Enum.GetValues<KeyboardZones>())
+            if (zones.HasFlag(zone))
+                foreach (var key in KeysForZone(zone))
+                    if (deviceKeyboardKeys.Contains(key))
+                        keys.Add(key);
+
+        return keys;
+    }
+
+    private static IEnumerable<KeyboardKey> KeysForZone(KeyboardZones zone)
         => _zoneMap.TryGetValue(zone, out var ranges)
             ? GetFromRanges(ranges)
-            : Enumerable.Empty<KeyboardKeys>();
+            : [];
 
-    private static IEnumerable<KeyboardKeys> GetFromRanges(Range[] ranges)
+    private static IEnumerable<KeyboardKey> GetFromRanges(Range[] ranges)
     {
         foreach (var range in ranges)
             for (var i = range.Start.Value; i < range.End.Value + 1; i++)
-                yield return (KeyboardKeys)i;
+                yield return (KeyboardKey)i;
     }
 
-    public static IEnumerable<int> GetIdsFromKeys(IEnumerable<KeyboardKeys> keys) => keys.Select(x => (int)x);
+    public static IEnumerable<int> GetIdsFromKeys(IEnumerable<KeyboardKey> keys) => keys.Select(x => (int)x);
 }

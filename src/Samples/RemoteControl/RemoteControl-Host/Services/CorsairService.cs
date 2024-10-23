@@ -41,7 +41,7 @@ public class CorsairService(PlatformService platformService, ILogger<CorsairServ
         
         await foreach (var keyMessage in requestStream.ReadAllAsync())
         {
-            var keys = keyMessage.Key.Select(x => (KeyboardKeys)x.Id).ToArray();
+            var keys = keyMessage.Key.Select(x => (KeyboardKey)x.Id).ToArray();
             logger.LogInformation("SetKeys - {Color} - {Key}", keyMessage.Color, string.Join(", ", keys));
             platformService.Colors.SetKeys(keyMessage.Color.MapToColor(), keys);
         }
@@ -56,7 +56,7 @@ public class CorsairService(PlatformService platformService, ILogger<CorsairServ
         await foreach (var key in requestStream.ReadAllAsync())
         {
             logger.LogInformation("ClearKeys - {Key}", key);
-            platformService.Colors.ClearKeys((KeyboardKeys)key.Id);
+            platformService.Colors.ClearKeys((KeyboardKey)key.Id);
         }
 
         return new Empty();

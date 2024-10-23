@@ -7,17 +7,17 @@ using System.Drawing;
 public interface IKeyboardColorController : IDisposable
 {
     Keyboard Device { get; }
-    IReadOnlySet<KeyboardKey> KeyboardKeys { get; }
+    IReadOnlySet<KeyboardKeyState> KeyboardKeys { get; }
 
     IDisposable SetFromBitmap(byte[] bitmap);
 
     /// <returns>The lifetime of the key being set</returns>
-    IDisposable SetKeys(Color color, params KeyboardKeys[] keys);
-    IDisposable SetKeys(Color color, IEnumerable<KeyboardKeys> keys);
-
     IDisposable SetKeys(Color color, params KeyboardKey[] keys);
-    void ClearKeys(params KeyboardKeys[] keys);
-    void ClearKeys(IEnumerable<KeyboardKeys> keys);
+    IDisposable SetKeys(Color color, IEnumerable<KeyboardKey> keys);
+
+    IDisposable SetKeys(Color color, params KeyboardKeyState[] keys);
+    void ClearKeys(params KeyboardKey[] keys);
+    void ClearKeys(IEnumerable<KeyboardKey> keys);
 
     /// <returns>The lifetime of the key being set</returns>
     IDisposable SetZones(Color color, KeyboardZones zones);
