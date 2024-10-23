@@ -13,7 +13,7 @@ public class KeyboardLightingTests
     private static IKeyboardLighting _lighting => CorsairSDK.KeyboardLighting;
     private static IKeyboardColorController _sut => _lighting.Colors;
 
-    private static IEnumerable<KeyboardKey> _keys => _sut.KeyboardKeys;
+    private static IEnumerable<KeyboardKeyState> _keys => _sut.KeyboardKeys;
     [TearDown]
     public void Cleanup()
     {
@@ -24,7 +24,7 @@ public class KeyboardLightingTests
     public async Task ShouldInitialize_Lighting()
     {
         // Act
-        var initialized = _lighting.TryInitialize();
+        var initialized = _lighting.TryInitialize(AccessLevel.Exclusive);
         
         await Task.Delay(TimeSpan.FromSeconds(1));
 
@@ -37,7 +37,7 @@ public class KeyboardLightingTests
     public async Task ShouldSet_GlobalKeyboardColor_Red()
     {
         // Arrange
-        _lighting.TryInitialize().Should().BeTrue();
+        _lighting.TryInitialize(AccessLevel.Exclusive).Should().BeTrue();
 
         // Act
         using (_sut.SetGlobal(Color.Red))
@@ -54,17 +54,17 @@ public class KeyboardLightingTests
     public async Task ShouldSet_SingleKey_Green()
     {
         // Arrange
-        _lighting.TryInitialize().Should().BeTrue();
+        _lighting.TryInitialize(AccessLevel.Exclusive).Should().BeTrue();
 
         // Act
-        using (_sut.SetKeys(Color.Green, KeyboardKeys.ENTER))
+        using (_sut.SetKeys(Color.Green, KeyboardKey.ENTER))
         {
             await Task.Delay(TimeSpan.FromSeconds(1)); // The delay is to visually inspect the changed keys 
 
             // Assert
             _keys.Should().NotBeEmpty()
-                .And.ContainSingle(x => x.Key == KeyboardKeys.ENTER)
-                .And.AllSatisfy(x => x.Color.Should().Be(x.Key == KeyboardKeys.ENTER 
+                .And.ContainSingle(x => x.Key == KeyboardKey.ENTER)
+                .And.AllSatisfy(x => x.Color.Should().Be(x.Key == KeyboardKey.ENTER 
                             ? Color.Green 
                             : Color.Black));
         }
@@ -74,8 +74,8 @@ public class KeyboardLightingTests
     public async Task ShouldSet_MultipleKeys_Blue()
     {
         // Arrange
-        _lighting.TryInitialize().Should().BeTrue();
-        KeyboardKeys[] expectedKeys = [KeyboardKeys.Q, KeyboardKeys.W, KeyboardKeys.E, KeyboardKeys.R, KeyboardKeys.T, KeyboardKeys.Y];
+        _lighting.TryInitialize(AccessLevel.Exclusive).Should().BeTrue();
+        KeyboardKey[] expectedKeys = [KeyboardKey.Q, KeyboardKey.W, KeyboardKey.E, KeyboardKey.R, KeyboardKey.T, KeyboardKey.Y];
 
         // Act
         using (_sut.SetKeys(Color.Blue, expectedKeys))
@@ -99,8 +99,8 @@ public class KeyboardLightingTests
     public async Task ShouldSet_Zone_Cyan()
     {
         // Arrange
-        _lighting.TryInitialize().Should().BeTrue();
-        var expectedKeys = ZoneUtility.GetKeysFromZones(KeyboardZones.ArrowKeys);
+        _lighting.TryInitialize(AccessLevel.Exclusive).Should().BeTrue();
+        var expectedKeys = ZoneUtility.GetKeysFromZones(KeyboardZones.ArrowKeys, _lighting.Device);
 
         // Act
         using (_sut.SetZones(Color.Cyan, KeyboardZones.ArrowKeys))
@@ -122,11 +122,12 @@ public class KeyboardLightingTests
     public async Task ShouldSet_MultipleZones_VariousColors()
     {
         // Arrange
-        _lighting.TryInitialize().Should().BeTrue();
-        var expectedRedKeys = ZoneUtility.GetKeysFromZones(KeyboardZones.NumKeys | KeyboardZones.MediaKeys);
-        var expectedOrangeKeys = ZoneUtility.GetKeysFromZones(KeyboardZones.PageKeys);
-        var expectedGreenKeys = ZoneUtility.GetKeysFromZones(KeyboardZones.WASDKeys);
-        var expectedIndigoKeys = ZoneUtility.GetKeysFromZones(KeyboardZones.MainZone | KeyboardZones.Logo)
+        _lighting.TryInitialize(AccessLevel.Exclusive).Should().BeTrue();
+        var expectedRedKeys = ZoneUtility.GetKeysFromZones(KeyboardZones.NumKeys | KeyboardZones.MediaKeys, _lighting.Device);
+        var expectedOrangeKeys = ZoneUtility.GetKeysFromZones(KeyboardZones.PageKeys, _lighting.Device);
+        var expectedGreenKeys = ZoneUtility.GetKeysFromZones(KeyboardZones.WASDKeys, _lighting.Device);
+        var expectedBrownKeys = ZoneUtility.GetKeysFromZones(KeyboardZones.ArrowKeys, _lighting.Device);
+        var expectedIndigoKeys = ZoneUtility.GetKeysFromZones(KeyboardZones.MainZone | KeyboardZones.Logo, _lighting.Device)
             .Except(expectedGreenKeys) // The WASD keys are within the main-zone, it's a sub-zone / zone-within-a-zone
             .ToHashSet();
 
@@ -135,16 +136,18 @@ public class KeyboardLightingTests
         using (_sut.SetZones(Color.Orange, KeyboardZones.PageKeys)) 
         using (_sut.SetZones(Color.Indigo, KeyboardZones.MainZone | KeyboardZones.Logo)) 
         using (_sut.SetZones(Color.Green, KeyboardZones.WASDKeys))
+        using (_sut.SetZones(Color.Brown, KeyboardZones.ArrowKeys))
         {
-            await Task.Delay(TimeSpan.FromSeconds(1)); // The delay is to visually inspect the changed keys
+            await Task.Delay(TimeSpan.FromSeconds(3)); // The delay is to visually inspect the changed keys
 
             // Assert
-            _keys.Should().NotBeEmpty()
-                .And.Subject.Select(x => x.Key)
-                .Should().Contain(expectedRedKeys)
-                .And.Contain(expectedOrangeKeys)
-                .And.Contain(expectedIndigoKeys)
-                .And.Contain(expectedGreenKeys);
+            _keys.Should().NotBeEmpty();
+            var keys = _keys.Should().Subject.Select(x => x.Key).ToArray();
+            keys.Should().Contain(expectedRedKeys);
+            keys.Should().Contain(expectedOrangeKeys);
+            keys.Should().Contain(expectedIndigoKeys);
+            keys.Should().Contain(expectedGreenKeys);
+            keys.Should().Contain(expectedBrownKeys);
             
             _keys.Should().AllSatisfy(x =>
                 {
@@ -159,6 +162,9 @@ public class KeyboardLightingTests
                     
                     else if (expectedGreenKeys.Contains(x.Key))
                         x.Color.Should().Be(Color.Green);
+                    
+                    else if (expectedBrownKeys.Contains(x.Key))
+                            x.Color.Should().Be(Color.Brown);
                 });
         }
     }
@@ -167,15 +173,15 @@ public class KeyboardLightingTests
     public async Task ShouldClear_MultipleKeys_FromGlobal()
     {
         // Arrange
-        _lighting.TryInitialize().Should().BeTrue();
-        var expectedKeys = ZoneUtility.GetKeysFromZones(KeyboardZones.MainZone);
+        _lighting.TryInitialize(AccessLevel.Exclusive).Should().BeTrue();
+        var expectedKeys = ZoneUtility.GetKeysFromZones(KeyboardZones.MainZone, _lighting.Device);
 
         using (_sut.SetGlobal(Color.Red))
         {
             
             // Act
             _sut.ClearKeys(expectedKeys);            
-            await Task.Delay(TimeSpan.FromSeconds(1)); // The delay is to visually inspect the changed keys
+            await Task.Delay(TimeSpan.FromSeconds(3)); // The delay is to visually inspect the changed keys
             
             // Assert
             _keys.Should().NotBeEmpty().And.Subject.Select(x => x.Key).Should().Contain(expectedKeys);
