@@ -23,15 +23,15 @@ public class CorsairDevice
 
         DeviceOptions = new DeviceOptions { PropertyUpdateIntervalSeconds = 1 };
 
-        if (LedCount <= 0)
-            return;
+        // if (LedCount <= 0)
+            // return;
 
         LightingInterop = new LightingInterop();
         LightingInterop.SetDeviceContext(this);
     }
     internal readonly IDeviceInterop _interop;
 
-    public ILightingInterop? LightingInterop { get; protected set; }
+    public ILightingInterop LightingInterop { get; protected set; }
 
 
     public DeviceOptions DeviceOptions { get; }
