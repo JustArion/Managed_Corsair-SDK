@@ -15,18 +15,18 @@ function NotifyExec($str)
 
 function ResetWorkingDirectory
 {
-    cd $workingDirectory
+    Set-Location $workingDirectory
 }
 
 try
 {
     # Set the Working Directory to the Script directory
     NotifyExec("cd $PSScriptRoot")
-    NotifyExec("dotnet clean ./src/")
+    NotifyExec("dotnet clean ./src/ --verbosity minimal")
 
     WriteInfo("Running .NET 6 Windows Tests")
     NotifyExec("dotnet test -f net6.0-windows .\src\")
-    NotifyExec("dotnet clean ./src/")    
+    # NotifyExec("dotnet clean ./src/ --verbosity minimal")    
 }
 finally
 {
