@@ -12,17 +12,17 @@ public class ZoneUtility
     {
         { KeyboardZones.MainZone,
         [
-            new((int)KeyboardKey.ESC, (int)KeyboardKey.LEFT_SHIFT),
-            new((int)KeyboardKey.Z, (int)KeyboardKey.RIGHT_CONTROL),
+            new((int)KeyboardKey.Esc, (int)KeyboardKey.LeftShift),
+            new((int)KeyboardKey.Z, (int)KeyboardKey.RightControl),
             new Range(129, 129) // FN
         ] },
-        { KeyboardZones.PageKeys, [new((int)KeyboardKey.PRINT_SCREEN, (int)KeyboardKey.PAGE_DOWN)] },
-        { KeyboardZones.ArrowKeys, [new((int)KeyboardKey.ARROW_UP, (int)KeyboardKey.ARROW_RIGHT)] },
-        { KeyboardZones.MediaKeys, [new((int)KeyboardKey.MUTE, (int)KeyboardKey.MEDIA_NEXT)] },
+        { KeyboardZones.PageKeys, [new((int)KeyboardKey.PrintScreen, (int)KeyboardKey.PageDown)] },
+        { KeyboardZones.ArrowKeys, [new((int)KeyboardKey.ArrowUp, (int)KeyboardKey.ArrowRight)] },
+        { KeyboardZones.MediaKeys, [new((int)KeyboardKey.Mute, (int)KeyboardKey.MediaNext)] },
         { KeyboardZones.NumKeys,
             [
-                new((int)KeyboardKey.NUM_LOCK, (int)KeyboardKey.NUM_THREE),
-                new((int)KeyboardKey.NUM_ENTER, (int)KeyboardKey.NUM_PERIOD)
+                new((int)KeyboardKey.NumLock, (int)KeyboardKey.NumThree),
+                new((int)KeyboardKey.NumEnter, (int)KeyboardKey.NumPeriod)
             ]
         },
         {
@@ -32,7 +32,8 @@ public class ZoneUtility
                 new((int)KeyboardKey.A, (int)KeyboardKey.D)
             ]
         },
-        { KeyboardZones.Logo, [new((int)KeyboardKey.SpecialLight1, (int)KeyboardKey.SpecialLight5)] },
+        { KeyboardZones.Logo, [new((int)KeyboardKey.OEM_Led1, (int)KeyboardKey.OEM_Led5)] },
+        { KeyboardZones.GKEYS, [new ((int)KeyboardKey.G_Key1, (int)KeyboardKey.G_Key6)] },
     };
 
     // _zoneMap.Select(x => x.Value).Average(x => x.Average(a => (a.End.Value + 1) - a.Start.Value))
@@ -70,6 +71,9 @@ public class ZoneUtility
             deviceKeyboardKeys = [..positions.Select(x => (KeyboardKey)x.Key)];
             _deviceKeys[forDevice.Id] = deviceKeyboardKeys;
         }
+
+        if (zones.HasFlag(KeyboardZones.AllZones))
+            return deviceKeyboardKeys;
 
         foreach (var zone in Enum.GetValues<KeyboardZones>())
             if (zones.HasFlag(zone))

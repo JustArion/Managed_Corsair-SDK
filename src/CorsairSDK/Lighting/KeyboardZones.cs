@@ -34,5 +34,7 @@ public enum KeyboardZones
 
     Logo = 1 << 6,
 
-    AllZones = MainZone | PageKeys | NumKeys | ArrowKeys | MediaKeys | WASDKeys | Logo
+    GKEYS = 1 << 7,
+
+    AllZones = MainZone | PageKeys | NumKeys | ArrowKeys | MediaKeys | WASDKeys | Logo | GKEYS
 }

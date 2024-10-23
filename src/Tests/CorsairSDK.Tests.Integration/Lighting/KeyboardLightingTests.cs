@@ -57,14 +57,14 @@ public class KeyboardLightingTests
         _lighting.TryInitialize(AccessLevel.Exclusive).Should().BeTrue();
 
         // Act
-        using (_sut.SetKeys(Color.Green, KeyboardKey.ENTER))
+        using (_sut.SetKeys(Color.Green, KeyboardKey.Enter))
         {
             await Task.Delay(TimeSpan.FromSeconds(1)); // The delay is to visually inspect the changed keys 
 
             // Assert
             _keys.Should().NotBeEmpty()
-                .And.ContainSingle(x => x.Key == KeyboardKey.ENTER)
-                .And.AllSatisfy(x => x.Color.Should().Be(x.Key == KeyboardKey.ENTER 
+                .And.ContainSingle(x => x.Key == KeyboardKey.Enter)
+                .And.AllSatisfy(x => x.Color.Should().Be(x.Key == KeyboardKey.Enter 
                             ? Color.Green 
                             : Color.Black));
         }
