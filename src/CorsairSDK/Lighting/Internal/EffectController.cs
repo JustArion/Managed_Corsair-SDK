@@ -6,7 +6,7 @@ namespace Corsair.Lighting.Internal;
 
 internal partial class EffectController(KeyboardColorController colorController) : IEffectController
 {
-    private readonly Keyboard _device = colorController.Device;
+    private Keyboard _device => colorController.Device;
 
     public void Dispose() => _receiptHandler.DisposeAndClear();
 
