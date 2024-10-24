@@ -1,4 +1,6 @@
-﻿using Corsair.Device.Devices;
+﻿using System.Collections.Concurrent;
+using Corsair.Device;
+using Corsair.Device.Devices;
 using Corsair.Lighting;
 
 namespace Corsair;
@@ -39,37 +41,18 @@ public class ZoneUtility
     // _zoneMap.Select(x => x.Value).Average(x => x.Average(a => (a.End.Value + 1) - a.Start.Value))
     private const int AVERAGE_ZONE_SIZE = 16;
 
-    [SuppressMessage("ReSharper", "InvertIf")]
-    internal static HashSet<KeyboardKey> GetKeysFromZones(KeyboardZones zones)
-    {
-        var keys = new HashSet<KeyboardKey>(AVERAGE_ZONE_SIZE);
-
-        var eachZone = Enum.GetValues<KeyboardZones>();
-
-        foreach (var zone in eachZone)
-            if (zones.HasFlag(zone))
-            {
-                var zoneKeys = KeysForZone(zone);
-                foreach (var keyboardKeys in zoneKeys)
-                    keys.Add(keyboardKeys);
-            }
-
-
-        return keys;
-    }
-
-    private static readonly Dictionary<string, HashSet<KeyboardKey>> _deviceKeys = new();
+    internal static readonly ConcurrentDictionary<string, HashSet<KeyboardKey>> _deviceKeys = new();
 
     public static HashSet<KeyboardKey> GetKeysFromZones(KeyboardZones zones, Keyboard forDevice)
     {
-        var keys = new HashSet<KeyboardKey>(forDevice.LedCount);
+        var keys = new HashSet<KeyboardKey>(forDevice.LedCount / 5); // Rough estimate
 
         if (!_deviceKeys.TryGetValue(forDevice.Id, out var deviceKeyboardKeys))
         {
             var positions = forDevice.LightingInterop.GetPositionInfo();
 
             deviceKeyboardKeys = [..positions.Select(x => (KeyboardKey)x.Key)];
-            _deviceKeys[forDevice.Id] = deviceKeyboardKeys;
+            _deviceKeys.TryAdd(forDevice.Id, deviceKeyboardKeys);
         }
 
         if (zones.HasFlag(KeyboardZones.AllZones))
