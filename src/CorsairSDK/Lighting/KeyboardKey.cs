@@ -1,5 +1,8 @@
-﻿namespace Corsair;
+﻿using Corsair.Attributes;
 
+namespace Corsair;
+
+[DomainImplOf<Bindings.CorsairLedId_Keyboard>]
 public enum KeyboardKey
   {
     // Column 1
