@@ -7,7 +7,7 @@ using System.Drawing;
 public interface IKeyboardColorController : IDisposable
 {
     Keyboard Device { get; }
-    IReadOnlySet<KeyboardKeyState> KeyboardKeys { get; }
+    IReadOnlyDictionary<KeyboardKey, KeyboardKeyState> KeyboardKeys { get; }
 
     IDisposable SetFromBitmap(byte[] bitmap);
 

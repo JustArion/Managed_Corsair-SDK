@@ -79,5 +79,4 @@ public class ZoneUtility
                 yield return (KeyboardKey)i;
     }
 
-    public static IEnumerable<int> GetIdsFromKeys(IEnumerable<KeyboardKey> keys) => keys.Select(x => (int)x);
 }

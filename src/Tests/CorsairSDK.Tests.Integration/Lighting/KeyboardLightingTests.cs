@@ -13,7 +13,7 @@ public class KeyboardLightingTests
     private static IKeyboardLighting _lighting => CorsairSDK.KeyboardLighting;
     private static IKeyboardColorController _sut => _lighting.Colors;
 
-    private static IEnumerable<KeyboardKeyState> _keys => _sut.KeyboardKeys;
+    private static IEnumerable<KeyboardKeyState> _keys => _sut.KeyboardKeys.Values;
     [TearDown]
     public void Cleanup()
     {
@@ -46,7 +46,25 @@ public class KeyboardLightingTests
             
             // Assert
             _sut.KeyboardKeys.Should().NotBeEmpty()
-                .And.AllSatisfy(x => x.Color.Should().Be(Color.Red));
+                .And.AllSatisfy(x => x.Value.Color.Should().Be(Color.Red));
+        }
+    }
+    
+    [Test(Description = "All keys should light up Red for at least 1 second")]
+    public async Task ShouldSet_GlobalKeyboardColor_Red_Twice()
+    {
+        // Arrange
+        _lighting.TryInitialize(AccessLevel.Exclusive).Should().BeTrue();
+
+        // Act
+        using (_sut.SetGlobal(Color.Red))
+        using (_sut.SetGlobal(Color.Red))
+        {
+            await Task.Delay(TimeSpan.FromSeconds(1));
+            
+            // Assert
+            _sut.KeyboardKeys.Should().NotBeEmpty()
+                .And.AllSatisfy(x => x.Value.Color.Should().Be(Color.Red));
         }
     }
     

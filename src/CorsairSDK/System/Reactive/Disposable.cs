@@ -2,6 +2,19 @@
 
 public static class Disposable
 {
+    public static IDisposable Empty => EmptyDisposable.Instance;
+
+    private sealed class EmptyDisposable : IDisposable
+    {
+        public static readonly EmptyDisposable Instance = new();
+
+        private EmptyDisposable() { }
+
+        public void Dispose()
+        {
+            // nop
+        }
+    }
     public static IDisposable Create(Action dispose)
     {
         if (dispose == null)

@@ -84,7 +84,7 @@ async Task HandleExplosion()
 
     lighting.TryInitialize();
 
-    var keys = colors.KeyboardKeys.OrderByDescending(x => x.Coordinate.Y).ToArray();
+    var keys = colors.KeyboardKeys.Values.OrderByDescending(x => x.Coordinate.Y).ToArray();
 
     var midpoint = CalculateCenter(keys);
     

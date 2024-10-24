@@ -1,4 +1,5 @@
-﻿using Corsair.Device.Devices;
+﻿using System.Numerics;
+using Corsair.Device.Devices;
 
 namespace Corsair.Lighting.Internal;
 
@@ -40,14 +41,15 @@ internal class KeyboardColorController(IDeviceConnectionHandler connectionHandle
     }
 
     private void SyncKeyboardKeys()
-        => _keyboardKeys = [
-            ..(from keyboardKey in Enum.GetValues<KeyboardKey>()
-                select keyboardKey into keyId
-                let position = _lighting.GetPosition((int)keyId)
-                where position != default
-                select new KeyboardKeyState(keyId, position) { Color = Color.Black })
-            .ToArray()
-        ];
+    {
+        var list = (from keyId in Enum.GetValues<KeyboardKey>()
+            let position = _lighting.GetPosition((int)keyId)
+            where position != default
+            select new KeyboardKeyState(keyId, position) { Color = Color.Black })
+            .ToList();
+
+        _keyboardKeys = list.ToDictionary(x => x.Key);
+    }
 
     internal void DirectlySetColor(int ledId, Color color)
     {
@@ -65,15 +67,14 @@ internal class KeyboardColorController(IDeviceConnectionHandler connectionHandle
 
     private void UpdateKeyboardMap(int ledId, Color color)
     {
-        var keyboardKey = KeyboardKeys.FirstOrDefault(x => x.Id == ledId);
-        if (keyboardKey == null)
-            Debug.WriteLine($"Unknown key of Id {ledId}");
-        else
+        if (KeyboardKeys.TryGetValue((KeyboardKey)ledId, out var keyboardKey))
             keyboardKey.Color = color;
+        else
+            Debug.WriteLine($"Unknown key of Id {ledId}");
     }
 
-    private HashSet<KeyboardKeyState> _keyboardKeys = [];
-    public IReadOnlySet<KeyboardKeyState> KeyboardKeys => _keyboardKeys;
+    private Dictionary<KeyboardKey, KeyboardKeyState> _keyboardKeys = [];
+    public IReadOnlyDictionary<KeyboardKey, KeyboardKeyState> KeyboardKeys => _keyboardKeys;
 
     public IDisposable SetFromBitmap(byte[] bitmap)
     {
@@ -82,7 +83,7 @@ internal class KeyboardColorController(IDeviceConnectionHandler connectionHandle
         using var ms = new MemoryStream(bitmap);
         using var bmp = new Bitmap(ms);
 
-        var keys = KeyboardKeys.Where(x => bmp.Width > x.Coordinate.X && bmp.Height > x.Coordinate.Y).Select(key => {
+        var keys = KeyboardKeys.Values.Where(x => bmp.Width > x.Coordinate.X && bmp.Height > x.Coordinate.Y).Select(key => {
 
             var pixel = bmp.GetPixel((int)key.Coordinate.X, (int)key.Coordinate.Y);
 
@@ -94,7 +95,7 @@ internal class KeyboardColorController(IDeviceConnectionHandler connectionHandle
        return  _receiptHandler.Set(keys, id => Disposable.Create(id, ClearColor));
     }
 
-    private static IEnumerable<KeyboardKey> GetKeysFromZone(KeyboardZones zones, Keyboard device)
+    private static HashSet<KeyboardKey> GetKeysFromZone(KeyboardZones zones, Keyboard device)
         => ZoneUtility.GetKeysFromZones(zones, device);
 
     public IDisposable SetKeys(Color color, IEnumerable<KeyboardKey> keys)
@@ -119,12 +120,15 @@ internal class KeyboardColorController(IDeviceConnectionHandler connectionHandle
 
     internal IDisposable Internal_SetKeys(Color color, IEnumerable<KeyboardKey> keys)
     {
+        var set = keys as ISet<KeyboardKey> ?? keys.ToHashSet();
 
         // Skip all the keys that are in _keyboardKeys that have the same color
+        FilterKeysByColor(color, set);
 
-        keys = GetKeysThatAreNot(color, keys);
+        if (set.Count == 0)
+            return Disposable.Empty;
 
-        var ids = ZoneUtility.GetIdsFromKeys(keys);
+        var ids = KeyUtility.GetIdsFromKeys(set);
 
 
         var leys = ids.Where(IsActualKey).Select(id => {
@@ -141,7 +145,7 @@ internal class KeyboardColorController(IDeviceConnectionHandler connectionHandle
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    private bool IsActualKey(int id) => KeyboardKeys.FirstOrDefault(x => x.Id == id) != null;
+    private bool IsActualKey(int id) => _keyboardKeys.ContainsKey((KeyboardKey)id);
 
     public void ClearKeys(params KeyboardKey[] keys) => ClearKeys((IEnumerable<KeyboardKey>)keys);
 
@@ -149,23 +153,34 @@ internal class KeyboardColorController(IDeviceConnectionHandler connectionHandle
     {
         ThrowIfDisconnected();
 
-        Internal_ClearKeys(keys);
+        Internal_ClearKeys(keys as ISet<KeyboardKey> ?? keys.ToHashSet());
     }
 
-    private IEnumerable<KeyboardKey> GetKeysThatAreNot(Color color, IEnumerable<KeyboardKey> keys) =>
-        keys.Where(x => {
-            var keyboardKey = _keyboardKeys.FirstOrDefault(y => y.Key == x);
-            if (keyboardKey == null)
-                return false;
-
-            return keyboardKey.Color != color;
-        });
-
-    private void Internal_ClearKeys(IEnumerable<KeyboardKey> keys)
+    private unsafe void FilterKeysByColor(Color color, ISet<KeyboardKey> keys)
     {
-        keys = GetKeysThatAreNot(Color.Black, keys);
+        if (keys.Count == 0)
+            return;
 
-        var ids = ZoneUtility.GetIdsFromKeys(keys);
+        Span<KeyboardKey> keysToRemove = stackalloc KeyboardKey[keys.Count];
+
+        var i = 0;
+        foreach (var key in keys)
+            if (_keyboardKeys.TryGetValue(key, out var keyboardKey) && keyboardKey.Color == color)
+                keysToRemove[i++] = key;
+
+        for (var j = 0; j < i; j++)
+            keys.Remove(keysToRemove[j]);
+    }
+
+
+    private void Internal_ClearKeys(ISet<KeyboardKey> keys)
+    {
+        FilterKeysByColor(Color.Black, keys);
+
+        if (keys.Count == 0)
+            return;
+
+        var ids = KeyUtility.GetIdsFromKeys(keys);
 
         _receiptHandler.RelinquishAccess(ids);
     }
@@ -205,7 +220,7 @@ internal class KeyboardColorController(IDeviceConnectionHandler connectionHandle
     {
         ThrowIfDisconnected();
 
-        var keys = keyColors.SelectMany(x => x.Keys);
+        var keys = keyColors.SelectMany(x => x.Keys).ToHashSet();
 
         Internal_ClearKeys(keys);
     }

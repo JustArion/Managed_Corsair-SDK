@@ -35,7 +35,7 @@ Console.WriteLine($"[*] Keyboard Colors on 'Corsair {device.Model}'");
 using (var controller = keyboard.KeyboardLighting.Colors)
 {
     // Horizontal From the Top Left
-    foreach (var keyboardKey in controller.KeyboardKeys.OrderBy(x => x.Coordinate.Y))
+    foreach (var keyboardKey in controller.KeyboardKeys.Values.OrderBy(x => x.Coordinate.Y))
     {
         controller.SetKeys(keyboardKey.Color, keyboardKey.Key);
         await Task.Delay(50);

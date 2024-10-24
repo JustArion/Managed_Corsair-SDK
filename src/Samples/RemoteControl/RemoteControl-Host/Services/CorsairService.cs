@@ -14,7 +14,7 @@ public class CorsairService(PlatformService platformService, ILogger<CorsairServ
         var keys = platformService.Colors.KeyboardKeys;
 
         foreach (var key in keys) 
-            await responseStream.WriteAsync(key.MapToKeyboardKeyMessage());
+            await responseStream.WriteAsync(key.Value.MapToKeyboardKeyMessage());
     }
 
     public override Task<Empty> SetGlobal(ColorMessage request, ServerCallContext context)
